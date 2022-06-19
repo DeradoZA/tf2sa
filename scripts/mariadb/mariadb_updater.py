@@ -5,6 +5,7 @@
 #mysql_updater 50 stat/forum->now also wipe stats/forum tables and recreate(MUST SUPPLY NUM)
 #NB MUST SUPPLY NUMBER IN LAST EXAMPLE.
 import json, requests, mysql.connector, sys
+import os
 from progress_updater import *
 from schema import *
 from steam.steamid import SteamID
@@ -34,7 +35,7 @@ DMG_THRESH = 17500
 HPM_THRESH = 1300
 
 def UpdatePlayerNames(cursor):
-    Steam_API_Key = env["STEAM_API_KEY"]
+    Steam_API_Key = os.environ["TF2SA_STEAM_API_KEY"]
     cursor.execute("SELECT SteamID from Players")
     SteamIDTuple = cursor.fetchall()
     IDList = []
@@ -157,18 +158,18 @@ def AddGame(LogID, Log, cursor):
 
 def deSmurf(cursors, originals, smurfs):
     print('clearing smurfs...', end="")
-    for i, v in enumerate(originals):
+    for i, _ in enumerate(originals):
         cursor.execute("UPDATE PlayerStats SET SteamID={} WHERE SteamID={}".format(originals[i],smurfs[i]))
-    return
     print('done')
+    return
 
 if __name__ == "__main__":
-    env = dotenv_values("../.env")
+    env = dotenv_values()
     db = mysql.connector.connect(
-        host        = "localhost",
-        user        = env['MYSQL_USR'],
-        password    = env['MYSQL_PWD'],
-        database    = env['MYSQL_DB'],
+        host        = os.environ['TF2SA_MYSQL_HOST'],
+        user        = os.environ['TF2SA_MYSQL_USR'],
+        password    = os.environ['TF2SA_MYSQL_PWD'],
+        database    = os.environ['TF2SA_MYSQL_DB'],
     )
     cursor = db.cursor()
     cursor.autocommit = True
@@ -177,9 +178,13 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         LIMIT = int(sys.argv[1])
         if "stat" in sys.argv:
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
             cursor.execute("DROP TABLE IF EXISTS WeaponStats, Weapons, ClassStats, PlayerStats, Players, Games, BlacklistGames;")
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
         if "forum" in sys.argv:
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
             cursor.execute("DROP TABLE IF EXISTS PollVotes, PollOptions, Polls, Images, Comments, Threads, Users")
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
 
     DBInit(cursor)
 
