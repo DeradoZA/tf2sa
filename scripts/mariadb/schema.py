@@ -1,5 +1,16 @@
+from tkinter import W
+
+
 def DBInit(cursor):
     print("confirming/recreating tables... ", end='')
+    cursor.execute("SELECT DATABASE();")
+    current_db = cursor.fetchone()[0]
+    cursor.execute("""
+        ALTER DATABASE {} 
+        CHARACTER SET = utf8mb4 
+        COLLATE = utf8mb4_unicode_ci;
+    """.format(current_db))
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Users(
         UserID INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -120,9 +131,9 @@ def DBInit(cursor):
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Players (
         SteamID BIGINT UNSIGNED NOT NULL,
-        PlayerName VARCHAR(32),
+        PlayerName VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
         PRIMARY KEY (SteamID)
-    ) ENGINE = InnoDB CHARACTER SET 'utf8mb4';
+    ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
     """)
 
     cursor.execute("""
