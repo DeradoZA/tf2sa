@@ -1,3 +1,3 @@
 # tf2sa
-repo for tf2sa resources
-Doing chicken stuff here
+A collection of resources for tf2sa.
+
