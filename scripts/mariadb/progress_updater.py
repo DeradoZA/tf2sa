@@ -1,4 +1,5 @@
 import json, requests, mysql.connector, sys
+import os
 from steam.steamid import SteamID
 from dotenv import dotenv_values
 from schema import *
@@ -97,12 +98,12 @@ def updateProgress(cursor, reset=False) :
     print("done")
 
 if __name__ == "__main__":
-    env = dotenv_values("../.env")
+    env = dotenv_values()
     db = mysql.connector.connect(
-        host        = "localhost",
-        user        = env['MYSQL_USR'],
-        password    = env['MYSQL_PWD'],
-        database    = env['MYSQL_DB'],
+        host        = os.environ['TF2SA_MYSQL_HOST'],
+        user        = os.environ['TF2SA_MYSQL_USR'],
+        password    = os.environ['TF2SA_MYSQL_PWD'],
+        database    = os.environ['TF2SA_MYSQL_DB'],
     )
     cursor = db.cursor(buffered=True)
     cursor.autocommit = True
