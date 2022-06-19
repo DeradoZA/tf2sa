@@ -178,9 +178,13 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         LIMIT = int(sys.argv[1])
         if "stat" in sys.argv:
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
             cursor.execute("DROP TABLE IF EXISTS WeaponStats, Weapons, ClassStats, PlayerStats, Players, Games, BlacklistGames;")
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
         if "forum" in sys.argv:
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
             cursor.execute("DROP TABLE IF EXISTS PollVotes, PollOptions, Polls, Images, Comments, Threads, Users")
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
 
     DBInit(cursor)
 
