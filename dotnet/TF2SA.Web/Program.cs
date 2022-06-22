@@ -1,7 +1,10 @@
+using TF2SA.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMariaDb(builder.Configuration);
 
 var app = builder.Build();
 

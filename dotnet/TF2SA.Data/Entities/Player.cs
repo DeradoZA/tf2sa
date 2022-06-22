@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace TF2SA.Data.Entities
+{
+    public partial class Player
+    {
+        public Player()
+        {
+            PlayerStats = new HashSet<PlayerStat>();
+        }
+
+        public ulong SteamId { get; set; }
+        public string? PlayerName { get; set; }
+
+        public virtual ICollection<PlayerStat> PlayerStats { get; set; }
+    }
+}
