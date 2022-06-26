@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using TF2SA.Data.Entities;
+using TF2SA.Data.Entities.MariaDb;
 
 namespace TF2SA.Data
 {

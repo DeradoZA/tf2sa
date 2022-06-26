@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TF2SA.Data.Entities
+namespace TF2SA.Data.Entities.MariaDb
 {
     public partial class Player
     {
