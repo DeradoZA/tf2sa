@@ -1,25 +1,28 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TF2SA.Web.Models;
-using TF2SA.Data;
+using TF2SA.Data.Repositories.Base;
+using TF2SA.Data.Entities.MariaDb;
 
 namespace TF2SA.Web.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly TF2SADbContext _TF2SADbContext;
+    private readonly ILogger<HomeController> logger;
+    private readonly IPlayersRepository<Player, ulong> playerRepository;
 
-    public HomeController(ILogger<HomeController> logger, TF2SADbContext TF2SADbContext)
+    public HomeController(
+        ILogger<HomeController> logger,
+        IPlayersRepository<Player, ulong> playerRepository)
     {
-        _logger = logger;
-        _TF2SADbContext = TF2SADbContext;
+        this.logger = logger;
+        this.playerRepository = playerRepository;
     }
 
     public IActionResult Index()
     {
-        var players = _TF2SADbContext.Players.AsEnumerable();
-        _logger.LogInformation($" Players: {players.Count()}");
+        var players = playerRepository.GetAll();
+        logger.LogInformation($" Players: {players.Count()}");
         return View(players);
     }
 
