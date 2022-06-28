@@ -38,8 +38,7 @@ namespace TF2SA.Data.Repositories.MariaDb
 
         public Player GetPlayerByName(string name)
         {
-            var PlayerResult = tF2SADbContext.Players.Where(p => p.PlayerName == name);
-            return (Player)PlayerResult;
+            throw new NotImplementedException();
         }
 
         public Player Insert(Player entity)
