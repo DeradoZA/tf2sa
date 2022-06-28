@@ -1,4 +1,5 @@
 using TF2SA.Data;
+using Microsoft.AspNetCore.HttpOverrides;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
@@ -11,6 +12,14 @@ builder.Services.AddMariaDb(builder.Configuration);
 builder.Services.AddScoped<IPlayersRepository<Player, ulong>, PlayersRepository>();
 
 var app = builder.Build();
+
+// configure for reverse proxy
+app.UseForwardedHeaders(
+    new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    }
+);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
