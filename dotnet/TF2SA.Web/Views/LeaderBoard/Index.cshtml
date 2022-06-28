@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+@model IEnumerable<Player>
+    
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    @foreach (var player in @Model)
+    {
+        <h1> @player.PlayerName</h1>
+    }
+</div>
