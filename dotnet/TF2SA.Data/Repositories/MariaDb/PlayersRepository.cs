@@ -33,12 +33,13 @@ namespace TF2SA.Data.Repositories.MariaDb
 
         public Player GetById(ulong id)
         {
-            throw new NotImplementedException();
+           throw new NotImplementedException();
         }
 
         public Player GetPlayerByName(string name)
         {
-            throw new NotImplementedException();
+            var PlayerResult = tF2SADbContext.Players.Where(p => p.PlayerName == name);
+            return (Player)PlayerResult;
         }
 
         public Player Insert(Player entity)

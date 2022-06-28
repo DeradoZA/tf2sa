@@ -35,7 +35,7 @@ DMG_THRESH = 17500
 HPM_THRESH = 1300
 
 def UpdatePlayerNames(cursor):
-    Steam_API_Key = os.environ["TF2SA_STEAM_API_KEY"]
+    Steam_API_Key = os.getenv("TF2SA_STEAM_API_KEY")
     cursor.execute("SELECT SteamID from Players")
     SteamIDTuple = cursor.fetchall()
     IDList = []
@@ -166,10 +166,10 @@ def deSmurf(cursors, originals, smurfs):
 if __name__ == "__main__":
     env = dotenv_values()
     db = mysql.connector.connect(
-        host        = os.environ['TF2SA_MYSQL_HOST'],
-        user        = os.environ['TF2SA_MYSQL_USR'],
-        password    = os.environ['TF2SA_MYSQL_PWD'],
-        database    = os.environ['TF2SA_MYSQL_DB'],
+        host        = os.getenv('TF2SA_MYSQL_HOST'),
+        user        = os.getenv('TF2SA_MYSQL_USR'),
+        password    = os.getenv('TF2SA_MYSQL_PWD'),
+        database    = os.getenv('TF2SA_MYSQL_DB'),
     )
     cursor = db.cursor()
     cursor.autocommit = True
