@@ -13,6 +13,6 @@ jobs:
           command: |
             cd /tmp
             ls -a
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.SSH_ORACLE_HOST }}
           user: ubuntu
           key: ${{ secrets.SSH_ORACLE_PRIVATE}}
