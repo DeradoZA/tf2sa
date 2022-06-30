@@ -16,19 +16,19 @@ namespace TF2SA.Data.Repositories.MariaDb
             this.tF2SADbContext = tF2SADbContext;
         }
 
-        public bool Delete(PlayerStat entity)
+        public PlayerStat Delete(PlayerStat entity)
         {
             throw new NotImplementedException();
         }
 
         public List<PlayerStat> GetAll()
         {
-            throw new NotImplementedException();
+            return GetAllQueryable().ToList();
         }
 
         public IQueryable<PlayerStat> GetAllQueryable()
         {
-            throw new NotImplementedException();
+            return tF2SADbContext.PlayerStats.AsQueryable();
         }
 
         public PlayerStat GetById(uint id)

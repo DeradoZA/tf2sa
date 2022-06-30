@@ -8,6 +8,6 @@ namespace TF2SA.Data.Repositories.Base
     public interface IPlayersRepository<TPlayer, TPlayerId>
         : ICrudRepository<TPlayer, TPlayerId>
     {
-        public TPlayer GetPlayerByName(string name);
+        public List<TPlayer> GetPlayerByName(string name);
     }
 }

@@ -16,9 +16,11 @@ namespace TF2SA.Data.Repositories.MariaDb
             this.tF2SADbContext = tF2SADbContext;
         }
 
-        public bool Delete(Player entity)
+        public Player Delete(Player entity)
         {
-            throw new NotImplementedException();
+            tF2SADbContext.Players.Remove(entity);
+            tF2SADbContext.SaveChanges();
+            return entity;
         }
 
         public List<Player> GetAll()
@@ -31,24 +33,30 @@ namespace TF2SA.Data.Repositories.MariaDb
             return tF2SADbContext.Players.AsQueryable();
         }
 
-        public Player GetById(ulong id)
+        public Player? GetById(ulong id)
         {
-            throw new NotImplementedException();
+           var result = tF2SADbContext.Players.Find(id);
+           return result;
         }
 
-        public Player GetPlayerByName(string name)
+        public List<Player> GetPlayerByName(string name)
         {
-            throw new NotImplementedException();
+            var Result = GetAllQueryable().Where(p => p.PlayerName == name).ToList();
+            return Result;
         }
 
         public Player Insert(Player entity)
         {
-            throw new NotImplementedException();
+            tF2SADbContext.Players.Add(entity);
+            tF2SADbContext.SaveChanges();
+            return entity;
         }
 
         public Player Update(Player entity)
         {
-            throw new NotImplementedException();
+            tF2SADbContext.Players.Update(entity);
+            tF2SADbContext.SaveChanges();
+            return entity;
         }
     }
 }

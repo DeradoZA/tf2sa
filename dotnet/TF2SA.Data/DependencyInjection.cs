@@ -7,7 +7,7 @@ namespace TF2SA.Data
 {
     public static class DependencyInjection
     {
-        public static void AddMariaDb(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDataLayer(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString =
                 $"server={configuration["TF2SA_MYSQL_HOST"]};user={configuration["TF2SA_MYSQL_USR"]};password={configuration["TF2SA_MYSQL_PWD"]};database={configuration["TF2SA_MYSQL_DB"]}";
