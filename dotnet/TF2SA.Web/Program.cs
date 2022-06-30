@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDataLayer(builder.Configuration);
-builder.Services.AddScoped<IPlayersRepository<Player, ulong>, PlayersRepository>();
 
 var app = builder.Build();
 
