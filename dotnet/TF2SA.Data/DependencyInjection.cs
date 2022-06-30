@@ -2,12 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Repositories.Base;
+using TF2SA.Data.Repositories.MariaDb;
 
 namespace TF2SA.Data
 {
     public static class DependencyInjection
     {
-        public static void AddMariaDb(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDataLayer(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString =
                 $"server={configuration["TF2SA_MYSQL_HOST"]};user={configuration["TF2SA_MYSQL_USR"]};password={configuration["TF2SA_MYSQL_PWD"]};database={configuration["TF2SA_MYSQL_DB"]}";
@@ -21,6 +24,8 @@ namespace TF2SA.Data
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
             );
+
+            services.AddScoped<IPlayersRepository<Player, ulong>, PlayersRepository>();
         }
     }
 }
