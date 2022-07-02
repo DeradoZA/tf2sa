@@ -19,4 +19,4 @@ jobs:
       - name: Build
         run: dotnet build dotnet/ --no-restore
       - name: Publish
-        run: dotnet publish dotnet/TF2SA.Web/ --configuration Release --no-build
+        run: dotnet publish dotnet/TF2SA.Web/ --configuration Release
