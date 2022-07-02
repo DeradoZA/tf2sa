@@ -11,7 +11,7 @@ jobs:
         uses: fifsky/ssh-action@master
         with:
           command: |
-            ls -a
+            sudo ./deploy.sh
           host: ${{ secrets.SSH_ORACLE_HOST }}
           user: ubuntu
           key: ${{ secrets.SSH_ORACLE_PRIVATE}}
