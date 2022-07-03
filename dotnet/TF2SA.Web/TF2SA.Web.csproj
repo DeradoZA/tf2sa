@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TF2SA.Data\TF2SA.Data.csproj" />
+    <ProjectReference Include="..\TF2SA.StatsETLService\TF2SA.StatsETLService.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

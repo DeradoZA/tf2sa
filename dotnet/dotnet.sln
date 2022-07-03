@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2SA.Web", "TF2SA.Web\TF2S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2SA.Data", "TF2SA.Data\TF2SA.Data.csproj", "{6D0BFFE9-A6A0-417D-9AA1-81C66637A306}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2SA.StatsETLService", "TF2SA.StatsETLService\TF2SA.StatsETLService.csproj", "{9B25D668-673C-490D-8FDA-E6AA476ED742}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{6D0BFFE9-A6A0-417D-9AA1-81C66637A306}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D0BFFE9-A6A0-417D-9AA1-81C66637A306}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D0BFFE9-A6A0-417D-9AA1-81C66637A306}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B25D668-673C-490D-8FDA-E6AA476ED742}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B25D668-673C-490D-8FDA-E6AA476ED742}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B25D668-673C-490D-8FDA-E6AA476ED742}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B25D668-673C-490D-8FDA-E6AA476ED742}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
