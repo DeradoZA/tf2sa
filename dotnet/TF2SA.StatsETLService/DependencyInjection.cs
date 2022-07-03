@@ -1,3 +1,5 @@
+using TF2SA.Data;
+
 namespace TF2SA.StatsETLService
 {
     public static class DependencyInjection
@@ -6,6 +8,7 @@ namespace TF2SA.StatsETLService
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            services.AddDataLayer(configuration);
             services.AddHostedService<StatsETLServiceRunner>();
             services.AddScoped<IStatsETLService, StatsETLService>();
         }
