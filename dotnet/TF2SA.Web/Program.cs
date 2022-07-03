@@ -1,14 +1,13 @@
 using TF2SA.Data;
+using TF2SA.StatsETLService;
 using Microsoft.AspNetCore.HttpOverrides;
-using TF2SA.Data.Entities.MariaDb;
-using TF2SA.Data.Repositories.Base;
-using TF2SA.Data.Repositories.MariaDb;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDataLayer(builder.Configuration);
+builder.Services.AddStatsETLService(builder.Configuration);
 
 var app = builder.Build();
 

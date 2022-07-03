@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "TF2SA.StatsETLService": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
