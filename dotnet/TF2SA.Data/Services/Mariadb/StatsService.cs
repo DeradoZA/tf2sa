@@ -32,16 +32,31 @@ namespace TF2SA.Data.Services.Mariadb
             var playerStats = playerStatRepository.GetAllQueryable();
             var classStats = classStatsRepository.GetAllQueryable();
 
-            var InnerJoinQuery = from player in players
-                                 join playerStat in playerStats on player.SteamId equals playerStat.SteamId
-                                 join classStat in classStats on playerStat.PlayerStatsId equals classStat.PlayerStatsId
-                                 select new JoinedStats(player.SteamId, player.PlayerName, playerStat.PlayerStatsId,
-                                             playerStat.GameId, playerStat.TeamId, playerStat.DamageTaken,
-                                             playerStat.HealsReceived, playerStat.MedkitsHp, playerStat.Airshots,
-                                             playerStat.Headshots, playerStat.Backstabs, playerStat.Drops,
-                                             playerStat.Heals, playerStat.Ubers, classStat.ClassStatsId,
-                                             classStat.ClassId, classStat.Playtime, classStat.Kills,
-                                             classStat.Assists, classStat.Deaths, classStat.Damage);
+            var InnerJoinQuery = 
+                from player in players
+                join playerStat in playerStats on player.SteamId equals playerStat.SteamId
+                join classStat in classStats on playerStat.PlayerStatsId equals classStat.PlayerStatsId
+                select new JoinedStats(player.SteamId, 
+                                       player.PlayerName, 
+                                       playerStat.PlayerStatsId,
+                                       playerStat.GameId, 
+                                       playerStat.TeamId, 
+                                       playerStat.DamageTaken,
+                                       playerStat.HealsReceived, 
+                                       playerStat.MedkitsHp, 
+                                       playerStat.Airshots,
+                                       playerStat.Headshots, 
+                                       playerStat.Backstabs, 
+                                       playerStat.Drops,
+                                       playerStat.Heals, 
+                                       playerStat.Ubers, 
+                                       classStat.ClassStatsId,
+                                       classStat.ClassId, 
+                                       classStat.Playtime,
+                                        classStat.Kills,
+                                       classStat.Assists, 
+                                       classStat.Deaths, 
+                                       classStat.Damage);
 
             return InnerJoinQuery;
         }

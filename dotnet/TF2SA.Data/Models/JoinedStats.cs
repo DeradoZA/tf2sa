@@ -30,13 +30,27 @@ namespace TF2SA.Data.Models
         public byte? Deaths { get; set; }
         public uint? Damage { get; set; }
 
-        public JoinedStats(ulong SteamId, string? PlayerName, uint PlayerStatsId,
-                           uint GameId, byte TeamId, uint? DamageTaken,
-                           uint? HealsReceived, uint? MedkitsHp, byte? Airshots,
-                           byte? Headshots, byte? Backstabs, byte? Drops,
-                           uint? Heals, byte? Ubers, uint ClassStatsId,
-                           byte ClassId, ushort? Playtime, byte? Kills,
-                           byte? Assists, byte? Deaths, uint? Damage)
+        public JoinedStats(ulong SteamId, 
+                           string? PlayerName, 
+                           uint PlayerStatsId,
+                           uint GameId, 
+                           byte TeamId, 
+                           uint? DamageTaken,
+                           uint? HealsReceived,
+                           uint? MedkitsHp, 
+                           byte? Airshots,
+                           byte? Headshots, 
+                           byte? Backstabs, 
+                           byte? Drops,
+                           uint? Heals,
+                           byte? Ubers, 
+                           uint ClassStatsId,
+                           byte ClassId, 
+                           ushort? Playtime, 
+                           byte? Kills,
+                           byte? Assists, 
+                           byte? Deaths, 
+                           uint? Damage)
         {
             this.SteamId = SteamId;
             this.PlayerName = PlayerName;
