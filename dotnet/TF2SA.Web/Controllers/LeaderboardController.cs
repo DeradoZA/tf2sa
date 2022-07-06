@@ -5,9 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using TF2SA.Web.Models;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Services.Base;
+using TF2SA.Data.Models;
 
 namespace TF2SA.Web.Controllers
 {
@@ -15,18 +16,18 @@ namespace TF2SA.Web.Controllers
     public class LeaderboardController : Controller
     {
         private readonly ILogger<LeaderboardController> _logger;
-        private readonly IPlayersRepository<Player, ulong> PlayerRepository;
+        private readonly IStatsService statsService;
 
-        public LeaderboardController(ILogger<LeaderboardController> logger, IPlayersRepository<Player, ulong> PlayerRepository)
+        public LeaderboardController(ILogger<LeaderboardController> logger, IStatsService statsService)
         {
             _logger = logger;
-            this.PlayerRepository = PlayerRepository;
+            this.statsService = statsService;
         }
 
         public IActionResult Index()
         {
-            var PlayerList = PlayerRepository.GetAll();
-            return View(PlayerList);
+            var playerStatsList = statsService.PlayerStatsJoinList();
+            return View(playerStatsList);
         }
 
     }

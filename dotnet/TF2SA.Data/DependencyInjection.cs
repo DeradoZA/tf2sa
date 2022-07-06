@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
+using TF2SA.Data.Services.Base;
+using TF2SA.Data.Services.Mariadb;
 
 namespace TF2SA.Data
 {
@@ -26,6 +28,9 @@ namespace TF2SA.Data
             );
 
             services.AddScoped<IPlayersRepository<Player, ulong>, PlayersRepository>();
+            services.AddScoped<IPlayerStatsRepository<PlayerStat, uint>, PlayerStatsRepository>();
+            services.AddScoped<IClassStatsRepository<ClassStat, uint>, ClassStatsRepository>();
+            services.AddScoped<IStatsService, StatsService>();
         }
     }
 }
