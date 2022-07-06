@@ -1,13 +1,13 @@
-@model IEnumerable<Player>
 @{
     ViewData["Title"] = "Index";
 }
+@model IEnumerable<JoinedStats>
 
 <h1>@ViewData["Title"]</h1>
 
 <div>
-    @foreach (var Player in @Model)
+    @foreach (var PlayerStat in @Model)
     {
-       <h1>@Player.PlayerName</h1>
+       <h1>@PlayerStat.PlayerName @PlayerStat.Kills @PlayerStat.Damage</h1>
     }
 </div>
