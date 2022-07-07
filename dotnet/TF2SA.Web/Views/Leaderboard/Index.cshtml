@@ -1,13 +1,13 @@
 @{
     ViewData["Title"] = "Index";
 }
-@model IEnumerable<JoinedStats>
+@model IEnumerable<PlayerGamesCount>
 
 <h1>@ViewData["Title"]</h1>
 
 <div>
     @foreach (var PlayerStat in @Model)
     {
-       <h1>@PlayerStat.PlayerName @PlayerStat.Kills @PlayerStat.Damage</h1>
+       <h1>@PlayerStat.SteamId @PlayerStat.NumberOfGames</h1>
     }
 </div>

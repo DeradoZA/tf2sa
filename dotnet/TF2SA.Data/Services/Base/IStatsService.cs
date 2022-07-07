@@ -11,5 +11,7 @@ namespace TF2SA.Data.Services.Base
         public IQueryable<JoinedStats> PlayerStatsJoinQueryable();
 
         public List<JoinedStats> PlayerStatsJoinList();
+
+        public List<PlayerGamesCount> PlayerGamesTotal();
     }
 }
