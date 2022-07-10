@@ -34,9 +34,9 @@ namespace TF2SA.Data.Services.Mariadb
 
         public IQueryable<JoinedStats> PlayerStatsJoinQueryable()
         {
-            var players = playerRepository.GetAll();
-            var playerStats = playerStatRepository.GetAll();
-            var classStats = classStatsRepository.GetAll();
+            var players = playerRepository.GetAllQueryable();
+            var playerStats = playerStatRepository.GetAllQueryable();
+            var classStats = classStatsRepository.GetAllQueryable();
 
             var InnerJoinQuery = 
                 from player in players
@@ -76,25 +76,55 @@ namespace TF2SA.Data.Services.Mariadb
             return PlayerStatsJoinQueryable().ToList();
         }
 
-        public List<PlayerGamesCount> PlayerGamesTotal()
+        public List<AllTimeStats> AllTimeStats()
         {
             var allPlayerGames = playerStatRepository.GetAll();
+            var joinedPlayerStats = PlayerStatsJoinList();
 
-            var playerGames = 
-                from record in allPlayerGames
-                group record by record.SteamId into newGroup
-                select newGroup;
+            var playerNumGames = (
+                from playerGame in allPlayerGames
+                group playerGame by playerGame.SteamId into groupedPlayerGames
+                select new
+                {
+                    SteamID = groupedPlayerGames.Key,
+                    NumberOfGames = groupedPlayerGames.Count(),
+                }
+            ).ToList();
 
 
-            var playerGamesAmount = playerGames.ToList();
-            List<PlayerGamesCount> Result = new List<PlayerGamesCount>();
+            var playerStats = (
+                from jps in joinedPlayerStats
+                where jps.ClassId != 7
+                group jps by jps.SteamId into groupedPlayerStats
+                select new
+                {
+                    SteamID = groupedPlayerStats.Key,
+                    SteamName = groupedPlayerStats.FirstOrDefault().PlayerName,
+                    AverageDPM = groupedPlayerStats.Average(d => d.Damage),
+                    AverageKills = groupedPlayerStats.Average(k => k.Kills),
+                    AverageAssists = groupedPlayerStats.Average(a => a.Assists),
+                    AverageDeaths = groupedPlayerStats.Average(de => de.Deaths)
+                }
+            ).ToList();
 
-            foreach(var group in playerGamesAmount)
-            {
-                Result.Add(new PlayerGamesCount(group.Key, group.Count()));
-            }
+            var completeLeaderboard = (
+                from png in playerNumGames
+                join ps in playerStats on png.SteamID equals ps.SteamID
+                where png.NumberOfGames > 20
+                orderby ps.AverageDPM descending
+                select new AllTimeStats
+                (
+                    png.SteamID,
+                    ps.SteamName,
+                    png.NumberOfGames,
+                    ps.AverageDPM,
+                    ps.AverageKills,
+                    ps.AverageAssists,
+                    ps.AverageDeaths
+                )
+            );
 
-            return Result;
+            return completeLeaderboard.ToList();
         }
 
 }

@@ -1,13 +1,14 @@
 @{
     ViewData["Title"] = "Index";
 }
-@model IEnumerable<PlayerGamesCount>
+@model IEnumerable<AllTimeStats>
 
 <h1>@ViewData["Title"]</h1>
 
 <div>
     @foreach (var PlayerStat in @Model)
     {
-       <h1>@PlayerStat.SteamId @PlayerStat.NumberOfGames</h1>
+       <h1>@PlayerStat.SteamName @PlayerStat.NumberOfGames @Math.Round(Convert.ToDouble(PlayerStat.AverageDPM), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2)</h1>
+
     }
 </div>

@@ -12,6 +12,6 @@ namespace TF2SA.Data.Services.Base
 
         public List<JoinedStats> PlayerStatsJoinList();
 
-        public List<PlayerGamesCount> PlayerGamesTotal();
+        public List<AllTimeStats> AllTimeStats();
     }
 }

@@ -26,7 +26,7 @@ namespace TF2SA.Web.Controllers
 
         public IActionResult Index()
         {
-            var playerGamesAmounts = statsService.PlayerGamesTotal();
+            var playerGamesAmounts = statsService.AllTimeStats();
             return View(playerGamesAmounts);
         }
 
