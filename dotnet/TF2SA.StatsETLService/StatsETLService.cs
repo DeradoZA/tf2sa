@@ -24,7 +24,7 @@ namespace TF2SA.StatsETLService
                 count++;
                 var playerCount = playerRepository.GetAll().Count;
                 logger.LogInformation($"Scoped Service executing: {count}, found {playerCount} players!");
-                await Task.Delay(5000, cancellationToken);
+                await Task.Delay(60000, cancellationToken);
             }
         }
     }

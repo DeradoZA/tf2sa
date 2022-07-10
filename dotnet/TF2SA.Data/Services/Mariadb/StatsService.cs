@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Models;
 using TF2SA.Data.Repositories.Base;
@@ -16,14 +17,19 @@ namespace TF2SA.Data.Services.Mariadb
         private readonly IPlayerStatsRepository<PlayerStat, uint> playerStatRepository;
 
         private readonly IClassStatsRepository<ClassStat, uint> classStatsRepository;
+
+        private readonly ILogger<StatsService> logger;
+        
         public StatsService(
             IPlayersRepository<Player, ulong> playerRepository,
             IPlayerStatsRepository<PlayerStat, uint> playerStatRepository,
-            IClassStatsRepository<ClassStat, uint> classStatsRepository)
+            IClassStatsRepository<ClassStat, uint> classStatsRepository,
+            ILogger<StatsService> logger)
         {
             this.playerRepository = playerRepository;
             this.playerStatRepository = playerStatRepository;
             this.classStatsRepository = classStatsRepository;
+            this.logger = logger;
         }
 
         public IQueryable<JoinedStats> PlayerStatsJoinQueryable()
@@ -36,27 +42,31 @@ namespace TF2SA.Data.Services.Mariadb
                 from player in players
                 join playerStat in playerStats on player.SteamId equals playerStat.SteamId
                 join classStat in classStats on playerStat.PlayerStatsId equals classStat.PlayerStatsId
-                select new JoinedStats(player.SteamId, 
-                                       player.PlayerName, 
-                                       playerStat.PlayerStatsId,
-                                       playerStat.GameId, 
-                                       playerStat.TeamId, 
-                                       playerStat.DamageTaken,
-                                       playerStat.HealsReceived, 
-                                       playerStat.MedkitsHp, 
-                                       playerStat.Airshots,
-                                       playerStat.Headshots, 
-                                       playerStat.Backstabs, 
-                                       playerStat.Drops,
-                                       playerStat.Heals, 
-                                       playerStat.Ubers, 
-                                       classStat.ClassStatsId,
-                                       classStat.ClassId, 
-                                       classStat.Playtime,
-                                        classStat.Kills,
-                                       classStat.Assists, 
-                                       classStat.Deaths, 
-                                       classStat.Damage);
+                select new JoinedStats
+                    (
+                        player.SteamId, 
+                        player.PlayerName, 
+                        playerStat.PlayerStatsId,
+                        playerStat.GameId, 
+                        playerStat.TeamId, 
+                        playerStat.DamageTaken,
+                        playerStat.HealsReceived, 
+                        playerStat.MedkitsHp, 
+                        playerStat.Airshots,
+                        playerStat.Headshots, 
+                        playerStat.Backstabs, 
+                        playerStat.Drops,
+                        playerStat.Heals, 
+                        playerStat.Ubers, 
+                        classStat.ClassStatsId,
+                        classStat.ClassId, 
+                        classStat.Playtime,
+                        classStat.Kills,
+                        classStat.Assists, 
+                        classStat.Deaths, 
+                        classStat.Damage
+                    
+                    );
 
             return InnerJoinQuery;
         }
@@ -66,7 +76,57 @@ namespace TF2SA.Data.Services.Mariadb
             return PlayerStatsJoinQueryable().ToList();
         }
 
-      
+        public List<AllTimeStats> AllTimeStats()
+        {
+            var allPlayerGames = playerStatRepository.GetAll();
+            var joinedPlayerStats = PlayerStatsJoinList();
+
+            var playerNumGames = (
+                from playerGame in allPlayerGames
+                group playerGame by playerGame.SteamId into groupedPlayerGames
+                select new
+                {
+                    SteamID = groupedPlayerGames.Key,
+                    NumberOfGames = groupedPlayerGames.Count(),
+                }
+            ).ToList();
+
+
+            var playerStats = (
+                from jps in joinedPlayerStats
+                where jps.ClassId != 7
+                group jps by jps.SteamId into groupedPlayerStats
+                select new
+                {
+                    SteamID = groupedPlayerStats.Key,
+                    SteamName = groupedPlayerStats.FirstOrDefault().PlayerName,
+                    AverageDPM = groupedPlayerStats.Average(d => d.Damage),
+                    AverageKills = groupedPlayerStats.Average(k => k.Kills),
+                    AverageAssists = groupedPlayerStats.Average(a => a.Assists),
+                    AverageDeaths = groupedPlayerStats.Average(de => de.Deaths)
+                }
+            ).ToList();
+
+            var completeLeaderboard = (
+                from png in playerNumGames
+                join ps in playerStats on png.SteamID equals ps.SteamID
+                where png.NumberOfGames > 20
+                orderby ps.AverageDPM descending
+                select new AllTimeStats
+                (
+                    png.SteamID,
+                    ps.SteamName,
+                    png.NumberOfGames,
+                    ps.AverageDPM,
+                    ps.AverageKills,
+                    ps.AverageAssists,
+                    ps.AverageDeaths
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
 }
 }
 
