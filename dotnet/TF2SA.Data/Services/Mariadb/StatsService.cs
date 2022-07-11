@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using TF2SA.Data.Constants;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Models;
 using TF2SA.Data.Repositories.Base;
@@ -19,17 +20,21 @@ namespace TF2SA.Data.Services.Mariadb
         private readonly IClassStatsRepository<ClassStat, uint> classStatsRepository;
 
         private readonly ILogger<StatsService> logger;
+
+        private readonly StatsCollectionConstants constants;
         
         public StatsService(
             IPlayersRepository<Player, ulong> playerRepository,
             IPlayerStatsRepository<PlayerStat, uint> playerStatRepository,
             IClassStatsRepository<ClassStat, uint> classStatsRepository,
-            ILogger<StatsService> logger)
+            ILogger<StatsService> logger,
+            StatsCollectionConstants constants)
         {
             this.playerRepository = playerRepository;
             this.playerStatRepository = playerStatRepository;
             this.classStatsRepository = classStatsRepository;
             this.logger = logger;
+            this.constants = constants;
         }
 
         public IQueryable<JoinedStats> PlayerStatsJoinQueryable()
@@ -94,7 +99,7 @@ namespace TF2SA.Data.Services.Mariadb
 
             var playerStats = (
                 from jps in joinedPlayerStats
-                where jps.ClassId != 7 && jps.Playtime > 60
+                where jps.ClassId != constants.MEDIC_ClassID && jps.Playtime > constants.PLAYTIME_THRESHOLD
                 group jps by jps.SteamId into groupedPlayerStats
                 select new
                 {

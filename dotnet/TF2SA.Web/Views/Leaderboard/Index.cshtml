@@ -5,7 +5,9 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<div>
+@if (@Model.Count() != null)
+{
+    <div>
     <table border="5" style="background-color:#FFFFFF;border-collapse:collapse;border:5px solid #6600FF;color:#000000;width:100%" cellpadding="3" cellspacing="3">
             <tr>
                 <th>Player Name</th>
@@ -32,3 +34,8 @@
     }
     </table> 
 </div>
+}
+else{
+    <h1>Well looks like there is no data... Damn</h1>
+}
+

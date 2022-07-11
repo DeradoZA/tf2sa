@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TF2SA.Data.Constants;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
@@ -30,6 +31,7 @@ namespace TF2SA.Data
             services.AddScoped<IPlayersRepository<Player, ulong>, PlayersRepository>();
             services.AddScoped<IPlayerStatsRepository<PlayerStat, uint>, PlayerStatsRepository>();
             services.AddScoped<IClassStatsRepository<ClassStat, uint>, ClassStatsRepository>();
+            services.AddScoped<StatsCollectionConstants, StatsCollectionConstants>();
             services.AddScoped<IStatsService, StatsService>();
         }
     }
