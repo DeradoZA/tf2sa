@@ -107,9 +107,21 @@ namespace TF2SA.Data.Services.Mariadb
                 }
             ).ToList();
 
+            var playerAirshots = ( 
+                from jps in joinedPlayerStats
+                where jps.ClassId == 2 || jps.ClassId == 4
+                group jps by jps.SteamId into groupedPlayerStats
+                select new
+                {
+                    SteamID = groupedPlayerStats.Key,
+                    AverageAirshots = groupedPlayerStats.Average(a => a.Airshots)
+                }
+            ).ToList();
+
             var completeLeaderboard = (
                 from png in playerNumGames
                 join ps in playerStats on png.SteamID equals ps.SteamID
+                join pa in playerAirshots on png.SteamID equals pa.SteamID
                 where png.NumberOfGames > 20
                 orderby ps.AverageDPM descending
                 select new AllTimeStats
@@ -120,7 +132,8 @@ namespace TF2SA.Data.Services.Mariadb
                     ps.AverageDPM,
                     ps.AverageKills,
                     ps.AverageAssists,
-                    ps.AverageDeaths
+                    ps.AverageDeaths,
+                    pa.AverageAirshots
                 )
             );
 

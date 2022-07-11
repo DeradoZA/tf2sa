@@ -8,7 +8,7 @@
 <div>
     @foreach (var PlayerStat in @Model)
     {
-       <h1>@PlayerStat.SteamName @PlayerStat.NumberOfGames @Math.Round(Convert.ToDouble(PlayerStat.AverageDPM), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2)</h1>
+       <h1>@PlayerStat.SteamName @PlayerStat.NumberOfGames @Math.Round(Convert.ToDouble(PlayerStat.AverageDPM), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageAirshots),2)</h1>
 
     }
 </div>
