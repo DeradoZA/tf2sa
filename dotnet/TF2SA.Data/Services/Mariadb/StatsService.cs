@@ -114,7 +114,7 @@ namespace TF2SA.Data.Services.Mariadb
 
             var playerAirshots = ( 
                 from jps in joinedPlayerStats
-                where jps.ClassId == 2 || jps.ClassId == 4
+                where jps.ClassId == constants.SOLDIER_ClassID || jps.ClassId == constants.DEMOMAN_ClassID
                 group jps by jps.SteamId into groupedPlayerStats
                 select new
                 {
@@ -125,7 +125,7 @@ namespace TF2SA.Data.Services.Mariadb
 
             var playerHeadshots = (
                 from jps in joinedPlayerStats
-                where jps.ClassId == 8
+                where jps.ClassId == constants.SNIPER_ClassID
                 group jps by jps.SteamId into groupedPlayerStats
                 select new
                 {
@@ -139,7 +139,7 @@ namespace TF2SA.Data.Services.Mariadb
                 join ps in playerStats on png.SteamID equals ps.SteamID
                 join pa in playerAirshots on png.SteamID equals pa.SteamID
                 join ph in playerHeadshots on png.SteamID equals ph.SteamID
-                where png.NumberOfGames > 20
+                where png.NumberOfGames > constants.PLAYER_NumberOfGames_Threshold
                 orderby ps.AverageDPM descending
                 select new AllTimeStats
                 (

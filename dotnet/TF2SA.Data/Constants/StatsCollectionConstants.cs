@@ -16,7 +16,8 @@ namespace TF2SA.Data.Constants
         public int MEDIC_ClassID { get; set; }
         public int SNIPER_ClassID { get; set; }
         public int SPY_ClassID { get; set; }
-        public int PLAYTIME_THRESHOLD { get; set; }
+        public int PLAYTIME_Threshold { get; set; }
+        public int PLAYER_NumberOfGames_Threshold { get; set; }
 
         public StatsCollectionConstants()
         {
