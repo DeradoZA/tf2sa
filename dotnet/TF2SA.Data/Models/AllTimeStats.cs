@@ -8,7 +8,6 @@ namespace TF2SA.Data.Models
     public class AllTimeStats
     {
         public ulong SteamId { get; set; }
-
         public string SteamName { get; set; }
         public int NumberOfGames { get; set; }
         public double? AverageDPM { get; set; }
@@ -16,14 +15,17 @@ namespace TF2SA.Data.Models
         public double? AverageAssists { get; set; }
         public double? AverageDeaths { get; set; }
         public double? AverageAirshots { get; set; }
-        public AllTimeStats(ulong steamId,
-                            string steamName,
-                            int numberofGames,
-                            double? averageDPM,
-                            double? averageKills,
-                            double? averageAssists,
-                            double? averageDeaths,
-                            double? averageAirshots)
+        public double? AverageHeadshots { get; set; }
+        public AllTimeStats(
+            ulong steamId,
+            string steamName,
+            int numberofGames,
+            double? averageDPM,
+            double? averageKills,
+            double? averageAssists,
+            double? averageDeaths,
+            double? averageAirshots,
+            double? averageHeadshots)
         {
             this.SteamId = steamId;
             this.SteamName = steamName;
@@ -33,6 +35,7 @@ namespace TF2SA.Data.Models
             this.AverageAssists = averageAssists;
             this.AverageDeaths = averageDeaths;
             this.AverageAirshots = averageAirshots;
+            this.AverageHeadshots = averageHeadshots;
         }
 
 
