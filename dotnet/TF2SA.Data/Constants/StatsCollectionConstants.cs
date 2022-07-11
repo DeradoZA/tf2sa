@@ -5,35 +5,20 @@ using System.Threading.Tasks;
 
 namespace TF2SA.Data.Constants
 {
-    public class StatsCollectionConstants
+    static class StatsCollectionConstants
     {
-        public int SCOUT_ClassID { get; set; }
-        public int SOLDIER_ClassID { get; set; }
-        public int PYRO_ClassID { get; set; }
-        public int DEMOMAN_ClassID { get; set; }
-        public int HEAVY_ClassID { get; set; }
-        public int ENGINEER_ClassID { get; set; }
-        public int MEDIC_ClassID { get; set; }
-        public int SNIPER_ClassID { get; set; }
-        public int SPY_ClassID { get; set; }
-        public int PLAYTIME_Threshold { get; set; }
-        public int PLAYER_NumberOfGames_Threshold { get; set; }
-
-        public StatsCollectionConstants()
-        {
-            SCOUT_ClassID = 1;
-            SOLDIER_ClassID = 2;
-            PYRO_ClassID = 3;
-            DEMOMAN_ClassID = 4;
-            HEAVY_ClassID = 5;
-            ENGINEER_ClassID = 6;
-            MEDIC_ClassID = 7;
-            SNIPER_ClassID = 8;
-            SPY_ClassID = 9;
-            PLAYTIME_Threshold = 60;
-            PLAYER_NumberOfGames_Threshold = 20;
-        }
-
+        
+        public const int SCOUT_ClassID = 1;
+        public const int SOLDIER_ClassID = 2;
+        public const int PYRO_ClassID = 3;
+        public const int DEMOMAN_ClassID = 4;
+        public const int HEAVY_ClassID = 5;
+        public const int ENGINEER_ClassID = 6;
+        public const int MEDIC_ClassID = 7;
+        public const int SNIPER_ClassID = 8;
+        public const int SPY_ClassID = 9;
+        public const int PLAYER_NumberOfGames_Threshold = 20;
+        public const int PLAYTIME_Threshold = 60;
 
     }
 }

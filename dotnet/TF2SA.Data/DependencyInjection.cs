@@ -31,7 +31,6 @@ namespace TF2SA.Data
             services.AddScoped<IPlayersRepository<Player, ulong>, PlayersRepository>();
             services.AddScoped<IPlayerStatsRepository<PlayerStat, uint>, PlayerStatsRepository>();
             services.AddScoped<IClassStatsRepository<ClassStat, uint>, ClassStatsRepository>();
-            services.AddScoped<StatsCollectionConstants, StatsCollectionConstants>();
             services.AddScoped<IStatsService, StatsService>();
         }
     }
