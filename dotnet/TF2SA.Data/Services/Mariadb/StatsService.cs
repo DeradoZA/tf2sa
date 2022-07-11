@@ -94,13 +94,13 @@ namespace TF2SA.Data.Services.Mariadb
 
             var playerStats = (
                 from jps in joinedPlayerStats
-                where jps.ClassId != 7
+                where jps.ClassId != 7 && jps.Playtime > 60
                 group jps by jps.SteamId into groupedPlayerStats
                 select new
                 {
                     SteamID = groupedPlayerStats.Key,
                     SteamName = groupedPlayerStats.FirstOrDefault().PlayerName,
-                    AverageDPM = groupedPlayerStats.Average(d => d.Damage),
+                    AverageDPM = groupedPlayerStats.Average(d => d.Damage / (d.Playtime / 60)),
                     AverageKills = groupedPlayerStats.Average(k => k.Kills),
                     AverageAssists = groupedPlayerStats.Average(a => a.Assists),
                     AverageDeaths = groupedPlayerStats.Average(de => de.Deaths)
@@ -118,10 +118,22 @@ namespace TF2SA.Data.Services.Mariadb
                 }
             ).ToList();
 
+            var playerHeadshots = (
+                from jps in joinedPlayerStats
+                where jps.ClassId == 8
+                group jps by jps.SteamId into groupedPlayerStats
+                select new
+                {
+                        SteamID = groupedPlayerStats.Key,
+                        AverageHeadshots = groupedPlayerStats.Average(h => h.Headshots)
+                }
+            );
+
             var completeLeaderboard = (
                 from png in playerNumGames
                 join ps in playerStats on png.SteamID equals ps.SteamID
                 join pa in playerAirshots on png.SteamID equals pa.SteamID
+                join ph in playerHeadshots on png.SteamID equals ph.SteamID
                 where png.NumberOfGames > 20
                 orderby ps.AverageDPM descending
                 select new AllTimeStats
@@ -133,7 +145,8 @@ namespace TF2SA.Data.Services.Mariadb
                     ps.AverageKills,
                     ps.AverageAssists,
                     ps.AverageDeaths,
-                    pa.AverageAirshots
+                    pa.AverageAirshots,
+                    ph.AverageHeadshots
                 )
             );
 

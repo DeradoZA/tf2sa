@@ -6,9 +6,29 @@
 <h1>@ViewData["Title"]</h1>
 
 <div>
+    <table border="5" style="background-color:#FFFFFF;border-collapse:collapse;border:5px solid #6600FF;color:#000000;width:100%" cellpadding="3" cellspacing="3">
+            <tr>
+                <th>Player Name</th>
+                <th>NumberOfGames</th>
+                <th>AverageDPM</th>
+                <th>AverageKills</th>
+                <th>AverageAssists</th>
+                <th>AverageDeaths</th>
+                <th>AverageAirshots</th>
+                <th>AverageHeadshots</th>
+            </tr>
     @foreach (var PlayerStat in @Model)
     {
-       <h1>@PlayerStat.SteamName @PlayerStat.NumberOfGames @Math.Round(Convert.ToDouble(PlayerStat.AverageDPM), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2) @Math.Round(Convert.ToDouble(PlayerStat.AverageAirshots),2)</h1>
-
+        <tr>
+            <td>@PlayerStat.SteamName</td>
+            <td>@PlayerStat.NumberOfGames</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageDPM), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageAirshots), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageHeadshots), 2)</td>
+        </tr>
     }
+    </table> 
 </div>
