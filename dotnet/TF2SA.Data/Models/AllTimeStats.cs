@@ -15,13 +15,15 @@ namespace TF2SA.Data.Models
         public double? AverageKills { get; set; }
         public double? AverageAssists { get; set; }
         public double? AverageDeaths { get; set; }
+        public double? AverageAirshots { get; set; }
         public AllTimeStats(ulong steamId,
                             string steamName,
                             int numberofGames,
                             double? averageDPM,
                             double? averageKills,
                             double? averageAssists,
-                            double? averageDeaths)
+                            double? averageDeaths,
+                            double? averageAirshots)
         {
             this.SteamId = steamId;
             this.SteamName = steamName;
@@ -30,6 +32,7 @@ namespace TF2SA.Data.Models
             this.AverageKills = averageKills;
             this.AverageAssists = averageAssists;
             this.AverageDeaths = averageDeaths;
+            this.AverageAirshots = averageAirshots;
         }
 
 
