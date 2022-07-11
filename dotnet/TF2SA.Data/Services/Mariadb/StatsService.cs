@@ -99,7 +99,7 @@ namespace TF2SA.Data.Services.Mariadb
 
             var playerStats = (
                 from jps in joinedPlayerStats
-                where jps.ClassId != constants.MEDIC_ClassID && jps.Playtime > constants.PLAYTIME_THRESHOLD
+                where jps.ClassId != constants.MEDIC_ClassID && jps.Playtime > constants.PLAYTIME_Threshold
                 group jps by jps.SteamId into groupedPlayerStats
                 select new
                 {

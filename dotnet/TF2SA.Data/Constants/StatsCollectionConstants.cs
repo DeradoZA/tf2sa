@@ -30,7 +30,8 @@ namespace TF2SA.Data.Constants
             MEDIC_ClassID = 7;
             SNIPER_ClassID = 8;
             SPY_ClassID = 9;
-            PLAYTIME_THRESHOLD = 60;
+            PLAYTIME_Threshold = 60;
+            PLAYER_NumberOfGames_Threshold = 20;
         }
 
 

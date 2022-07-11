@@ -16,15 +16,16 @@ namespace TF2SA.Data.Models
         public double? AverageDeaths { get; set; }
         public double? AverageAirshots { get; set; }
         public double? AverageHeadshots { get; set; }
-        public AllTimeStats(ulong steamId,
-                            string steamName,
-                            int numberofGames,
-                            double? averageDPM,
-                            double? averageKills,
-                            double? averageAssists,
-                            double? averageDeaths,
-                            double? averageAirshots,
-                            double? averageHeadshots)
+        public AllTimeStats(
+            ulong steamId,
+            string steamName,
+            int numberofGames,
+            double? averageDPM,
+            double? averageKills,
+            double? averageAssists,
+            double? averageDeaths,
+            double? averageAirshots,
+            double? averageHeadshots)
         {
             this.SteamId = steamId;
             this.SteamName = steamName;
