@@ -29,28 +29,39 @@ namespace TF2SA.Data.Models
         public byte? Assists { get; set; }
         public byte? Deaths { get; set; }
         public uint? Damage { get; set; }
+        public uint? Date { get; set; }
+        public short? Duration { get; set; }
+        public string? Map { get; set; }
+        public byte? BluScore { get; set; }
+        public byte? RedScore { get; set; }
 
-        public JoinedStats(ulong SteamId, 
-                           string? PlayerName, 
-                           uint PlayerStatsId,
-                           uint GameId, 
-                           byte TeamId, 
-                           uint? DamageTaken,
-                           uint? HealsReceived,
-                           uint? MedkitsHp, 
-                           byte? Airshots,
-                           byte? Headshots, 
-                           byte? Backstabs, 
-                           byte? Drops,
-                           uint? Heals,
-                           byte? Ubers, 
-                           uint ClassStatsId,
-                           byte ClassId, 
-                           ushort? Playtime, 
-                           byte? Kills,
-                           byte? Assists, 
-                           byte? Deaths, 
-                           uint? Damage)
+        public JoinedStats(
+            ulong SteamId,
+            string? PlayerName,
+            uint PlayerStatsId,
+            uint GameId,
+            byte TeamId,
+            uint? DamageTaken,
+            uint? HealsReceived,
+            uint? MedkitsHp,
+            byte? Airshots,
+            byte? Headshots,
+            byte? Backstabs,
+            byte? Drops,
+            uint? Heals,
+            byte? Ubers,
+            uint ClassStatsId,
+            byte ClassId,
+            ushort? Playtime,
+            byte? Kills,
+            byte? Assists,
+            byte? Deaths,
+            uint? Damage,
+            uint? date,
+            short? duration,
+            string? map,
+            byte? bluScore,
+            byte? redScore)
         {
             this.SteamId = SteamId;
             this.PlayerName = PlayerName;
@@ -73,6 +84,11 @@ namespace TF2SA.Data.Models
             this.Assists = Assists;
             this.Deaths = Deaths;
             this.Damage = Damage;
+            this.Date = date;
+            this.Duration = duration;
+            this.Map = map;
+            this.BluScore = bluScore;
+            this.RedScore = redScore;
         }
 
     }
