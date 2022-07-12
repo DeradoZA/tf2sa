@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TF2SA.Data.Models
 {
-    public class AllTimeStats
+    public class PlayerPerformanceStats
     {
         public ulong SteamId { get; set; }
         public string SteamName { get; set; }
@@ -16,7 +16,7 @@ namespace TF2SA.Data.Models
         public double? AverageDeaths { get; set; }
         public double? AverageAirshots { get; set; }
         public double? AverageHeadshots { get; set; }
-        public AllTimeStats(
+        public PlayerPerformanceStats(
             ulong steamId,
             string steamName,
             int numberofGames,

@@ -12,7 +12,6 @@ using TF2SA.Data.Models;
 
 namespace TF2SA.Web.Controllers
 {
-    [Route("[controller]")]
     public class LeaderboardController : Controller
     {
         private readonly ILogger<LeaderboardController> _logger;
@@ -24,10 +23,16 @@ namespace TF2SA.Web.Controllers
             this.statsService = statsService;
         }
 
-        public IActionResult Index()
+        public IActionResult AllTime()
         {
-            var playerGamesAmounts = statsService.AllTimeStats();
-            return View(playerGamesAmounts);
+            var playerStats = statsService.AllTimeStats();
+            return View(playerStats);
+        }
+
+        public IActionResult Recent()
+        {
+            var playerStats = statsService.RecentStats();
+            return View(playerStats);
         }
 
     }
