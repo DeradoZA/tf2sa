@@ -85,156 +85,165 @@ namespace TF2SA.Data.Services.Mariadb
 
         public List<PlayerPerformanceStats> AllTimeStats()
         {
-            var allPlayerGames = playerStatRepository.GetAll();
-            var joinedPlayerStats = PlayerStatsJoinList();
-
-            var playerNumGames = (
-                from playerGame in allPlayerGames
-                group playerGame by playerGame.SteamId into groupedPlayerGames
-                select new
-                {
-                    SteamID = groupedPlayerGames.Key,
-                    NumberOfGames = groupedPlayerGames.Count(),
-                }
-            ).ToList();
-
-            var playerStats = (
-                from jps in joinedPlayerStats
-                where jps.ClassId != StatsCollectionConstants.Medic_ClassID && jps.Playtime > StatsCollectionConstants.Playtime_Threshold
-                group jps by jps.SteamId into groupedPlayerStats
-                select new
-                {
-                    SteamID = groupedPlayerStats.Key,
-                    SteamName = groupedPlayerStats.FirstOrDefault().PlayerName,
-                    AverageDPM = groupedPlayerStats.Average(d => d.Damage / (d.Playtime / 60)),
-                    AverageKills = groupedPlayerStats.Average(k => k.Kills),
-                    AverageAssists = groupedPlayerStats.Average(a => a.Assists),
-                    AverageDeaths = groupedPlayerStats.Average(de => de.Deaths)
-                }
-            ).ToList();
-
-            var playerAirshots = ( 
-                from jps in joinedPlayerStats
-                where jps.ClassId == StatsCollectionConstants.Soldier_ClassID || jps.ClassId == StatsCollectionConstants.Demoman_ClassID
-                group jps by jps.SteamId into groupedPlayerStats
-                select new
-                {
-                    SteamID = groupedPlayerStats.Key,
-                    AverageAirshots = groupedPlayerStats.Average(a => a.Airshots)
-                }
-            ).ToList();
-
-            var playerHeadshots = (
-                from jps in joinedPlayerStats
-                where jps.ClassId == StatsCollectionConstants.Sniper_ClassID
-                group jps by jps.SteamId into groupedPlayerStats
-                select new
-                {
-                        SteamID = groupedPlayerStats.Key,
-                        AverageHeadshots = groupedPlayerStats.Average(h => h.Headshots)
-                }
-            );
+            var playerNumberOfGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD);
+            var playerGeneralStats = AverageMainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD);
+            var playerAirshots = AverageAirshotCollector(StatsCollectionConstants.ALLTIME_THRESHOLD);
+            var playerHeadshots = AverageHeadshotCollector(StatsCollectionConstants.ALLTIME_THRESHOLD);
 
             var completeLeaderboard = (
-                from png in playerNumGames
-                join ps in playerStats on png.SteamID equals ps.SteamID
-                join pa in playerAirshots on png.SteamID equals pa.SteamID
-                join ph in playerHeadshots on png.SteamID equals ph.SteamID
-                where png.NumberOfGames > StatsCollectionConstants.Player_NumberOfGames_Threshold
-                orderby ps.AverageDPM descending
-                select new PlayerPerformanceStats
-                (
-                    png.SteamID,
-                    ps.SteamName,
+                from png in playerNumberOfGames
+                join pgs in playerGeneralStats on png.SteamId equals pgs.SteamId
+                join pa in playerAirshots on png.SteamId equals pa.SteamId
+                join ph in playerHeadshots on png.SteamId equals ph.SteamId
+                where png.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby pgs.AverageDPM descending
+                select new PlayerPerformanceStats(
+                    png.SteamId,
+                    png.SteamName,
                     png.NumberOfGames,
-                    ps.AverageDPM,
-                    ps.AverageKills,
-                    ps.AverageAssists,
-                    ps.AverageDeaths,
-                    pa.AverageAirshots,
-                    ph.AverageHeadshots
-                )
-            );
+                    pgs.AverageDPM,
+                    pgs.AverageKills,
+                    pgs.AverageAssists,
+                    pgs.AverageDeaths,
+                    pa.AirshotsAverage,
+                    ph.HeadshotsAverage
+                ));
 
             return completeLeaderboard.ToList();
         }
 
-        public List<PlayerPerformanceStats> RecentStats()
+
+        private List<PlayerNumGames> PlayerGameCounter(int timeFrame, int classID = 0)
         {
-            var allPlayerGames = playerStatRepository.GetAll();
             var joinedPlayerStats = PlayerStatsJoinList();
 
-            var playerNumGames = (
-            from jps in joinedPlayerStats
-            where jps.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - StatsCollectionConstants.RecentGames_Threshold
-            group jps by jps.SteamId into groupedPlayerGames
-            select new
+            var allGames = joinedPlayerStats.Where(game => game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame);
+
+            if (classID != 0)
             {
-                SteamID = groupedPlayerGames.Key,
-                NumberOfGames = groupedPlayerGames.Select(g => g.PlayerStatsId).Distinct().Count()
-            }).ToList();
+                allGames = allGames.Where(game => game.ClassId == classID);
+            }
 
-            var playerStats = (
-                from jps in joinedPlayerStats
-                where jps.ClassId != StatsCollectionConstants.Medic_ClassID && jps.Playtime > StatsCollectionConstants.Playtime_Threshold
-                && jps.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - StatsCollectionConstants.RecentGames_Threshold
-                group jps by jps.SteamId into groupedPlayerStats
-                select new
-                {
-                    SteamID = groupedPlayerStats.Key,
-                    SteamName = groupedPlayerStats.FirstOrDefault().PlayerName,
-                    AverageDPM = groupedPlayerStats.Average(d => d.Damage / (d.Playtime / 60)),
-                    AverageKills = groupedPlayerStats.Average(k => k.Kills),
-                    AverageAssists = groupedPlayerStats.Average(a => a.Assists),
-                    AverageDeaths = groupedPlayerStats.Average(de => de.Deaths)
-                }
-            ).ToList();
+            var groupedPlayerGames = allGames.GroupBy(player => player.SteamId);
 
-            var playerAirshots = ( 
-                from jps in joinedPlayerStats
-                where (jps.ClassId == StatsCollectionConstants.Soldier_ClassID || jps.ClassId == StatsCollectionConstants.Demoman_ClassID)
-                && (jps.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - StatsCollectionConstants.RecentGames_Threshold)
-                group jps by jps.SteamId into groupedPlayerStats
-                select new
-                {
-                    SteamID = groupedPlayerStats.Key,
-                    AverageAirshots = groupedPlayerStats.Average(a => a.Airshots)
-                }
-            ).ToList();
+            var groupedPlayerDistinctGames =
+                groupedPlayerGames.Select(game => 
+                    new PlayerNumGames(
+                        game.Key,
+                        game.FirstOrDefault().PlayerName,
+                        game.Select(g => g.PlayerStatsId).Distinct().Count()
+                ));
 
-             var playerHeadshots = (
-                from jps in joinedPlayerStats
-                where jps.ClassId == StatsCollectionConstants.Sniper_ClassID
-                && (jps.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - StatsCollectionConstants.RecentGames_Threshold)
-                group jps by jps.SteamId into groupedPlayerStats
-                select new
-                {
-                        SteamID = groupedPlayerStats.Key,
-                        AverageHeadshots = groupedPlayerStats.Average(h => h.Headshots)
-                }
-            ).ToList();
+            return groupedPlayerDistinctGames.ToList();                                                           
+        }
 
-            var completeLeaderboard = (
-                from png in playerNumGames
-                join ps in playerStats on png.SteamID equals ps.SteamID
-                join pa in playerAirshots on png.SteamID equals pa.SteamID
-                join ph in playerHeadshots on png.SteamID equals ph.SteamID
-                where png.NumberOfGames > StatsCollectionConstants.Player_NumberOfGames_Threshold
-                orderby ps.AverageDPM descending
-                select new PlayerPerformanceStats
-                (
-                    png.SteamID,
-                    ps.SteamName,
-                    png.NumberOfGames,
-                    ps.AverageDPM,
-                    ps.AverageKills,
-                    ps.AverageAssists,
-                    ps.AverageDeaths,
-                    pa.AverageAirshots,
-                    ph.AverageHeadshots
-                )
+        private List<AverageMainStats> AverageMainStatsCollector(int timeFrame, int classID = 0)
+        {
+            var joinedPlayerStats = PlayerStatsJoinList();
+            var allGames = joinedPlayerStats.Where(game =>
+                game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame &&
+                game.Playtime > StatsCollectionConstants.PLAYTIME_THRESHOLD
             );
 
+            if (classID == 0)
+            {
+                allGames = allGames.Where(game => game.ClassId != 7);
+            }
+            else
+            {
+                allGames = allGames.Where(game => game.ClassId == classID);
+            }
+
+            var groupedPlayerGames = allGames.GroupBy(player => player.SteamId);
+
+            var averagedStats = groupedPlayerGames.Select(
+                player => new AverageMainStats(
+                    player.Key,
+                    player.Average(d => d.Damage / (d.Playtime / 60)),
+                    player.Average(k => k.Kills),
+                    player.Average(a => a.Assists),
+                    player.Average(de => de.Deaths)
+            ));
+
+            return averagedStats.ToList();
+        }
+
+        private List<AverageAirshots> AverageAirshotCollector(int timeFrame, int classID = 0)
+        {
+            var joinedPlayerStats = PlayerStatsJoinList();
+
+            var allGames = joinedPlayerStats.Where(game => game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame);
+
+            if (classID == 0)
+            {
+                allGames = allGames.Where(game => 
+                    game.ClassId == StatsCollectionConstants.SOLDIER_CLASSID ||
+                    game.ClassId == StatsCollectionConstants.DEMOMAN_CLASSID);
+            }
+            else
+            {
+                allGames = allGames.Where(game =>
+                    game.ClassId == classID);
+            }
+
+            var groupedPlayerGames = allGames.GroupBy(game => game.SteamId);
+
+            var averagedAirshots = groupedPlayerGames.Select(player =>
+                new AverageAirshots(
+                    player.Key,
+                    player.Average(a => a.Airshots)
+                ));
+
+            return averagedAirshots.ToList();
+        }
+
+        private List<AverageHeadshots> AverageHeadshotCollector(int timeFrame)
+        {
+            var joinedPlayerStats = PlayerStatsJoinList();
+
+            var allGames = joinedPlayerStats.Where(game => 
+                game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame &&
+                game.ClassId == StatsCollectionConstants.SNIPER_CLASSID
+            );
+
+            var groupedPlayerGames = allGames.GroupBy(game => game.SteamId);
+
+            var averagedHeadshots = groupedPlayerGames.Select(player =>
+                new AverageHeadshots(
+                    player.Key,
+                    player.Average(h => h.Headshots)
+                ));
+
+            return averagedHeadshots.ToList();
+        }
+        public List<PlayerPerformanceStats> RecentStats()
+        {
+            
+            var playerNumberOfGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
+            var playerGeneralStats = AverageMainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
+            var playerAirshots = AverageAirshotCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
+            var playerHeadshots = AverageHeadshotCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
+
+            var completeLeaderboard = (
+                from png in playerNumberOfGames
+                join pgs in playerGeneralStats on png.SteamId equals pgs.SteamId
+                join pa in playerAirshots on png.SteamId equals pa.SteamId
+                join ph in playerHeadshots on png.SteamId equals ph.SteamId
+                where png.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby pgs.AverageDPM descending
+                select new PlayerPerformanceStats(
+                    png.SteamId,
+                    png.SteamName,
+                    png.NumberOfGames,
+                    pgs.AverageDPM,
+                    pgs.AverageKills,
+                    pgs.AverageAssists,
+                    pgs.AverageDeaths,
+                    pa.AirshotsAverage,
+                    ph.HeadshotsAverage
+                )
+            );
+            
             return completeLeaderboard.ToList();
         }
     }
