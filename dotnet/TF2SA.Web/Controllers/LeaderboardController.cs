@@ -35,5 +35,53 @@ namespace TF2SA.Web.Controllers
             return View(playerStats);
         }
 
+        public IActionResult ScoutAllTime()
+        {
+            var scoutStats = statsService.ScoutStatsAllTime();
+            return View(scoutStats);
+        }
+
+        public IActionResult ScoutRecent()
+        {
+            var scoutStats = statsService.ScoutStatsRecent();
+            return View(scoutStats);
+        }
+
+        public IActionResult SoldierRecent()
+        {
+            var soldierStats = statsService.SoldierStatsRecent();
+            return View(soldierStats);
+        }
+
+        public IActionResult SoldierAllTime()
+        {
+            var soldierStats = statsService.SoldierStatsAllTime();
+            return View(soldierStats);
+        }
+
+        public IActionResult DemomanRecent()
+        {
+            var demoStats = statsService.DemomanStatsRecent();
+            return View(demoStats);
+        }
+
+        public IActionResult DemomanAllTime()
+        {
+            var demoStats = statsService.DemomanStatsAllTime();
+            return View(demoStats);
+        }
+
+        public IActionResult MedicAllTime()
+        {
+            var medicStats = statsService.MedicStatsAllTime();
+            return View(medicStats);
+        }
+
+        public IActionResult MedicRecent()
+        {
+            var medicStats = statsService.MedicStatsRecent();
+            return View(medicStats);
+        }
+
     }
 }

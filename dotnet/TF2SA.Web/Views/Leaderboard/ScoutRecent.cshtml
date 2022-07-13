@@ -1,7 +1,7 @@
+@model IEnumerable<ScoutPerformanceStats>
 @{
-    ViewData["Title"] = "All-Time";
+    ViewData["Title"] = "ScoutRecent";
 }
-@model IEnumerable<PlayerPerformanceStats>
 
 <h1>@ViewData["Title"]</h1>
 
@@ -16,8 +16,6 @@
                 <th>AverageKills</th>
                 <th>AverageAssists</th>
                 <th>AverageDeaths</th>
-                <th>AverageAirshots</th>
-                <th>AverageHeadshots</th>
             </tr>
     @foreach (var PlayerStat in @Model)
     {
@@ -28,8 +26,6 @@
             <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2)</td>
             <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2)</td>
             <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageAirshots), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageHeadshots), 2)</td>
         </tr>
     }
     </table> 

@@ -15,5 +15,21 @@ namespace TF2SA.Data.Services.Base
         public List<PlayerPerformanceStats> AllTimeStats();
 
         public List<PlayerPerformanceStats> RecentStats();
+
+        public List<ScoutPerformanceStats> ScoutStatsAllTime();
+
+        public List<ScoutPerformanceStats> ScoutStatsRecent();
+
+        public List<ExplosiveClassStats> SoldierStatsAllTime();
+
+        public List<ExplosiveClassStats> SoldierStatsRecent();
+
+        public List<ExplosiveClassStats> DemomanStatsAllTime();
+
+        public List<ExplosiveClassStats> DemomanStatsRecent();
+
+        public List<MedicPerformanceStats> MedicStatsAllTime();
+
+        public List<MedicPerformanceStats> MedicStatsRecent();
     }
 }
