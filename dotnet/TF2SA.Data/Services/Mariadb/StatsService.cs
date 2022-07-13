@@ -197,6 +197,28 @@ namespace TF2SA.Data.Services.Mariadb
             return averagedAirshots.ToList();
         }
 
+        private List<AverageMedicStats> AverageMedicStatsCollector(int timeFrame)
+        {
+            var joinedPlayerStats = PlayerStatsJoinList();
+
+            var allGames = joinedPlayerStats.Where(game =>
+                game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame &&
+                game.ClassId == StatsCollectionConstants.MEDIC_CLASSID &&
+                game.Playtime > StatsCollectionConstants.PLAYTIME_THRESHOLD);
+
+            var groupedPlayerGames = allGames.GroupBy(game => game.SteamId);    
+
+            var averagedMedicStats = groupedPlayerGames.Select(player =>
+            new AverageMedicStats(
+                player.Key,
+                player.Average(d => d.Drops),
+                player.Average(u => u.Ubers),
+                player.Average(h => h.Heals / (h.Playtime / 60))
+            ));
+
+            return averagedMedicStats.ToList();
+        }
+
         private List<AverageHeadshots> AverageHeadshotCollector(int timeFrame)
         {
             var joinedPlayerStats = PlayerStatsJoinList();
@@ -246,7 +268,227 @@ namespace TF2SA.Data.Services.Mariadb
             
             return completeLeaderboard.ToList();
         }
+
+        public List<ScoutPerformanceStats> ScoutStatsAllTime()
+        {
+            var scoutGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SCOUT_CLASSID);
+            var scoutPerformance = AverageMainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SCOUT_CLASSID);
+
+            var completeLeaderboard = (
+                from sg in scoutGames
+                join sp in scoutPerformance on sg.SteamId equals sp.SteamId
+                where sg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby sp.AverageDPM descending
+                select new ScoutPerformanceStats
+                (
+                    sg.SteamId,
+                    sg.SteamName,
+                    sg.NumberOfGames,
+                    sp.AverageDPM,
+                    sp.AverageKills,
+                    sp.AverageAssists,
+                    sp.AverageDeaths
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<ScoutPerformanceStats> ScoutStatsRecent()
+        {
+            var scoutGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SCOUT_CLASSID);
+            var scoutPerformance = AverageMainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SCOUT_CLASSID);
+
+            var completeLeaderboard = (
+                from sg in scoutGames
+                join sp in scoutPerformance on sg.SteamId equals sp.SteamId
+                where sg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby sp.AverageDPM descending
+                select new ScoutPerformanceStats
+                (
+                    sg.SteamId,
+                    sg.SteamName,
+                    sg.NumberOfGames,
+                    sp.AverageDPM,
+                    sp.AverageKills,
+                    sp.AverageAssists,
+                    sp.AverageDeaths
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<ExplosiveClassStats> SoldierStatsAllTime()
+        {
+            var soldierGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
+            var SoldierPerformance = AverageMainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
+            var soldierAirshots = AverageAirshotCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.SOLDIER_CLASSID);
+
+            var completeLeaderboard = (
+                from sg in soldierGames
+                join sp in SoldierPerformance on sg.SteamId equals sp.SteamId
+                join sa in soldierAirshots on sg.SteamId equals sa.SteamId
+                where sg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby sp.AverageDPM descending
+                select new ExplosiveClassStats
+                (
+                    sg.SteamId,
+                    sg.SteamName,
+                    sg.NumberOfGames,
+                    sp.AverageDPM,
+                    sp.AverageKills,
+                    sp.AverageAssists,
+                    sp.AverageDeaths,
+                    sa.AirshotsAverage
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<ExplosiveClassStats> SoldierStatsRecent()
+        {
+            var soldierGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
+            var SoldierPerformance = AverageMainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
+            var soldierAirshots = AverageAirshotCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD,StatsCollectionConstants.SOLDIER_CLASSID);
+
+            var completeLeaderboard = (
+                from sg in soldierGames
+                join sp in SoldierPerformance on sg.SteamId equals sp.SteamId
+                join sa in soldierAirshots on sg.SteamId equals sa.SteamId
+                where sg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby sp.AverageDPM descending
+                select new ExplosiveClassStats
+                (
+                    sg.SteamId,
+                    sg.SteamName,
+                    sg.NumberOfGames,
+                    sp.AverageDPM,
+                    sp.AverageKills,
+                    sp.AverageAssists,
+                    sp.AverageDeaths,
+                    sa.AirshotsAverage
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<ExplosiveClassStats> DemomanStatsAllTime()
+        {
+            var demomanGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
+            var demomanPerformance = AverageMainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
+            var demomanAirshots = AverageAirshotCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.DEMOMAN_CLASSID);
+
+            var completeLeaderboard = (
+                from dg in demomanGames
+                join dp in demomanPerformance on dg.SteamId equals dp.SteamId
+                join da in demomanAirshots on dg.SteamId equals da.SteamId
+                where dg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby dp.AverageDPM descending
+                select new ExplosiveClassStats
+                (
+                    dg.SteamId,
+                    dg.SteamName,
+                    dg.NumberOfGames,
+                    dp.AverageDPM,
+                    dp.AverageKills,
+                    dp.AverageAssists,
+                    dp.AverageDeaths,
+                    da.AirshotsAverage
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<ExplosiveClassStats> DemomanStatsRecent()
+        {
+            var demomanGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
+            var demomanPerformance = AverageMainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
+            var demomanAirshots = AverageAirshotCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD,StatsCollectionConstants.DEMOMAN_CLASSID);
+
+            var completeLeaderboard = (
+                from dg in demomanGames
+                join dp in demomanPerformance on dg.SteamId equals dp.SteamId
+                join da in demomanAirshots on dg.SteamId equals da.SteamId
+                where dg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby dp.AverageDPM descending
+                select new ExplosiveClassStats
+                (
+                    dg.SteamId,
+                    dg.SteamName,
+                    dg.NumberOfGames,
+                    dp.AverageDPM,
+                    dp.AverageKills,
+                    dp.AverageAssists,
+                    dp.AverageDeaths,
+                    da.AirshotsAverage
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<MedicPerformanceStats> MedicStatsAllTime()
+        {
+            var medicGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.MEDIC_CLASSID);
+            var medicCombatStats = AverageMainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.MEDIC_CLASSID);
+            var medicHealingStats = AverageMedicStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD);
+
+            var completeLeaderboard = (
+                from mg in medicGames
+                join mcs in medicCombatStats on mg.SteamId equals mcs.SteamId
+                join mhs in medicHealingStats on mg.SteamId equals mhs.SteamId
+                where mg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby mhs.AverageHeals descending
+                select new MedicPerformanceStats(
+                    mg.SteamId,
+                    mg.SteamName,
+                    mg.NumberOfGames,
+                    mcs.AverageDPM,
+                    mcs.AverageKills,
+                    mcs.AverageAssists,
+                    mcs.AverageDeaths,
+                    mhs.AverageDrops,
+                    mhs.AverageUbers,
+                    mhs.AverageHeals
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
+
+        public List<MedicPerformanceStats> MedicStatsRecent()
+        {
+            var medicGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.MEDIC_CLASSID);
+            var medicCombatStats = AverageMainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.MEDIC_CLASSID);
+            var medicHealingStats = AverageMedicStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
+
+            var completeLeaderboard = (
+                from mg in medicGames
+                join mcs in medicCombatStats on mg.SteamId equals mcs.SteamId
+                join mhs in medicHealingStats on mg.SteamId equals mhs.SteamId
+                where mg.NumberOfGames > StatsCollectionConstants.PLAYER_NUMBEROFGAMES_THRESHOLD
+                orderby mhs.AverageHeals descending
+                select new MedicPerformanceStats(
+                    mg.SteamId,
+                    mg.SteamName,
+                    mg.NumberOfGames,
+                    mcs.AverageDPM,
+                    mcs.AverageKills,
+                    mcs.AverageAssists,
+                    mcs.AverageDeaths,
+                    mhs.AverageDrops,
+                    mhs.AverageUbers,
+                    mhs.AverageHeals
+                )
+            );
+
+            return completeLeaderboard.ToList();
+        }
     }
-}
+    }
 
    
