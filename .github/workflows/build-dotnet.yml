@@ -17,6 +17,6 @@ jobs:
       - name: Install dependencies    
         run: dotnet restore dotnet/
       - name: Build
-        run: dotnet build dotnet/ --no-restore
+        run: dotnet build dotnet/ --no-restore /warnaserror
       - name: Publish
         run: dotnet publish dotnet/TF2SA.Web/ --configuration Release
