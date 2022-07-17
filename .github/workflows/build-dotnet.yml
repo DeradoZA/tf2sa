@@ -4,19 +4,19 @@ on: [pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET 6 SDK
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: "6.0.x"
 
-      - name: Install dependencies    
+      - name: Install dependencies
         run: dotnet restore dotnet/
       - name: Build
-        run: dotnet build dotnet/ --no-restore
+        run: dotnet build dotnet/ --no-restore /warnaserror
       - name: Publish
         run: dotnet publish dotnet/TF2SA.Web/ --configuration Release

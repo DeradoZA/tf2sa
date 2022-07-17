@@ -1,6 +1,6 @@
 name: deploy
 
-on: 
+on:
   push:
     branches:
       - main
@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: connect
