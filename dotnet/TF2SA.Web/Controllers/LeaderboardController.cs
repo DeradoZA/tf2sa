@@ -9,15 +9,17 @@ using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Services.Base;
 using TF2SA.Data.Models;
+using TF2SA.Data.Constants;
+using TF2SA.Web.Models;
 
 namespace TF2SA.Web.Controllers
 {
     public class LeaderboardController : Controller
     {
         private readonly ILogger<LeaderboardController> _logger;
-        private readonly IStatsService statsService;
+        private readonly IStatsService<ulong> statsService;
 
-        public LeaderboardController(ILogger<LeaderboardController> logger, IStatsService statsService)
+        public LeaderboardController(ILogger<LeaderboardController> logger, IStatsService<ulong> statsService)
         {
             _logger = logger;
             this.statsService = statsService;
@@ -55,7 +57,7 @@ namespace TF2SA.Web.Controllers
 
         public IActionResult SoldierAllTime()
         {
-            var soldierStats = statsService.SoldierStatsAllTime();
+            var soldierStats = statsService.SoldierStatsAllTime(0);
             return View(soldierStats);
         }
 
@@ -67,13 +69,13 @@ namespace TF2SA.Web.Controllers
 
         public IActionResult DemomanAllTime()
         {
-            var demoStats = statsService.DemomanStatsAllTime();
+            var demoStats = statsService.DemomanStatsAllTime(0);
             return View(demoStats);
         }
 
         public IActionResult MedicAllTime()
         {
-            var medicStats = statsService.MedicStatsAllTime();
+            var medicStats = statsService.MedicStatsAllTime(0);
             return View(medicStats);
         }
 
@@ -82,6 +84,17 @@ namespace TF2SA.Web.Controllers
             var medicStats = statsService.MedicStatsRecent();
             return View(medicStats);
         }
+        public IActionResult PlayerPage(ulong steamid)
+        {
+            var playerHighlights = statsService.PlayerHighlightCollector(steamid);
+            var playerScoutStats = statsService.MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,1,steamid);
+            var playerSoldierStats = statsService.SoldierStatsAllTime(steamid);
+            var playerDemomanStats = statsService.DemomanStatsAllTime(steamid);
+            var playerMedicStats = statsService.MedicStatsAllTime(steamid);
 
+            var playerPageStats = new PlayerStatPageModel(playerHighlights,playerScoutStats,playerSoldierStats,playerDemomanStats,playerMedicStats);
+
+            return View(playerPageStats);
+        }
     }
 }

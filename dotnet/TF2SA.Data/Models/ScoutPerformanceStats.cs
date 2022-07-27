@@ -11,26 +11,26 @@ namespace TF2SA.Data.Models
             ulong steamId,
             string steamName, 
             int numberOfGames, 
-            double? averageDPM, 
-            double? averageKills, 
-            double? averageAssists, 
-            double? averageDeaths)
+            double? DPM, 
+            double? Kills, 
+            double? Assists, 
+            double? Deaths)
         {
-            SteamId = steamId;
-            SteamName = steamName;
-            NumberOfGames = numberOfGames;
-            AverageDPM = averageDPM;
-            AverageKills = averageKills;
-            AverageAssists = averageAssists;
-            AverageDeaths = averageDeaths;
+            this.SteamId = steamId;
+            this.SteamName = steamName;
+            this.NumberOfGames = numberOfGames;
+            this.DPM = DPM;
+            this.Kills = Kills;
+            this.Assists = Assists;
+            this.Deaths = Deaths;
         }
 
         public ulong SteamId { get; set; }
         public string SteamName { get; set; }
         public int NumberOfGames { get; set; }
-        public double? AverageDPM { get; set; }
-        public double? AverageKills { get; set; }
-        public double? AverageAssists { get; set; }
-        public double? AverageDeaths { get; set; }
+        public double? DPM { get; set; }
+        public double? Kills { get; set; }
+        public double? Assists { get; set; }
+        public double? Deaths { get; set; }
     }
 }
