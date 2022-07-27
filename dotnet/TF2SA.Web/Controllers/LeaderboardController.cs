@@ -84,14 +84,13 @@ namespace TF2SA.Web.Controllers
             var medicStats = statsService.MedicStatsRecent();
             return View(medicStats);
         }
-
-        public IActionResult PlayerPage()
+        public IActionResult PlayerPage(ulong steamid)
         {
-            var playerHighlights = statsService.PlayerHighlightCollector(76561198080441494);
-            var playerScoutStats = statsService.MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,1,76561198080441494);
-            var playerSoldierStats = statsService.SoldierStatsAllTime(76561198080441494);
-            var playerDemomanStats = statsService.DemomanStatsAllTime(76561198080441494);
-            var playerMedicStats = statsService.MedicStatsAllTime(76561198080441494);
+            var playerHighlights = statsService.PlayerHighlightCollector(steamid);
+            var playerScoutStats = statsService.MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,1,steamid);
+            var playerSoldierStats = statsService.SoldierStatsAllTime(steamid);
+            var playerDemomanStats = statsService.DemomanStatsAllTime(steamid);
+            var playerMedicStats = statsService.MedicStatsAllTime(steamid);
 
             var playerPageStats = new PlayerStatPageModel(playerHighlights,playerScoutStats,playerSoldierStats,playerDemomanStats,playerMedicStats);
 

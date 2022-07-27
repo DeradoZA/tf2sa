@@ -22,7 +22,7 @@
     @foreach (var PlayerStat in @Model)
     {
         <tr>
-            <td>@PlayerStat.SteamName</td>
+            <td>@Html.ActionLink(PlayerStat.SteamName, "PlayerPage", "Leaderboard", new {steamid = PlayerStat.SteamId})</td>
             <td>@PlayerStat.NumberOfGames</td>
             <td>@Math.Round(Convert.ToDouble(PlayerStat.DPM), 2)</td>
             <td>@Math.Round(Convert.ToDouble(PlayerStat.Kills), 2)</td>
