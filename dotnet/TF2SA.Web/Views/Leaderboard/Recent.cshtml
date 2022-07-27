@@ -12,24 +12,24 @@
             <tr>
                 <th>Player Name</th>
                 <th>NumberOfGames</th>
-                <th>AverageDPM</th>
-                <th>AverageKills</th>
-                <th>AverageAssists</th>
-                <th>AverageDeaths</th>
-                <th>AverageAirshots</th>
-                <th>AverageHeadshots</th>
+                <th>DPM</th>
+                <th>Kills</th>
+                <th>Assists</th>
+                <th>Deaths</th>
+                <th>Airshots</th>
+                <th>Headshots</th>
             </tr>
     @foreach (var PlayerStat in @Model)
     {
         <tr>
             <td>@PlayerStat.SteamName</td>
             <td>@PlayerStat.NumberOfGames</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageDPM), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageKills), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageAssists), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageDeaths), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageAirshots), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.AverageHeadshots), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.DPM), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.Kills), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.Assists), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.Deaths), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.Airshots), 2)</td>
+            <td>@Math.Round(Convert.ToDouble(PlayerStat.Headshots), 2)</td>
         </tr>
     }
     </table> 

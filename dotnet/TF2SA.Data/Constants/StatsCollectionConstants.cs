@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TF2SA.Data.Constants
 {
-    static class StatsCollectionConstants
+    public static class StatsCollectionConstants
     {
         
         public const int SCOUT_CLASSID = 1;

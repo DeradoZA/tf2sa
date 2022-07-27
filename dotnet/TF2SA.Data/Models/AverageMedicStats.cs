@@ -7,17 +7,17 @@ namespace TF2SA.Data.Models
 {
     public class AverageMedicStats
     {
-        public AverageMedicStats(ulong steamId, double? averageDrops, double? averageUbers, double? averageHeals)
+        public AverageMedicStats(ulong steamId, double? Drops, double? Ubers, double? Heals)
         {
             this.SteamId = steamId;
-            this.AverageDrops = averageDrops;
-            this.AverageUbers = averageUbers;
-            this.AverageHeals = averageHeals;
+            this.Drops = Drops;
+            this.Ubers = Ubers;
+            this.Heals = Heals;
         }
 
         public ulong SteamId { get; set; }
-        public double? AverageDrops { get; set; }
-        public double? AverageUbers { get; set; }
-        public double? AverageHeals { get; set; }
+        public double? Drops { get; set; }
+        public double? Ubers { get; set; }
+        public double? Heals { get; set; }
     }
 }
