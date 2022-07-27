@@ -170,6 +170,8 @@ if __name__ == "__main__":
         user        = os.environ['TF2SA_MYSQL_USR'],
         password    = os.environ['TF2SA_MYSQL_PWD'],
         database    = os.environ['TF2SA_MYSQL_DB'],
+        charset     = 'utf8mb4',
+        collation   = 'utf8mb4_unicode_ci'
     )
     cursor = db.cursor()
     cursor.autocommit = True
