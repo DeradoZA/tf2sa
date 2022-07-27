@@ -7,18 +7,19 @@ namespace TF2SA.Data.Models
 {
     public class PlayerHighlights
     {
-        public PlayerHighlights(ulong steamID,
-                                uint? highestScoutDamage, 
-                                byte? highestScoutKills,
-                                uint? highestSoldierDamage,
-                                byte? highestSoldierKills, 
-                                byte? highestSoldierAirshots, 
-                                uint? highestDemomanDamage, 
-                                byte? highestDemomanKills, 
-                                byte? highestDemomanAirshots, 
-                                byte? highestDrops, 
-                                uint? highestHeals, 
-                                byte? highestUbers)
+        public PlayerHighlights(
+            ulong steamID,
+            uint? highestScoutDamage, 
+            byte? highestScoutKills,
+            uint? highestSoldierDamage,
+            byte? highestSoldierKills, 
+            byte? highestSoldierAirshots, 
+            uint? highestDemomanDamage, 
+            byte? highestDemomanKills, 
+            byte? highestDemomanAirshots, 
+            byte? highestDrops, 
+            uint? highestHeals, 
+            byte? highestUbers)
         {
             this.SteamID = steamID;
             this.HighestScoutDamage = highestScoutDamage;
