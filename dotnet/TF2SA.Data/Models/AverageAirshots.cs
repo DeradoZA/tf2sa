@@ -7,13 +7,13 @@ namespace TF2SA.Data.Models
 {
     public class AverageAirshots
     {
-        public AverageAirshots(ulong steamId, double? airshotsAverage)
+        public AverageAirshots(ulong steamId, double? airshots)
         {
             this.SteamId = steamId;
-            this.AirshotsAverage = airshotsAverage;
+            this.Airshots = airshots;
         }
 
         public ulong SteamId { get; set; }
-        public double? AirshotsAverage { get; set; }
+        public double? Airshots { get; set; }
     }
 }

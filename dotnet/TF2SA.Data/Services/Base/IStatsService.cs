@@ -6,7 +6,7 @@ using TF2SA.Data.Models;
 
 namespace TF2SA.Data.Services.Base
 {
-    public interface IStatsService
+    public interface IStatsService<TId>
     {
         public IQueryable<JoinedStats> PlayerStatsJoinQueryable();
 
@@ -20,16 +20,20 @@ namespace TF2SA.Data.Services.Base
 
         public List<ScoutPerformanceStats> ScoutStatsRecent();
 
-        public List<ExplosiveClassStats> SoldierStatsAllTime();
+        public List<ExplosiveClassStats> SoldierStatsAllTime(TId steamid);
 
         public List<ExplosiveClassStats> SoldierStatsRecent();
 
-        public List<ExplosiveClassStats> DemomanStatsAllTime();
+        public List<ExplosiveClassStats> DemomanStatsAllTime(TId steamid);
 
         public List<ExplosiveClassStats> DemomanStatsRecent();
 
-        public List<MedicPerformanceStats> MedicStatsAllTime();
+        public List<MedicPerformanceStats> MedicStatsAllTime(TId steamid);
 
         public List<MedicPerformanceStats> MedicStatsRecent();
+
+        public List<PlayerHighlights> PlayerHighlightCollector(TId steamid);
+
+        public List<AverageMainStats> MainStatsCollector(int timeFrame, int classID, TId steamid, bool avg = true);
     }
 }
