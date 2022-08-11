@@ -1,43 +1,101 @@
-@model IEnumerable<MedicPerformanceStats>
 @{
-    ViewData["Title"] = "ScoutAllTime";
+    ViewData["Title"] = "Medic All Time";
 }
+@model IEnumerable<MedicPerformanceStats>
 
-<h1>@ViewData["Title"]</h1>
-
-@if (@Model.Count() != null)
-{
-    <div>
-    <table border="5" style="background-color:#FFFFFF;border-collapse:collapse;border:5px solid #6600FF;color:#000000;width:100%" cellpadding="3" cellspacing="3">
-            <tr>
-                <th>Player Name</th>
-                <th>NumberOfGames</th>
-                <th>AverageDPM</th>
-                <th>AverageKills</th>
-                <th>AverageAssists</th>
-                <th>AverageDeaths</th>
-                <th>Average Drops</th>
-                <th>Average Ubers</th>
-                <th>Average Heals</th>
-            </tr>
-    @foreach (var PlayerStat in @Model)
-    {
-        <tr>
-            <td>@Html.ActionLink(PlayerStat.SteamName, "PlayerPage", "Leaderboard", new {steamid = PlayerStat.SteamId})</td>
-            <td>@PlayerStat.NumberOfGames</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.DPM), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.Kills), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.Assists), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.Deaths), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.Drops), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.Ubers), 2)</td>
-            <td>@Math.Round(Convert.ToDouble(PlayerStat.Heals), 2)</td>
-        </tr>
+<style>
+    .stats-page{
+        display: grid;
+        grid-template-columns:  auto;
     }
-    </table> 
+
+    .stats-header{
+        display: grid;
+        grid-template-columns: 200px 5fr 1fr;
+    }
+
+    .stats-content{
+        display: grid;
+        grid-template-columns:  200px auto;
+    }
+
+    td,th,tr
+    {
+        max-width: 100px;
+        width: 100px;
+        word-wrap: break-word;
+    }
+
+    table 
+    {
+        table-layout:fixed;
+        width:100%;
+    }
+</style>
+
+<div class="stats-page">
+
+    <div class="stats-header">
+        <div></div>
+
+        <div>
+            <h1>@ViewData["Title"]</h1>
+        </div>
+
+        <div>
+            <nav>
+                <ul class="nav nav-pills">
+                    <li style="display:inline">
+                        <a class="nav-link active" asp-area="" asp-controller="Leaderboard" asp-action="MedicAllTime">All Time</a>
+                    </li>
+                    <li style="display:inline; padding-left:1em">
+                        <a class="nav-link active" asp-area="" asp-controller="Leaderboard" asp-action="MedicRecent">Recent</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="stats-content">
+        <div class="stats-navbar">
+            <partial name="ClassNavBar"/>
+        </div>
+
+        <div class="stats-main-content">
+            @if (@Model.Count() != null)
+            {
+                <table class="table table-dark table-striped table-hover">
+                    <tr>
+                        <th>Player Name</th>
+                        <th>NumberOfGames</th>
+                        <th>DPM</th>
+                        <th>Kills</th>
+                        <th>Assists</th>
+                        <th>Deaths</th>
+                        <th>Drops</th>
+                        <th>Ubers</th>
+                        <th>Heals</th>
+                    </tr>
+                @foreach (var PlayerStat in @Model)
+                {
+                    <tr>
+                        <td>@Html.ActionLink(PlayerStat.SteamName, "PlayerPage", "Leaderboard", new {steamid = PlayerStat.SteamId})</td>
+                        <td>@PlayerStat.NumberOfGames</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.DPM), 2)</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.Kills), 2)</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.Assists), 2)</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.Deaths), 2)</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.Drops), 2)</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.Ubers), 2)</td>
+                        <td>@Math.Round(Convert.ToDouble(PlayerStat.Heals), 2)</td>
+                    </tr>
+                }
+                </table> 
+            }
+            else
+            {
+                <h1>Well looks like there is no data... Damn</h1>
+            }
+        </div>
+    </div>
 </div>
-}
-else
-{
-    <h1>Well looks like there is no data... Damn</h1>
-}
