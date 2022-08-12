@@ -7,7 +7,7 @@ namespace TF2SA.Data.Models
 {
     public class ExplosiveClassStats
     {
-        public ExplosiveClassStats(ulong steamId, string steamName, int numberOfGames, double? DPM, double? Kills, double? Assists, double? Deaths, double? Airshots)
+        public ExplosiveClassStats(ulong steamId, string? steamName, int numberOfGames, double? DPM, double? Kills, double? Assists, double? Deaths, double? Airshots)
         {
             SteamId = steamId;
             SteamName = steamName;
@@ -20,7 +20,7 @@ namespace TF2SA.Data.Models
         }
 
         public ulong SteamId { get; set; }
-        public string SteamName { get; set; }
+        public string? SteamName { get; set; }
         public int NumberOfGames { get; set; }
         public double? DPM { get; set; }
         public double? Kills { get; set; }
