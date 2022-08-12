@@ -7,7 +7,7 @@ namespace TF2SA.Data.Models
 {
     public class MedicPerformanceStats
     {
-        public MedicPerformanceStats(ulong steamId, string steamName, int numberOfGames, double? averageDPM, double? averageKills, double? averageAssists, double? averageDeaths, double? averageDrops, double? averageUbers, double? averageHeals)
+        public MedicPerformanceStats(ulong steamId, string? steamName, int numberOfGames, double? averageDPM, double? averageKills, double? averageAssists, double? averageDeaths, double? averageDrops, double? averageUbers, double? averageHeals)
         {
             this.SteamId = steamId;
             this.SteamName = steamName;
@@ -22,7 +22,7 @@ namespace TF2SA.Data.Models
         }
 
         public ulong SteamId { get; set; }
-        public string SteamName { get; set; }
+        public string? SteamName { get; set; }
         public int NumberOfGames { get; set; }
         public double? DPM { get; set; }
         public double? Kills { get; set; }

@@ -7,7 +7,7 @@ namespace TF2SA.Data.Models
 {
     public class PlayerNumGames
     {
-        public PlayerNumGames(ulong steamId, string steamName, int numberOfGames)
+        public PlayerNumGames(ulong steamId, string? steamName, int numberOfGames)
         {
             this.SteamId = steamId;
             this.NumberOfGames = numberOfGames;
@@ -15,7 +15,7 @@ namespace TF2SA.Data.Models
         }
 
         public ulong SteamId { get; set; }  
-        public string SteamName { get; set; }
+        public string? SteamName { get; set; }
         public int NumberOfGames { get; set; }
     }
 }

@@ -131,11 +131,13 @@ namespace TF2SA.Data.Services.Mariadb
 
             var groupedPlayerGames = allGames.GroupBy(player => player.SteamId);
 
+            groupedPlayerGames = groupedPlayerGames.Where(player => player.FirstOrDefault()?.PlayerName != null);
+
             var groupedPlayerDistinctGames =
                 groupedPlayerGames.Select(game => 
                     new PlayerNumGames(
                         game.Key,
-                        game.FirstOrDefault().PlayerName,
+                        game.FirstOrDefault()?.PlayerName is not null ? game.FirstOrDefault()?.PlayerName : "No Name",
                         game.Select(g => g.PlayerStatsId).Distinct().Count()
                 ));
 
@@ -310,7 +312,7 @@ namespace TF2SA.Data.Services.Mariadb
                     sg.SteamName,
                     sg.NumberOfGames,
                     sp.DPM,
-                    sp.Assists,
+                    sp.Kills,
                     sp.Assists,
                     sp.Deaths
                 )

@@ -8,7 +8,7 @@ namespace TF2SA.Data.Models
     public class PlayerPerformanceStats
     {
         public ulong SteamId { get; set; }
-        public string SteamName { get; set; }
+        public string? SteamName { get; set; }
         public int NumberOfGames { get; set; }
         public double? DPM { get; set; }
         public double? Kills { get; set; }
@@ -18,7 +18,7 @@ namespace TF2SA.Data.Models
         public double? Headshots { get; set; }
         public PlayerPerformanceStats(
             ulong steamId,
-            string steamName,
+            string? steamName,
             int numberofGames,
             double? DPM,
             double? Kills,

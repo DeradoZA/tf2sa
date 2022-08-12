@@ -9,7 +9,7 @@ namespace TF2SA.Data.Models
     {
         public ScoutPerformanceStats(
             ulong steamId,
-            string steamName, 
+            string? steamName, 
             int numberOfGames, 
             double? DPM, 
             double? Kills, 
@@ -26,7 +26,7 @@ namespace TF2SA.Data.Models
         }
 
         public ulong SteamId { get; set; }
-        public string SteamName { get; set; }
+        public string? SteamName { get; set; }
         public int NumberOfGames { get; set; }
         public double? DPM { get; set; }
         public double? Kills { get; set; }
