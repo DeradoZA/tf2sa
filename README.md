@@ -13,6 +13,6 @@ Environments running the solution require the following configuration injected a
 
 Data extraction from the logs.tf API is done through a python script which inputs the data into a MariaDB database. This data is then used in the ASP.NET Web Application that we have created to be able to properly display player performance statistics to all those who are interested.
 
-![Leaderboards showcase](tf2sa/Images)
+![Leaderboards Showcase](tf2sa/Images)
 
 
