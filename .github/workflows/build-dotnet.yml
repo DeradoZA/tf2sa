@@ -20,6 +20,6 @@ jobs:
       - name: Build
         run: dotnet build dotnet/ --no-restore /warnaserror
       - name: run unit tests
-        run: dotnet test dotnet\TF2SA.Tests.Unit\TF2SA.Tests.Unit.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+        run: dotnet test dotnet\TF2SA.Tests.Unit\TF2SA.Tests.Unit.csproj p:CollectCoverage=true p:CoverletOutput=TestResults/ p:CoverletOutputFormat=lcov
       - name: Publish
         run: dotnet publish dotnet/TF2SA.Web/ --configuration Release
