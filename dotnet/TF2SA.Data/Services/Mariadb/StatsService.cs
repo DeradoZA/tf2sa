@@ -40,40 +40,40 @@ namespace TF2SA.Data.Services.Mariadb
             var classStats = classStatsRepository.GetAllQueryable();
             var gameStats = gamesRepository.GetAllQueryable();
 
-            var InnerJoinQuery = 
+            var InnerJoinQuery =
                 from player in players
                 join playerStat in playerStats on player.SteamId equals playerStat.SteamId
                 join classStat in classStats on playerStat.PlayerStatsId equals classStat.PlayerStatsId
                 join gameStat in gameStats on playerStat.GameId equals gameStat.GameId
                 select new JoinedStats
-                    (
-                        player.SteamId, 
-                        player.PlayerName, 
-                        playerStat.PlayerStatsId,
-                        playerStat.GameId, 
-                        playerStat.TeamId, 
-                        playerStat.DamageTaken,
-                        playerStat.HealsReceived, 
-                        playerStat.MedkitsHp, 
-                        playerStat.Airshots,
-                        playerStat.Headshots, 
-                        playerStat.Backstabs, 
-                        playerStat.Drops,
-                        playerStat.Heals, 
-                        playerStat.Ubers, 
-                        classStat.ClassStatsId,
-                        classStat.ClassId, 
-                        classStat.Playtime,
-                        classStat.Kills,
-                        classStat.Assists, 
-                        classStat.Deaths, 
-                        classStat.Damage,
-                        gameStat.Date,
-                        gameStat.Duration,
-                        gameStat.Map,
-                        gameStat.BluScore,
-                        gameStat.RedScore
-                    );
+                (
+                    player.SteamId,
+                    player.PlayerName,
+                    playerStat.PlayerStatsId,
+                    playerStat.GameId,
+                    playerStat.TeamId,
+                    playerStat.DamageTaken,
+                    playerStat.HealsReceived,
+                    playerStat.MedkitsHp,
+                    playerStat.Airshots,
+                    playerStat.Headshots,
+                    playerStat.Backstabs,
+                    playerStat.Drops,
+                    playerStat.Heals,
+                    playerStat.Ubers,
+                    classStat.ClassStatsId,
+                    classStat.ClassId,
+                    classStat.Playtime,
+                    classStat.Kills,
+                    classStat.Assists,
+                    classStat.Deaths,
+                    classStat.Damage,
+                    gameStat.Date,
+                    gameStat.Duration,
+                    gameStat.Map,
+                    gameStat.BluScore,
+                    gameStat.RedScore
+                );
 
             return InnerJoinQuery;
         }
@@ -134,14 +134,14 @@ namespace TF2SA.Data.Services.Mariadb
             groupedPlayerGames = groupedPlayerGames.Where(player => player.FirstOrDefault()?.PlayerName != null);
 
             var groupedPlayerDistinctGames =
-                groupedPlayerGames.Select(game => 
+                groupedPlayerGames.Select(game =>
                     new PlayerNumGames(
                         game.Key,
                         game.FirstOrDefault()?.PlayerName is not null ? game.FirstOrDefault()?.PlayerName : "No Name",
                         game.Select(g => g.PlayerStatsId).Distinct().Count()
                 ));
 
-            return groupedPlayerDistinctGames.ToList();                                                           
+            return groupedPlayerDistinctGames.ToList();
         }
 
         public List<AverageMainStats> MainStatsCollector(int timeFrame, int classID = 0, ulong steamID = 0, bool avg = true)
@@ -180,7 +180,7 @@ namespace TF2SA.Data.Services.Mariadb
             return averagedStats.ToList();
         }
 
-        private List<AverageAirshots> AirshotStatsCollector(int timeFrame, int classID = 0, ulong steamID = 0, bool avg=true)
+        private List<AverageAirshots> AirshotStatsCollector(int timeFrame, int classID = 0, ulong steamID = 0, bool avg = true)
         {
             var joinedPlayerStats = PlayerStatsJoinList();
 
@@ -188,7 +188,7 @@ namespace TF2SA.Data.Services.Mariadb
 
             if (classID == 0)
             {
-                allGames = allGames.Where(game => 
+                allGames = allGames.Where(game =>
                     game.ClassId == StatsCollectionConstants.SOLDIER_CLASSID ||
                     game.ClassId == StatsCollectionConstants.DEMOMAN_CLASSID);
             }
@@ -228,7 +228,7 @@ namespace TF2SA.Data.Services.Mariadb
                 allGames = allGames.Where(game => game.SteamId == steamID);
             }
 
-            var groupedPlayerGames = allGames.GroupBy(game => game.SteamId);    
+            var groupedPlayerGames = allGames.GroupBy(game => game.SteamId);
 
             var averagedMedicStats = groupedPlayerGames.Select(player =>
             new AverageMedicStats(
@@ -245,7 +245,7 @@ namespace TF2SA.Data.Services.Mariadb
         {
             var joinedPlayerStats = PlayerStatsJoinList();
 
-            var allGames = joinedPlayerStats.Where(game => 
+            var allGames = joinedPlayerStats.Where(game =>
                 game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame &&
                 game.ClassId == StatsCollectionConstants.SNIPER_CLASSID
             );
@@ -267,7 +267,7 @@ namespace TF2SA.Data.Services.Mariadb
         }
         public List<PlayerPerformanceStats> RecentStats()
         {
-            
+
             var playerNumberOfGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
             var playerGeneralStats = MainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
             var playerAirshots = AirshotStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD);
@@ -292,7 +292,7 @@ namespace TF2SA.Data.Services.Mariadb
                     ph.Headshots
                 )
             );
-            
+
             return completeLeaderboard.ToList();
         }
 
@@ -350,7 +350,7 @@ namespace TF2SA.Data.Services.Mariadb
         {
             var soldierGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
             var SoldierPerformance = MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
-            var soldierAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.SOLDIER_CLASSID);
+            var soldierAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
 
             var completeLeaderboard = (
                 from sg in soldierGames
@@ -383,7 +383,7 @@ namespace TF2SA.Data.Services.Mariadb
         {
             var soldierGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
             var SoldierPerformance = MainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
-            var soldierAirshots = AirshotStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD,StatsCollectionConstants.SOLDIER_CLASSID);
+            var soldierAirshots = AirshotStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID);
 
             var completeLeaderboard = (
                 from sg in soldierGames
@@ -411,7 +411,7 @@ namespace TF2SA.Data.Services.Mariadb
         {
             var demomanGames = PlayerGameCounter(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
             var demomanPerformance = MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
-            var demomanAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.DEMOMAN_CLASSID);
+            var demomanAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
 
             var completeLeaderboard = (
                 from dg in demomanGames
@@ -444,7 +444,7 @@ namespace TF2SA.Data.Services.Mariadb
         {
             var demomanGames = PlayerGameCounter(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
             var demomanPerformance = MainStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
-            var demomanAirshots = AirshotStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD,StatsCollectionConstants.DEMOMAN_CLASSID);
+            var demomanAirshots = AirshotStatsCollector(StatsCollectionConstants.RECENTGAMES_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID);
 
             var completeLeaderboard = (
                 from dg in demomanGames
@@ -533,11 +533,11 @@ namespace TF2SA.Data.Services.Mariadb
 
         public List<PlayerHighlights> PlayerHighlightCollector(ulong steamID)
         {
-            var scoutHighlights = MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.SCOUT_CLASSID, steamID, false);
+            var scoutHighlights = MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SCOUT_CLASSID, steamID, false);
             var soldierHighlights = MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID, steamID, false);
-            var maxSoldierAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.SOLDIER_CLASSID, steamID, false);
+            var maxSoldierAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.SOLDIER_CLASSID, steamID, false);
             var demomanHighlights = MainStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID, steamID, false);
-            var maxDemomanAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD,StatsCollectionConstants.DEMOMAN_CLASSID, steamID, false);
+            var maxDemomanAirshots = AirshotStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, StatsCollectionConstants.DEMOMAN_CLASSID, steamID, false);
             var medicHighlights = MedicStatsCollector(StatsCollectionConstants.ALLTIME_THRESHOLD, steamID, false);
 
             var playerHighlights = (
@@ -550,17 +550,17 @@ namespace TF2SA.Data.Services.Mariadb
                 select new PlayerHighlights
                 (
                     steamID,
-                    (uint?) scoutGame.DPM,
-                    (byte?) scoutGame.Kills,
-                    (uint?) soldierGame.DPM,
-                    (byte?) soldierGame.Kills,
-                    (byte?) sAirshots.Airshots,
-                    (uint?) demoGame.DPM,
-                    (byte?) demoGame.Kills,
-                    (byte?) dAirshots.Airshots,
-                    (byte?) medicGame.Drops,
-                    (uint?) medicGame.Heals,
-                    (byte?) medicGame.Ubers
+                    (uint?)scoutGame.DPM,
+                    (byte?)scoutGame.Kills,
+                    (uint?)soldierGame.DPM,
+                    (byte?)soldierGame.Kills,
+                    (byte?)sAirshots.Airshots,
+                    (uint?)demoGame.DPM,
+                    (byte?)demoGame.Kills,
+                    (byte?)dAirshots.Airshots,
+                    (byte?)medicGame.Drops,
+                    (uint?)medicGame.Heals,
+                    (byte?)medicGame.Ubers
                 )
             );
 
@@ -568,6 +568,5 @@ namespace TF2SA.Data.Services.Mariadb
         }
 
     }
-    }
+}
 
-   
