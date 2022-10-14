@@ -18,18 +18,21 @@ namespace TF2SA.Http.LogsTF.LogsTFHttpClient
             this.httpClientFactory = httpClientFactory;
         }
 
-        public Task<OptionStrict<GameLog>> GetGameLog(uint logId)
+        public async Task GetGameLog(uint logId)
         {
 			HttpClient httpClient = httpClientFactory.CreateClient();
 
 			try {
-				//var result = await httpClient.
+				var result = await httpClient.GetAsync($"{BASE_URL}");
+				var json = result.Content;
+				logger.LogInformation($"fetching log ${result}");
 			} catch (Exception e){
 
 			}
+			return;
         }
 
-        public Task<OptionStrict<LogList>> GetLogList(LogListQueryParams filter)
+        public Task GetLogList(LogListQueryParams filter)
         {
             throw new NotImplementedException();
         }

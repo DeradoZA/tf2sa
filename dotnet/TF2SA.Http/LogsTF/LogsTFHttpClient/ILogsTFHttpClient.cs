@@ -5,7 +5,7 @@ namespace TF2SA.Http.LogsTF.LogsTFHttpClient
 {
     public interface ILogsTFHttpClient
     {
-		Task<OptionStrict<GameLog>> GetGameLog(uint logId);
-		Task<OptionStrict<LogList>> GetLogList(LogListQueryParams filter);
+		Task GetGameLog(uint logId);
+		Task GetLogList(LogListQueryParams filter);
     }
 }
