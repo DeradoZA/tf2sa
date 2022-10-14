@@ -6,20 +6,27 @@ namespace TF2SA.Http.LogsTF.LogsTFHttpClient
 {
     public class LogsTFHttpClient : ILogsTFHttpClient
     {
-		private readonly HttpClient httpClient;
+		private readonly IHttpClientFactory httpClientFactory;
 		private readonly ILogger<LogsTFHttpClient> logger;
+		private const string BASE_URL = "http://logs.tf/api/v1/log";
 
         public LogsTFHttpClient(
-            HttpClient httpClient,
-            ILogger<LogsTFHttpClient> logger)
+            ILogger<LogsTFHttpClient> logger,
+            IHttpClientFactory httpClientFactory)
         {
-            this.httpClient = httpClient;
             this.logger = logger;
+            this.httpClientFactory = httpClientFactory;
         }
 
         public Task<OptionStrict<GameLog>> GetGameLog(uint logId)
         {
-            throw new NotImplementedException();
+			HttpClient httpClient = httpClientFactory.CreateClient();
+
+			try {
+				//var result = await httpClient.
+			} catch (Exception e){
+
+			}
         }
 
         public Task<OptionStrict<LogList>> GetLogList(LogListQueryParams filter)
