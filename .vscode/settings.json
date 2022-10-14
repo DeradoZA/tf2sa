@@ -1,5 +1,8 @@
 {
     "github-actions.workflows.pinned.workflows": [".github/workflows/*"],
     "github-actions.workflows.pinned.refresh.enabled": true,
-    "github-actions.workflows.pinned.refresh.interval": 65,
+	"github-actions.workflows.pinned.refresh.interval": 65,
+	"[csharp]": {
+		"editor.defaultFormatter": "csharpier.csharpier-vscode"
+	},
 }
