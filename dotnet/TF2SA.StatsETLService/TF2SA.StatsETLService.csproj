@@ -13,10 +13,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TF2SA.Data\TF2SA.Data.csproj" />
+    <ProjectReference Include="..\TF2SA.Http\TF2SA.Http.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="appsettings.json" CopyToPublishDirectory="Never"/>
-    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never"/>
+    <Content Update="appsettings.json" CopyToPublishDirectory="Never" />
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 using TF2SA.Data;
+using TF2SA.Http;
 
 namespace TF2SA.StatsETLService
 {
@@ -11,6 +12,7 @@ namespace TF2SA.StatsETLService
             services.AddDataLayer(configuration);
             services.AddHostedService<StatsETLServiceRunner>();
             services.AddScoped<IStatsETLService, StatsETLService>();
+			services.AddHttpServices(configuration);
         }
     }
 }

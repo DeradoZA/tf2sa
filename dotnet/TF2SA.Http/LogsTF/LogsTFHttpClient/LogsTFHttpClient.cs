@@ -20,14 +20,15 @@ namespace TF2SA.Http.LogsTF.LogsTFHttpClient
 
         public async Task GetGameLog(uint logId)
         {
+			logger.LogInformation($"fetching game log {logId}");
 			HttpClient httpClient = httpClientFactory.CreateClient();
 
 			try {
-				var result = await httpClient.GetAsync($"{BASE_URL}");
+				var result = await httpClient.GetAsync($"{BASE_URL}/{logId}");
 				var json = result.Content;
-				logger.LogInformation($"fetching log ${result}");
+				logger.LogInformation($"returned log: ${result}");
 			} catch (Exception e){
-
+				logger.LogError($"error fetching log: ${e}");
 			}
 			return;
         }
