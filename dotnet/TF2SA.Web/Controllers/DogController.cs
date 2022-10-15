@@ -5,8 +5,5 @@ using System.Threading.Tasks;
 
 namespace TF2SA.Web.Controllers
 {
-    public class DogController
-    {
-        
-    }
+	public class DogController { }
 }

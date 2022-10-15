@@ -5,8 +5,5 @@ using System.Threading.Tasks;
 
 namespace TF2SA.Http.LogsTF.Models
 {
-    public class GameLog
-    {
-        
-    }
+	public class GameLog { }
 }
