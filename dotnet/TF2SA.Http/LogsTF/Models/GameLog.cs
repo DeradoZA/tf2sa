@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace TF2SA.Http.LogsTF.Models
 {
-	public class GameLog
+    public class GameLog
 	{
 		public int? Version { get; set; }
 		public Dictionary<string, TeamStats>? Teams { get; set; }
@@ -69,6 +65,17 @@ namespace TF2SA.Http.LogsTF.Models
 		public int Ubers { get; set; }
 		public object? UberTypes { get; set; }
 		public int Drops { get; set; }
+		public int MedKits { get; set; }
+		[JsonPropertyName("medkits_hp")]
+		public int MedKitsHealth { get; set; }
+		public int BackStabs { get; set; }
+		public int Headshots { get; set; }
+		[JsonPropertyName("headshots_hit")]
+		public int HeadshotsHit { get; set; }
+		public int Sentries { get; set; }		
+		public int Heal { get; set; }
+		public int Cpc { get; set; }
+		public int Ic { get; set; }
 	}
 
 	public class ClassStats
@@ -91,7 +98,7 @@ namespace TF2SA.Http.LogsTF.Models
 		[JsonPropertyName("dmg")]
 		public int Damage { get; set; }
 		[JsonPropertyName("avg_dmg")]
-		public int AverageDamage { get; set; }
+		public double AverageDamage { get; set; }
 		public int Shots { get; set; }
 		public int Hits { get; set; }
     }
