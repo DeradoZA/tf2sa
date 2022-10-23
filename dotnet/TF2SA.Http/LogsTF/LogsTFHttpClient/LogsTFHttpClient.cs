@@ -1,6 +1,7 @@
 using Monad;
 using TF2SA.Http.LogsTF.Models;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace TF2SA.Http.LogsTF.LogsTFHttpClient
 {
@@ -27,8 +28,18 @@ namespace TF2SA.Http.LogsTF.LogsTFHttpClient
 			try
 			{
 				var result = await httpClient.GetAsync($"{BASE_URL}/{logId}");
-				var json = result.Content;
-				logger.LogInformation($"returned log: ${result}");
+				var json = await result.Content.ReadAsStringAsync();
+				var jsonOptions = new JsonSerializerOptions
+				{
+					PropertyNameCaseInsensitive = true
+				};
+				var serialized = JsonSerializer.Deserialize<GameLog>(json, jsonOptions);
+				logger.LogInformation(
+					$"returned log: {serialized?.Success}\n" +
+					$"version: {serialized?.Version}\n" +
+					$"length: {serialized?.Length}\n" +
+					$"Red Team score: {serialized?.Teams?["Red"].Score}"
+				);
 			}
 			catch (Exception e)
 			{
