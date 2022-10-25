@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using TF2SA.Http.LogsTF.LogsTFHttpClient;
+using TF2SA.Http.LogsTF.Client;
 
 namespace TF2SA.Http
 {

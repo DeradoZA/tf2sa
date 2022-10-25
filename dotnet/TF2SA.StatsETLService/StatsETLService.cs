@@ -1,6 +1,6 @@
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
-using TF2SA.Http.LogsTF.LogsTFHttpClient;
+using TF2SA.Http.LogsTF.Client;
 
 namespace TF2SA.StatsETLService
 {
