@@ -28,6 +28,7 @@
     <ProjectReference Include="..\TF2SA.Data\TF2SA.Data.csproj" />
     <ProjectReference Include="..\TF2SA.StatsETLService\TF2SA.StatsETLService.csproj" />
     <ProjectReference Include="..\TF2SA.Web\TF2SA.Web.csproj" />
+    <ProjectReference Include="..\TF2SA.Http\TF2SA.Http.csproj" />
   </ItemGroup>
 
 </Project>
