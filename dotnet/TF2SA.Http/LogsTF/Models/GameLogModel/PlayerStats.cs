@@ -11,6 +11,7 @@ public class PlayerStats
 	public int Kills { get; set; }
 	public int Deaths { get; set; }
 	public int Assists { get; set; }
+	public int Suicides { get; set; }
 	public string? Kapd { get; set; }
 	public string? Kpd { get; set; }
 
@@ -29,15 +30,15 @@ public class PlayerStats
 	[JsonPropertyName("hr")]
 	public int HealsReceived { get; set; }
 
-	[JsonPropertyName("1ks")]
-	public int OneKillStreaks { get; set; }
+	[JsonPropertyName("lks")]
+	public int Lks { get; set; }
 
 	[JsonPropertyName("as")]
 	public int Airshots { get; set; }
 	public int Dapd { get; set; }
 	public int Dapm { get; set; }
 	public int Ubers { get; set; }
-	public object? UberTypes { get; set; }
+	public Dictionary<string, int>? UberTypes { get; set; }
 	public int Drops { get; set; }
 	public int MedKits { get; set; }
 
@@ -49,7 +50,8 @@ public class PlayerStats
 	[JsonPropertyName("headshots_hit")]
 	public int HeadshotsHit { get; set; }
 	public int Sentries { get; set; }
-	public int Heal { get; set; }
+	public int Heals { get; set; }
 	public int Cpc { get; set; }
 	public int Ic { get; set; }
+	public MedicStats? MedicStats { get; set; }
 }
