@@ -14,5 +14,7 @@ public class ClassStats
 
 	[JsonPropertyName("weapon")]
 	public Dictionary<string, WeaponStats>? Weapons { get; set; }
+
+	[JsonPropertyName("total_time")]
 	public int TotalTime { get; set; }
 }
