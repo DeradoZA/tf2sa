@@ -12,6 +12,7 @@ public class SerializationTests
 	private readonly MedicStats MedicStats;
 	private readonly ClassStats ClassStats;
 	private readonly WeaponStats WeaponStats;
+	private readonly Round FirstRound;
 
 	public SerializationTests()
 	{
@@ -23,6 +24,8 @@ public class SerializationTests
 		MedicStats = MedicPlayer.MedicStats;
 		ClassStats = MedicPlayer.ClassStats?.FirstOrDefault(c => c.Type == "medic");
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
+
+		FirstRound = GameLog.Rounds?[0];
 	}
 
 	[Fact]
@@ -77,7 +80,7 @@ public class SerializationTests
 		Assert.Equal(0, MedicPlayer.Headshots);
 		Assert.Equal(0, MedicPlayer.HeadshotsHit);
 		Assert.Equal(0, MedicPlayer.Sentries);
-		Assert.Equal(0, MedicPlayer.Heals);
+		Assert.Equal(12219, MedicPlayer.Heals);
 		Assert.Equal(3, MedicPlayer.Cpc);
 	}
 
@@ -104,13 +107,69 @@ public class SerializationTests
 	}
 
 	[Fact]
-	public void TestWeaponStatus()
+	public void TestWeaponStats()
 	{
 		Assert.Equal(2, WeaponStats.Kills);
 		Assert.Equal(1132, WeaponStats.Damage);
 		Assert.Equal(53.904761904761905, WeaponStats.AverageDamage);
 		Assert.Equal(143, WeaponStats.Shots);
 		Assert.Equal(77, WeaponStats.Hits);
+	}
+
+	[Fact]
+	public void TestNames()
+	{
+		Assert.Equal("Skye", GameLog?.Names?["[U:1:28353669]"]);
+	}
+
+	[Fact]
+	public void TestRounds()
+	{
+		Assert.Equal(1656195371, FirstRound.StartTime);
+		Assert.Equal("Red", FirstRound.WinnerTeam);
+		Assert.Equal("Red", FirstRound.FirstCapTeam);
+		Assert.Equal(87, FirstRound.Length);
+	}
+
+	[Fact]
+	public void TestRoundTeam()
+	{
+		TeamRound redTeamRound = FirstRound.TeamRound["Red"];
+		Assert.Equal(1, redTeamRound.Score);
+		Assert.Equal(11, redTeamRound.Kills);
+		Assert.Equal(3334, redTeamRound.Damage);
+		Assert.Equal(1, redTeamRound.Ubers);
+	}
+
+	[Fact]
+	public void TestRoundEvents()
+	{
+		RoundEvent firstRoundEvent = FirstRound.RoundEvents[0];
+		Assert.Equal("medic_death", firstRoundEvent.Type);
+		Assert.Equal(41, firstRoundEvent.Time);
+		Assert.Equal("Blue", firstRoundEvent.Team);
+		Assert.Equal("[U:1:120175766]", firstRoundEvent.SteamId);
+		Assert.Equal("[U:1:28353669]", firstRoundEvent.KillerSteamId);
+	}
+
+	[Fact]
+	public void TestRoundPlayers()
+	{
+		PlayerRound firstPlayer = FirstRound.PlayerRounds["[U:1:51337520]"];
+		Assert.Equal("Red", firstPlayer.Team);
+		Assert.Equal(1, firstPlayer.Kills);
+		Assert.Equal(613, firstPlayer.Damage);
+	}
+
+	[Fact]
+	public void TestHealSpread()
+	{
+		Assert.Equal(2201, GameLog?.HealSpread?["[U:1:152151801]"]["[U:1:51337520]"]);
+	}
+
+	[Fact]
+	public void TestClassKills()
+	{
 	}
 
 }

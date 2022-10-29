@@ -8,50 +8,52 @@ public class PlayerStats
 
 	[JsonPropertyName("class_stats")]
 	public ClassStats[]? ClassStats { get; set; }
-	public int Kills { get; set; }
-	public int Deaths { get; set; }
-	public int Assists { get; set; }
-	public int Suicides { get; set; }
+	public int Kills { get; set; } = -1;
+	public int Deaths { get; set; } = -1;
+	public int Assists { get; set; } = -1;
+	public int Suicides { get; set; } = -1;
 	public string? Kapd { get; set; }
 	public string? Kpd { get; set; }
 
 	[JsonPropertyName("dmg")]
-	public int Damage { get; set; }
+	public int Damage { get; set; } = -1;
 
 	[JsonPropertyName("dmg_real")]
-	public int DamageReal { get; set; }
+	public int DamageReal { get; set; } = -1;
 
 	[JsonPropertyName("dt")]
-	public int DamageTaken { get; set; }
+	public int DamageTaken { get; set; } = -1;
 
 	[JsonPropertyName("dt_real")]
-	public int DamageTakenReal { get; set; }
+	public int DamageTakenReal { get; set; } = -1;
 
 	[JsonPropertyName("hr")]
-	public int HealsReceived { get; set; }
+	public int HealsReceived { get; set; } = -1;
 
 	[JsonPropertyName("lks")]
-	public int Lks { get; set; }
+	public int Lks { get; set; } = -1;
 
 	[JsonPropertyName("as")]
-	public int Airshots { get; set; }
-	public int Dapd { get; set; }
-	public int Dapm { get; set; }
-	public int Ubers { get; set; }
+	public int Airshots { get; set; } = -1;
+	public int Dapd { get; set; } = -1;
+	public int Dapm { get; set; } = -1;
+	public int Ubers { get; set; } = -1;
 	public Dictionary<string, int>? UberTypes { get; set; }
-	public int Drops { get; set; }
-	public int MedKits { get; set; }
+	public int Drops { get; set; } = -1;
+	public int MedKits { get; set; } = -1;
 
 	[JsonPropertyName("medkits_hp")]
-	public int MedKitsHealth { get; set; }
-	public int BackStabs { get; set; }
-	public int Headshots { get; set; }
+	public int MedKitsHealth { get; set; } = -1;
+	public int BackStabs { get; set; } = -1;
+	public int Headshots { get; set; } = -1;
 
 	[JsonPropertyName("headshots_hit")]
-	public int HeadshotsHit { get; set; }
-	public int Sentries { get; set; }
-	public int Heals { get; set; }
-	public int Cpc { get; set; }
-	public int Ic { get; set; }
+	public int HeadshotsHit { get; set; } = -1;
+	public int Sentries { get; set; } = -1;
+
+	[JsonPropertyName("heal")]
+	public int Heals { get; set; } = -1;
+	public int Cpc { get; set; } = -1;
+	public int Ic { get; set; } = -1;
 	public MedicStats? MedicStats { get; set; }
 }
