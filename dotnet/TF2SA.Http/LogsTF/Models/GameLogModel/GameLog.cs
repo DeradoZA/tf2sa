@@ -13,11 +13,13 @@ public class GameLog
 
 	[JsonPropertyName("healspread")]
 	public Dictionary<string, Dictionary<string, int>>? HealSpread { get; set; }
-	public object? ClassKills { get; set; }
-	public object? ClassDeaths { get; set; }
-	public object? ClassKillAssists { get; set; }
-	public object? Chat { get; set; }
-	public object? Info { get; set; }
-	public object? KillStreaks { get; set; }
+	public Dictionary<string, ClassValues>? ClassKills { get; set; }
+	public Dictionary<string, ClassValues>? ClassDeaths { get; set; }
+	public Dictionary<string, ClassValues>? ClassKillAssists { get; set; }
+
+	[JsonPropertyName("chat")]
+	public Chat[]? Chats { get; set; }
+	public LogInfo? Info { get; set; }
+	public KillStreak[]? KillStreaks { get; set; }
 	public bool? Success { get; set; } = false;
 }

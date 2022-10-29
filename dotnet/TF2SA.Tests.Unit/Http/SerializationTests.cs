@@ -170,6 +170,92 @@ public class SerializationTests
 	[Fact]
 	public void TestClassKills()
 	{
+		Assert.Equal(5, GameLog?.ClassKills?["[U:1:159058380]"].Soldier);
+		Assert.Equal(2, GameLog?.ClassKills?["[U:1:159058380]"].Heavy);
+		Assert.Equal(6, GameLog?.ClassKills?["[U:1:159058380]"].Scout);
+		Assert.Equal(6, GameLog?.ClassKills?["[U:1:159058380]"].Medic);
+		Assert.Equal(2, GameLog?.ClassKills?["[U:1:159058380]"].Sniper);
+		Assert.Equal(4, GameLog?.ClassKills?["[U:1:159058380]"].Engineer);
+		Assert.Equal(2, GameLog?.ClassKills?["[U:1:159058380]"].Demoman);
+		Assert.Equal(4, GameLog?.ClassKills?["[U:1:159058380]"].Pyro);
+	}
+
+	[Fact]
+	public void TestClassDeaths()
+	{
+		Assert.Equal(4, GameLog?.ClassDeaths?["[U:1:96137874]"].Scout);
+		Assert.Equal(1, GameLog?.ClassDeaths?["[U:1:96137874]"].Demoman);
+		Assert.Equal(2, GameLog?.ClassDeaths?["[U:1:96137874]"].Pyro);
+		Assert.Equal(2, GameLog?.ClassDeaths?["[U:1:96137874]"].Soldier);
+		Assert.Equal(2, GameLog?.ClassDeaths?["[U:1:96137874]"].Heavy);
+		Assert.Equal(2, GameLog?.ClassDeaths?["[U:1:96137874]"].Medic);
+		Assert.Equal(1, GameLog?.ClassDeaths?["[U:1:96137874]"].Engineer);
+		Assert.Equal(1, GameLog?.ClassDeaths?["[U:1:96137874]"].Sniper);
+	}
+
+
+	[Fact]
+	public void TestClassKillAssists()
+	{
+		Assert.Equal(7, GameLog?.ClassKillAssists?["[U:1:159058380]"].Soldier);
+		Assert.Equal(3, GameLog?.ClassKillAssists?["[U:1:159058380]"].Heavy);
+		Assert.Equal(7, GameLog?.ClassKillAssists?["[U:1:159058380]"].Scout);
+		Assert.Equal(3, GameLog?.ClassKillAssists?["[U:1:159058380]"].Demoman);
+		Assert.Equal(7, GameLog?.ClassKillAssists?["[U:1:159058380]"].Medic);
+		Assert.Equal(2, GameLog?.ClassKillAssists?["[U:1:159058380]"].Sniper);
+		Assert.Equal(4, GameLog?.ClassKillAssists?["[U:1:159058380]"].Engineer);
+		Assert.Equal(4, GameLog?.ClassKillAssists?["[U:1:159058380]"].Pyro);
+		Assert.Equal(2, GameLog?.ClassKillAssists?["[U:1:159058380]"].Spy);
+	}
+
+	[Fact]
+	public void TestChat()
+	{
+		Chat firstMessage = GameLog.Chats[0];
+		Assert.Equal("[U:1:159058380]", firstMessage.SteamId);
+		Assert.Equal("hondjo", firstMessage.Name);
+		Assert.Equal("stop emailing", firstMessage.Message);
+	}
+
+
+	[Fact]
+	public void TestInfo()
+	{
+		LogInfo info = GameLog?.Info; ;
+		Assert.Equal("cp_process_f9a", info.Map);
+		Assert.True(info.Supplemental);
+		Assert.Equal(1787, info.TotalLength);
+		Assert.True(info.HasRealDamage);
+		Assert.True(info.HasWeaponDamage);
+		Assert.True(info.HasAccuracy);
+		Assert.True(info.HasHP);
+		Assert.True(info.HasHPReal);
+		Assert.True(info.HasHeadShots);
+		Assert.True(info.HasHeadShotsHit);
+		Assert.True(info.HasBS);
+		Assert.True(info.HasCP);
+		Assert.False(info.HasSB);
+		Assert.True(info.HasDT);
+		Assert.True(info.HasAirshots);
+		Assert.True(info.HasHR);
+		Assert.False(info.HasIntel);
+		Assert.False(info.ADScoring);
+		Assert.Equal("TF2SA Pug: RED vs fwian", info.Title);
+		Assert.Equal(1656197193, info.Date);
+
+		Uploader uploader = info.Uploader;
+		Assert.Equal("76561199085369255", uploader.Id);
+		Assert.Equal("TF2SA", uploader.Name);
+		Assert.Equal("LogsTF 2.3.0", uploader.Info);
+	}
+
+	[Fact]
+	public void TestKillStreaks()
+	{
+		KillStreak firstKillStreak = GameLog.KillStreaks[0];
+		Assert.Equal("[U:1:28353669]", firstKillStreak.SteamId);
+		Assert.Equal(3, firstKillStreak.Streak);
+		Assert.Equal(36, firstKillStreak.Time);
 	}
 
 }
