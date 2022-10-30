@@ -5,7 +5,7 @@ namespace TF2SA.Http.LogsTF.Models.LogListModel;
 public class Parameters
 {
 	[JsonPropertyName("player")]
-	public string Player { get; set; } = string.Empty;
+	public string[] Player { get; set; } = Array.Empty<string>();
 
 	[JsonPropertyName("uploader")]
 	public string Uploader { get; set; } = string.Empty;

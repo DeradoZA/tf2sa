@@ -1,3 +1,4 @@
+using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Monad;
@@ -5,6 +6,7 @@ using TF2SA.Http.Errors;
 using TF2SA.Http.LogsTF.Config;
 using TF2SA.Http.LogsTF.Models;
 using TF2SA.Http.LogsTF.Models.GameLogModel;
+using TF2SA.Http.LogsTF.Models.LogListModel;
 using TF2SA.Http.LogsTF.Serialization;
 
 namespace TF2SA.Http.LogsTF.Client;
@@ -25,6 +27,11 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 		this.logsTFConfig = logsTFConfig.Value;
 	}
 
+	public Task<EitherStrict<HttpError, LogListItem[]>> GetAllLogs(uint[] uploaders)
+	{
+		throw new NotImplementedException();
+	}
+
 	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(uint logId)
 	{
 		logger.LogInformation($"fetching game log {logId}");
@@ -32,8 +39,8 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 
 		try
 		{
-			var httpResponse = await httpClient.GetAsync($"{logsTFConfig.BaseUrl}/log/{logId}");
-			var json = await httpResponse.Content.ReadAsStringAsync();
+			var response = await httpClient.GetAsync($"{logsTFConfig.BaseUrl}/log/{logId}");
+			var json = await response.Content.ReadAsStringAsync();
 
 			EitherStrict<SerializationError, GameLog> deserialized =
 				LogsTFSerializer<GameLog>.Deserialize(json);
@@ -50,8 +57,36 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 		}
 	}
 
-	public Task GetLogList(LogListQueryParams filter)
+	public async Task<EitherStrict<HttpError, LogListItem[]>> GetLogList(LogListQueryParams filter)
 	{
-		throw new NotImplementedException();
+		logger.LogInformation($"Fetching log list");
+
+		HttpClient httpClient = httpClientFactory.CreateClient();
+
+		string url = $"{logsTFConfig.BaseUrl}/log";
+		string? queryString = LogListQueryParams.GetQueryString(filter);
+		if (queryString is not null)
+		{
+			url += $"?{queryString}";
+		}
+
+		try
+		{
+			var response = await httpClient.GetAsync(url);
+			var json = await response.Content.ReadAsStringAsync();
+
+			EitherStrict<SerializationError, LogListResult> deserialized =
+				LogsTFSerializer<LogListResult>.Deserialize(json);
+			if (deserialized.IsLeft)
+			{
+				return new HttpError(deserialized.Left.Message);
+			}
+
+			return deserialized.Right.Logs;
+		}
+		catch (Exception e)
+		{
+			return new HttpError(e.Message);
+		}
 	}
 }
