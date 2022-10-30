@@ -31,14 +31,14 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 			var httpResponse = await httpClient.GetAsync($"{BASE_URL}/log/{logId}");
 			var json = await httpResponse.Content.ReadAsStringAsync();
 
-			EitherStrict<SerializationError, GameLog> serialized =
+			EitherStrict<SerializationError, GameLog> deserialized =
 				LogsTFSerializer<GameLog>.Deserialize(json);
-			if (serialized.IsLeft)
+			if (deserialized.IsLeft)
 			{
-				return new HttpError(serialized.Left.Message);
+				return new HttpError(deserialized.Left.Message);
 			}
 
-			return serialized.Right;
+			return deserialized.Right;
 		}
 		catch (Exception e)
 		{
