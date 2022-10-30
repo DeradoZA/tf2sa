@@ -4,8 +4,8 @@ namespace TF2SA.Http.Errors;
 
 public class HttpError : Error
 {
-    public HttpError(string message)
-    {
-        Message = message;
-    }
+	public HttpError(string message)
+	{
+		Message = message;
+	}
 }

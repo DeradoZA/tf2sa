@@ -4,8 +4,8 @@ namespace TF2SA.Http.Errors;
 
 public class SerializationError : Error
 {
-    public SerializationError(string message)
-    {
-        Message = message;
-    }
+	public SerializationError(string message)
+	{
+		Message = message;
+	}
 }

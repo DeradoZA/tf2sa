@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Monad;
 using TF2SA.Http.Errors;
-using TF2SA.Http.LogsTF.Models.GameLogModel;
 
 namespace TF2SA.Http.LogsTF.Serialization;
 
@@ -9,6 +8,7 @@ public static class LogsTFSerializer<T>
 {
 	private static readonly JsonSerializerOptions jsonOptions =
 		new() { PropertyNameCaseInsensitive = true };
+
 	public static EitherStrict<SerializationError, T> Deserialize(string json)
 	{
 		try
