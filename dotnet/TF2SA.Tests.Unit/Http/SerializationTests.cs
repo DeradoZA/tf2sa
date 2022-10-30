@@ -22,10 +22,10 @@ public class SerializationTests
 
 		MedicPlayer = GameLog.Players["[U:1:152151801]"];
 		MedicStats = MedicPlayer.MedicStats;
-		ClassStats = MedicPlayer.ClassStats?.FirstOrDefault(c => c.Type == "medic");
+		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(c => c.Type == "medic")!; // in this test, it will be defined.
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
-		FirstRound = GameLog.Rounds?[0];
+		FirstRound = GameLog.Rounds[0];
 	}
 
 	[Fact]
@@ -221,7 +221,7 @@ public class SerializationTests
 	[Fact]
 	public void TestInfo()
 	{
-		LogInfo info = GameLog?.Info; ;
+		LogInfo info = GameLog.Info; ;
 		Assert.Equal("cp_process_f9a", info.Map);
 		Assert.True(info.Supplemental);
 		Assert.Equal(1787, info.TotalLength);

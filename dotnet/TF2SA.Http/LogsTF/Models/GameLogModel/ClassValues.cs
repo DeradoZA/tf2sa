@@ -4,7 +4,7 @@ namespace TF2SA.Http.LogsTF.Models.GameLogModel;
 
 public class ClassValues
 {
-	public int? Scout { get; set; }
+	public int? Scout { get; set; } = -1;
 	public int? Soldier { get; set; } = -1;
 	public int? Pyro { get; set; } = -1;
 	public int? Demoman { get; set; } = -1;

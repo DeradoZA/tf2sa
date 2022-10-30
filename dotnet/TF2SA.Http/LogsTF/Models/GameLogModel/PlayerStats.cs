@@ -4,16 +4,16 @@ namespace TF2SA.Http.LogsTF.Models.GameLogModel;
 
 public class PlayerStats
 {
-	public string? Team { get; set; }
+	public string Team { get; set; } = string.Empty;
 
 	[JsonPropertyName("class_stats")]
-	public ClassStats[]? ClassStats { get; set; }
+	public ClassStats[] ClassStats { get; set; } = Array.Empty<ClassStats>();
 	public int Kills { get; set; } = -1;
 	public int Deaths { get; set; } = -1;
 	public int Assists { get; set; } = -1;
 	public int Suicides { get; set; } = -1;
-	public string? Kapd { get; set; }
-	public string? Kpd { get; set; }
+	public string Kapd { get; set; } = string.Empty;
+	public string Kpd { get; set; } = string.Empty;
 
 	[JsonPropertyName("dmg")]
 	public int Damage { get; set; } = -1;
@@ -38,7 +38,7 @@ public class PlayerStats
 	public int Dapd { get; set; } = -1;
 	public int Dapm { get; set; } = -1;
 	public int Ubers { get; set; } = -1;
-	public Dictionary<string, int>? UberTypes { get; set; }
+	public Dictionary<string, int> UberTypes { get; set; } = new Dictionary<string, int>(0);
 	public int Drops { get; set; } = -1;
 	public int MedKits { get; set; } = -1;
 
@@ -55,5 +55,5 @@ public class PlayerStats
 	public int Heals { get; set; } = -1;
 	public int Cpc { get; set; } = -1;
 	public int Ic { get; set; } = -1;
-	public MedicStats? MedicStats { get; set; }
+	public MedicStats MedicStats { get; set; } = new MedicStats();
 }

@@ -39,10 +39,10 @@ public class LogInfo
 
 	[JsonPropertyName("AD_scoring")]
 	public bool ADScoring { get; set; }
-	public object[]? Notifications { get; set; }
+	public object[] Notifications { get; set; } = Array.Empty<object>();
 	public string Title { get; set; } = string.Empty;
 	public int Date { get; set; }
-	public Uploader? Uploader { get; set; }
+	public Uploader Uploader { get; set; } = new Uploader();
 }
 
 public class Uploader
