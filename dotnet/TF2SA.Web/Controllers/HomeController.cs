@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using TF2SA.Web.Models;
-using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Repositories.Base;
+using TF2SA.Web.Models;
 
 namespace TF2SA.Web.Controllers;
 
@@ -23,7 +23,7 @@ public class HomeController : Controller
 	public IActionResult Index()
 	{
 		var players = playerRepository.GetAll();
-		logger.LogInformation($" Players: {players.Count()}");
+		logger.LogInformation($" Players: {players.Count}");
 		return View(players);
 	}
 
