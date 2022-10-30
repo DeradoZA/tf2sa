@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/DeradoZA/tf2sa/badge.svg?branch=73-use-a-unit-testing-framework)](https://coveralls.io/github/DeradoZA/tf2sa?branch=73-use-a-unit-testing-framework)
+[![Coverage Status](https://coveralls.io/repos/github/DeradoZA/tf2sa/badge.svg?branch=main)](https://coveralls.io/github/DeradoZA/tf2sa?branch=main)
 # tf2sa
 A collection of resources for tf2sa.
 
