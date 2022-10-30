@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Monad;
 using TF2SA.Http.Errors;
+using TF2SA.Http.LogsTF.Config;
 using TF2SA.Http.LogsTF.Models;
 using TF2SA.Http.LogsTF.Models.GameLogModel;
 using TF2SA.Http.LogsTF.Serialization;
@@ -11,14 +13,16 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 {
 	private readonly IHttpClientFactory httpClientFactory;
 	private readonly ILogger<LogsTFHttpClient> logger;
-	private const string BASE_URL = "http://logs.tf/api/v1";
+	private readonly LogsTFConfig logsTFConfig;
 
 	public LogsTFHttpClient(
 		ILogger<LogsTFHttpClient> logger,
-		IHttpClientFactory httpClientFactory)
+		IHttpClientFactory httpClientFactory,
+		IOptions<LogsTFConfig> logsTFConfig)
 	{
 		this.logger = logger;
 		this.httpClientFactory = httpClientFactory;
+		this.logsTFConfig = logsTFConfig.Value;
 	}
 
 	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(uint logId)
@@ -28,7 +32,7 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 
 		try
 		{
-			var httpResponse = await httpClient.GetAsync($"{BASE_URL}/log/{logId}");
+			var httpResponse = await httpClient.GetAsync($"{logsTFConfig.BaseUrl}/log/{logId}");
 			var json = await httpResponse.Content.ReadAsStringAsync();
 
 			EitherStrict<SerializationError, GameLog> deserialized =

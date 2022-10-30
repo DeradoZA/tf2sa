@@ -7,6 +7,7 @@ namespace TF2SA.StatsETLService;
 internal class StatsETLService : IStatsETLService
 {
 	private int count = 0;
+	private const int PROCESS_INTERVAL_SECONDS = 20;
 	private readonly ILogger<StatsETLService> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFHttpClient logsTFHttpClient;
@@ -32,7 +33,7 @@ internal class StatsETLService : IStatsETLService
 				$"Scoped Service executing: {count}, found {playerCount} players!"
 			);
 			await logsTFHttpClient.GetGameLog(3214913);
-			await Task.Delay(30000, cancellationToken);
+			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
 		}
 	}
 }
