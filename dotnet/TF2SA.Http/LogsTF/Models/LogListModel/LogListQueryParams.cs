@@ -6,7 +6,7 @@ public class LogListQueryParams
 {
 	public string? Title { get; set; }
 	public string? Map { get; set; }
-	public uint? Uploader { get; set; }
+	public ulong? Uploader { get; set; }
 
 	/// <summary>
 	/// Providing multiple players finds the intersection of logs where
