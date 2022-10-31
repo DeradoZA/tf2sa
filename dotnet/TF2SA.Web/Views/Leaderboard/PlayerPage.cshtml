@@ -3,4 +3,69 @@
     ViewData["Title"] = "PlayerPage";
 }
 
-<h1>hello</h1>
+.grid-container {
+  display: grid;
+  column-gap: 50px;
+}
+
+<div>
+
+    <div>
+       <h1>
+        @Model.SoldierAverages[0].SteamName
+        </h1>
+    </div>
+    <div class="grid-container">
+        <div>
+            <div class="grid-item">
+                <h2>
+                    Scout
+                </h2>
+
+                AVG Kills @Model.ScoutAverages[0].Kills
+                <br>AVG Damage @Model.ScoutAverages[0].DPM
+                <br>Top Kills @Model.Highlights[0].HighestScoutKills
+                <br>Top Damage @Model.Highlights[0].HighestScoutDamage
+            </div>
+
+            <div class="grid-item">
+                <h2>
+                    Soldier
+                </h2>
+
+                AVG Kills @Model.SoldierAverages[0].Kills
+                <br>AVG Damage @Model.SoldierAverages[0].DPM
+                <br>Top Kills @Model.Highlights[0].HighestSoldierKills
+                <br>Top Damage @Model.Highlights[0].HighestSoldierDamage
+                <br>Top Airshots @Model.Highlights[0].HighestSoldierAirshots
+            </div>
+
+            <div class="grid-item">
+                <h2>
+                    Demoman
+                </h2>
+
+                AVG Kills @Model.DemomanAverages[0].Kills
+                <br>AVG Damage @Model.DemomanAverages[0].DPM
+                <br>Top Kills @Model.Highlights[0].HighestDemomanKills
+                <br>Top Damage @Model.Highlights[0].HighestDemomanDamage
+                <br>Top Airshots @Model.Highlights[0].HighestDemomanAirshots
+            </div>
+
+            <div class="grid-item">
+
+                <h2>
+                    Medic
+                </h2>
+
+                AVG Heals @Model.MedicAverages[0].Heals
+                <br>AVG Ubers @Model.MedicAverages[0].Ubers
+                <br>Top Heals @Model.Highlights[0].HighestHeals 
+                <br>Top Ubers @Model.Highlights[0].HighestUbers 
+                <br>Top Drops @Model.Highlights[0].HighestDrops
+            </div>
+        </div>
+    </div>
+
+</div>
+

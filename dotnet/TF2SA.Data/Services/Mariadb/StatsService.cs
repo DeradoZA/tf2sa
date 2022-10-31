@@ -171,7 +171,7 @@ namespace TF2SA.Data.Services.Mariadb
             var averagedStats = groupedPlayerGames.Select(
                 player => new AverageMainStats(
                     player.Key,
-                    (avg ? player.Average(d => d.Damage / (d.Playtime / 60)) : player.Max(d => d.Damage / (d.Playtime / 60))),
+                    (avg ? player.Average(d => d.Damage / (d.Playtime / 60)) : player.Max(d => d.Damage)),
                     (avg ? player.Average(k => k.Kills) : player.Max(k => k.Kills)),
                     (avg ? player.Average(a => a.Assists) : player.Max(a => a.Assists)),
                     (avg ? player.Average(de => de.Deaths) : player.Max(de => de.Deaths))
@@ -235,7 +235,7 @@ namespace TF2SA.Data.Services.Mariadb
                 player.Key,
                 (avg ? player.Average(d => d.Drops) : player.Max(d => d.Drops)),
                 (avg ? player.Average(u => u.Ubers) : player.Max(u => u.Ubers)),
-                (avg ? player.Average(h => h.Heals / (h.Playtime / 60)) : player.Max(h => h.Heals / (h.Playtime / 60)))
+                (avg ? player.Average(h => h.Heals / (h.Playtime / 60)) : player.Max(h => h.Heals))
             ));
 
             return averagedMedicStats.ToList();
