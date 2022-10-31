@@ -208,7 +208,7 @@ public class StatsService : IStatsService<ulong>
 							? player.Average(
 								d => d.Damage / (d.Playtime / 60)
 							)
-							: player.Max(d => d.Damage / (d.Playtime / 60))
+							: player.Max(d => d.Damage)
 					),
 					(
 						avg
@@ -325,7 +325,7 @@ public class StatsService : IStatsService<ulong>
 							? player.Average(
 								h => h.Heals / (h.Playtime / 60)
 							)
-							: player.Max(h => h.Heals / (h.Playtime / 60))
+							: player.Max(h => h.Heals)
 					)
 				)
 		);
