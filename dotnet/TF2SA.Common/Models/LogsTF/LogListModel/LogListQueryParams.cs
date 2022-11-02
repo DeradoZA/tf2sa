@@ -1,6 +1,6 @@
 using System.Web;
 
-namespace TF2SA.Http.LogsTF.Models;
+namespace TF2SA.Common.Models.LogsTF.LogListModel;
 
 public class LogListQueryParams
 {

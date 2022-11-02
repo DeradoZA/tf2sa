@@ -1,4 +1,4 @@
-using TF2SA.Http.LogsTF.Models;
+using TF2SA.Common.Models.LogsTF.LogListModel;
 using Xunit;
 
 namespace TF2SA.Tests.Unit.Http;
