@@ -8,6 +8,6 @@ namespace TF2SA.Http.LogsTF.Client;
 public interface ILogsTFHttpClient
 {
 	public Task<EitherStrict<HttpError, GameLog>> GetGameLog(uint logId);
-	public Task<EitherStrict<HttpError, LogListItem[]>> GetLogList(LogListQueryParams filter);
-	public Task<EitherStrict<HttpError, LogListItem[]>> GetAllLogs(uint[] uploaders);
+	public Task<EitherStrict<HttpError, LogListResult>> GetLogList(LogListQueryParams filter);
+	public Task<EitherStrict<HttpError, LogListResult>> GetAllLogs(uint[] uploaders);
 }

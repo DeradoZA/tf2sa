@@ -4,12 +4,12 @@ using TF2SA.Http.Errors;
 
 namespace TF2SA.Http.LogsTF.Serialization;
 
-public static class LogsTFSerializer<T>
+public static class LogsTFSerializer
 {
 	private static readonly JsonSerializerOptions jsonOptions =
 		new() { PropertyNameCaseInsensitive = true };
 
-	public static EitherStrict<SerializationError, T> Deserialize(string json)
+	public static EitherStrict<SerializationError, T> Deserialize<T>(string json)
 	{
 		try
 		{

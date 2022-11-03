@@ -25,7 +25,7 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 		this.logsTFConfig = logsTFConfig.Value;
 	}
 
-	public Task<EitherStrict<HttpError, LogListItem[]>> GetAllLogs(uint[] uploaders)
+	public Task<EitherStrict<HttpError, LogListResult>> GetAllLogs(uint[] uploaders)
 	{
 		throw new NotImplementedException();
 	}
@@ -33,33 +33,20 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(uint logId)
 	{
 		logger.LogInformation($"fetching game log {logId}");
-		HttpClient httpClient = httpClientFactory.CreateClient();
+		var url = $"{logsTFConfig.BaseUrl}/log/{logId}";
 
-		try
+		EitherStrict<HttpError, GameLog> logList = await Get<GameLog>(url);
+		if (logList.IsLeft)
 		{
-			var response = await httpClient.GetAsync($"{logsTFConfig.BaseUrl}/log/{logId}");
-			var json = await response.Content.ReadAsStringAsync();
-
-			EitherStrict<SerializationError, GameLog> deserialized =
-				LogsTFSerializer<GameLog>.Deserialize(json);
-			if (deserialized.IsLeft)
-			{
-				return new HttpError(deserialized.Left.Message);
-			}
-
-			return deserialized.Right;
+			return logList.Left;
 		}
-		catch (Exception e)
-		{
-			return new HttpError(e.Message);
-		}
+
+		return logList.Right;
 	}
 
-	public async Task<EitherStrict<HttpError, LogListItem[]>> GetLogList(LogListQueryParams filter)
+	public async Task<EitherStrict<HttpError, LogListResult>> GetLogList(LogListQueryParams filter)
 	{
 		logger.LogInformation($"Fetching log list");
-
-		HttpClient httpClient = httpClientFactory.CreateClient();
 
 		string url = $"{logsTFConfig.BaseUrl}/log";
 		string? queryString = LogListQueryParams.GetQueryString(filter);
@@ -68,19 +55,32 @@ public class LogsTFHttpClient : ILogsTFHttpClient
 			url += $"?{queryString}";
 		}
 
+		EitherStrict<HttpError, LogListResult> logList = await Get<LogListResult>(url);
+		if (logList.IsLeft)
+		{
+			return logList.Left;
+		}
+
+		return logList.Right;
+	}
+
+	private async Task<EitherStrict<HttpError, TResult>> Get<TResult>(string url)
+	{
+		HttpClient httpClient = httpClientFactory.CreateClient();
+
 		try
 		{
 			var response = await httpClient.GetAsync(url);
 			var json = await response.Content.ReadAsStringAsync();
 
-			EitherStrict<SerializationError, LogListResult> deserialized =
-				LogsTFSerializer<LogListResult>.Deserialize(json);
+			EitherStrict<SerializationError, TResult> deserialized =
+				LogsTFSerializer.Deserialize<TResult>(json);
 			if (deserialized.IsLeft)
 			{
 				return new HttpError(deserialized.Left.Message);
 			}
 
-			return deserialized.Right.Logs;
+			return deserialized.Right;
 		}
 		catch (Exception e)
 		{
