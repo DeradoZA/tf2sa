@@ -11,12 +11,12 @@ internal class StatsETLService : IStatsETLService
 	private const int PROCESS_INTERVAL_SECONDS = 20;
 	private readonly ILogger<StatsETLService> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
-	private readonly ILogsTFHttpClient logsTFHttpClient;
+	private readonly ILogsTFService logsTFHttpClient;
 
 	public StatsETLService(
 		ILogger<StatsETLService> logger,
 		IPlayersRepository<Player, ulong> playerRepository,
-		ILogsTFHttpClient logsTFHttpClient
+		ILogsTFService logsTFHttpClient
 	)
 	{
 		this.logger = logger;

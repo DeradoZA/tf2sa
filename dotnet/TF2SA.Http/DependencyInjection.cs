@@ -14,6 +14,6 @@ public static class DependencyInjection
 		services.Configure<LogsTFConfig>(
 			configuration.GetSection(LogsTFConfig.LogsTFConfigSection));
 		services.AddHttpClient();
-		services.AddTransient<ILogsTFHttpClient, LogsTFHttpClient>();
+		services.AddTransient<ILogsTFService, LogsTFHttpClient>();
 	}
 }
