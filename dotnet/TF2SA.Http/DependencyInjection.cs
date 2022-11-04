@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TF2SA.Http.Base.Client;
+using TF2SA.Http.Base.Serialization;
 using TF2SA.Http.LogsTF.Client;
 using TF2SA.Http.LogsTF.Config;
 
@@ -14,6 +16,8 @@ public static class DependencyInjection
 		services.Configure<LogsTFConfig>(
 			configuration.GetSection(LogsTFConfig.LogsTFConfigSection));
 		services.AddHttpClient();
-		services.AddTransient<ILogsTFService, LogsTFHttpClient>();
+		services.AddTransient<IHttpClient, TF2SAHttpClient>();
+		services.AddSingleton<IJsonSerializer, TF2SAJsonSerializer>();
+		services.AddTransient<ILogsTFService, LogsTFService>();
 	}
 }

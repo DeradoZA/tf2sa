@@ -1,6 +1,6 @@
 using System.Linq;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
-using TF2SA.Http.LogsTF.Serialization;
+using TF2SA.Http.Base.Serialization;
 using Xunit;
 
 namespace TF2SA.Tests.Unit.Http;
@@ -16,8 +16,9 @@ public class SerializationTests
 
 	public SerializationTests()
 	{
-		GameLog = LogsTFSerializer<GameLog>
-			.Deserialize(SerializationStubs.NormalGameLogJsonResponse)
+		TF2SAJsonSerializer serializer = new();
+		GameLog = serializer
+			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
 			.Right;
 
 		MedicPlayer = GameLog.Players["[U:1:152151801]"];

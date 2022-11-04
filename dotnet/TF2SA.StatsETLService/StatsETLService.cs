@@ -11,17 +11,17 @@ internal class StatsETLService : IStatsETLService
 	private const int PROCESS_INTERVAL_SECONDS = 20;
 	private readonly ILogger<StatsETLService> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
-	private readonly ILogsTFService logsTFHttpClient;
+	private readonly ILogsTFService logsTFService;
 
 	public StatsETLService(
 		ILogger<StatsETLService> logger,
 		IPlayersRepository<Player, ulong> playerRepository,
-		ILogsTFService logsTFHttpClient
+		ILogsTFService logsTFService
 	)
 	{
 		this.logger = logger;
 		this.playerRepository = playerRepository;
-		this.logsTFHttpClient = logsTFHttpClient;
+		this.logsTFService = logsTFService;
 	}
 
 	public async Task ProcessLogs(CancellationToken cancellationToken)
@@ -33,7 +33,7 @@ internal class StatsETLService : IStatsETLService
 			logger.LogInformation(
 				$"Scoped Service executing: {count}, found {playerCount} players!"
 			);
-			var allLogsResult = await logsTFHttpClient.GetLogList(
+			var allLogsResult = await logsTFService.GetLogList(
 				new LogListQueryParams()
 				{
 					Uploader = 76561199085369255
@@ -43,7 +43,7 @@ internal class StatsETLService : IStatsETLService
 			{
 				logger.LogWarning("Failed to fetch list");
 			}
-			var allLogs = allLogsResult.Right.Length;
+			var allLogs = allLogsResult.Right;
 			logger.LogInformation($"Fetched list of {allLogs} results");
 
 			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
