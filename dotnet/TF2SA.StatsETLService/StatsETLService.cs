@@ -32,10 +32,14 @@ internal class StatsETLService : IStatsETLService
 			var allLogsResult = await logsTFService.GetAllLogs();
 			if (allLogsResult.IsLeft)
 			{
+				// investigate 1 failing call
 				logger.LogWarning("Failed to fetch list");
 			}
-			var logCount = allLogsResult.Right.Count;
-			logger.LogInformation($"Fetched list of {logCount} results");
+			else
+			{
+				var logCount = allLogsResult.Right.Count;
+				logger.LogInformation($"Fetched list of {logCount} results");
+			}
 
 			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
 		}

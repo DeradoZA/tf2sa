@@ -12,7 +12,7 @@ public class LogListQueryParams
 	/// Providing multiple players finds the intersection of logs where
 	/// both players are in the same game.
 	/// </summary>
-	public uint[]? Players { get; set; }
+	public ulong[]? Players { get; set; }
 	public int? Limit { get; set; }
 	public int? Offset { get; set; }
 

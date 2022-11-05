@@ -49,7 +49,7 @@ public class LogsTFService : ILogsTFService
 		return logList.Right;
 	}
 
-	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(uint logId)
+	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(ulong logId)
 	{
 		logger.LogInformation($"fetching game log {logId}");
 		var url = $"{logsTFConfig.BaseUrl}/log/{logId}";
@@ -68,34 +68,34 @@ public class LogsTFService : ILogsTFService
 	{
 		logger.LogInformation("fetching game logs");
 
-		var uploaders = logsTFConfig.Uploaders;
+		ulong[] uploaders = logsTFConfig.Uploaders;
 		List<LogListItem> logs = new();
 
-		//foreach (uint uploader in uploaders)
-		//{
-		//	LogListQueryParams filter = new()
-		//	{
-		//		Uploader = uploader
-		//	};
+		foreach (ulong uploader in uploaders)
+		{
+			LogListQueryParams filter = new()
+			{
+				Uploader = uploader
+			};
 
-		//	logger.LogInformation($"fetching game logs for uploader {uploader}");
-		//	EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
-		//	if (logListResult.IsLeft)
-		//	{
-		//		return logListResult.Left;
-		//	}
+			logger.LogInformation($"fetching game logs for uploader {uploader}");
+			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
+			if (logListResult.IsLeft)
+			{
+				return logListResult.Left;
+			}
 
-		//	List<LogListItem>? logList = logListResult.Right.Logs;
-		//	if (logList is null)
-		//	{
-		//		logger.LogInformation($"No gamelogs found for uploader {uploader}");
-		//	}
-		//	else
-		//	{
-		//		logger.LogInformation($"uploader {uploader}: returned {logList.Count} logs");
-		//		logs.AddRange(logList);
-		//	}
-		//}
+			List<LogListItem>? logList = logListResult.Right.Logs;
+			if (logList is null)
+			{
+				logger.LogInformation($"No gamelogs found for uploader {uploader}");
+			}
+			else
+			{
+				logger.LogInformation($"uploader {uploader}: returned {logList.Count} logs");
+				logs.AddRange(logList);
+			}
+		}
 
 		return logs;
 	}
