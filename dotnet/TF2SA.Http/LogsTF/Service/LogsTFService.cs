@@ -23,9 +23,6 @@ public class LogsTFService : ILogsTFService
 		this.logsTFConfig = logsTFConfig.Value;
 		this.logger = logger;
 		this.httpClient = httpClient;
-		logger.LogInformation($"Init: {logsTFConfig.Value.BaseUrl}");
-		logger.LogInformation($"Init: {logsTFConfig.Value.Uploaders.Count()}");
-		logger.LogInformation($"Init: {logsTFConfig.Value.Uploaders[0]}");
 	}
 
 	public async Task<EitherStrict<HttpError, LogListResult>> GetLogList(LogListQueryParams filter)
@@ -51,7 +48,6 @@ public class LogsTFService : ILogsTFService
 
 	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(ulong logId)
 	{
-		logger.LogInformation($"fetching game log {logId}");
 		var url = $"{logsTFConfig.BaseUrl}/log/{logId}";
 
 		EitherStrict<HttpError, GameLog> logList =

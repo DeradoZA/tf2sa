@@ -34,7 +34,7 @@ public class TF2SAHttpClient : IHttpClient
 				jsonSerializer.Deserialize<TResponse>(json);
 			if (deserialized.IsLeft)
 			{
-				logger.LogInformation($"GET {url}: Failed because response was null");
+				logger.LogWarning($"GET {url}: {deserialized.Left.Message}.");
 				return new HttpError(deserialized.Left.Message);
 			}
 
@@ -43,7 +43,7 @@ public class TF2SAHttpClient : IHttpClient
 		}
 		catch (Exception e)
 		{
-			logger.LogInformation($"GET {url}: Failed: ${e.Message}");
+			logger.LogWarning($"GET {url}: Failed: ${e.Message}");
 			return new HttpError(e.Message);
 		}
 	}

@@ -13,12 +13,12 @@ public class TF2SAJsonSerializer : IJsonSerializer
 	{
 		try
 		{
-			TDeserialized? serialized = JsonSerializer.Deserialize<TDeserialized>(json, jsonOptions);
-			if (serialized is null)
+			TDeserialized? dserialized = JsonSerializer.Deserialize<TDeserialized>(json, jsonOptions);
+			if (dserialized is null)
 			{
-				return new SerializationError("Serialized result is null");
+				return new SerializationError("Derialized result is null");
 			}
-			return serialized;
+			return dserialized;
 		}
 		catch (Exception e)
 		{
