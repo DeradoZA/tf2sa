@@ -7,7 +7,7 @@ using TF2SA.Http.Base.Client;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Config;
 
-namespace TF2SA.Http.LogsTF.Client;
+namespace TF2SA.Http.LogsTF.Service;
 
 public class LogsTFService : ILogsTFService
 {
@@ -23,6 +23,9 @@ public class LogsTFService : ILogsTFService
 		this.logsTFConfig = logsTFConfig.Value;
 		this.logger = logger;
 		this.httpClient = httpClient;
+		logger.LogInformation($"Init: {logsTFConfig.Value.BaseUrl}");
+		logger.LogInformation($"Init: {logsTFConfig.Value.Uploaders.Count()}");
+		logger.LogInformation($"Init: {logsTFConfig.Value.Uploaders[0]}");
 	}
 
 	public async Task<EitherStrict<HttpError, LogListResult>> GetLogList(LogListQueryParams filter)
@@ -61,8 +64,39 @@ public class LogsTFService : ILogsTFService
 		return logList.Right;
 	}
 
-	public Task<EitherStrict<HttpError, LogListItem[]>> GetAllLogs(uint[] uploaders)
+	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs()
 	{
-		throw new NotImplementedException();
+		logger.LogInformation("fetching game logs");
+
+		var uploaders = logsTFConfig.Uploaders;
+		List<LogListItem> logs = new();
+
+		//foreach (uint uploader in uploaders)
+		//{
+		//	LogListQueryParams filter = new()
+		//	{
+		//		Uploader = uploader
+		//	};
+
+		//	logger.LogInformation($"fetching game logs for uploader {uploader}");
+		//	EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
+		//	if (logListResult.IsLeft)
+		//	{
+		//		return logListResult.Left;
+		//	}
+
+		//	List<LogListItem>? logList = logListResult.Right.Logs;
+		//	if (logList is null)
+		//	{
+		//		logger.LogInformation($"No gamelogs found for uploader {uploader}");
+		//	}
+		//	else
+		//	{
+		//		logger.LogInformation($"uploader {uploader}: returned {logList.Count} logs");
+		//		logs.AddRange(logList);
+		//	}
+		//}
+
+		return logs;
 	}
 }

@@ -2,8 +2,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TF2SA.Http.Base.Client;
 using TF2SA.Http.Base.Serialization;
-using TF2SA.Http.LogsTF.Client;
 using TF2SA.Http.LogsTF.Config;
+using TF2SA.Http.LogsTF.Service;
 
 namespace TF2SA.Http;
 

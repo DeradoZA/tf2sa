@@ -1,7 +1,7 @@
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
-using TF2SA.Http.LogsTF.Client;
+using TF2SA.Http.LogsTF.Service;
 
 namespace TF2SA.StatsETLService;
 
@@ -29,22 +29,13 @@ internal class StatsETLService : IStatsETLService
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
-			var playerCount = playerRepository.GetAll().Count;
-			logger.LogInformation(
-				$"Scoped Service executing: {count}, found {playerCount} players!"
-			);
-			var allLogsResult = await logsTFService.GetLogList(
-				new LogListQueryParams()
-				{
-					Uploader = 76561199085369255
-				}
-			);
+			var allLogsResult = await logsTFService.GetAllLogs();
 			if (allLogsResult.IsLeft)
 			{
 				logger.LogWarning("Failed to fetch list");
 			}
-			var allLogs = allLogsResult.Right;
-			logger.LogInformation($"Fetched list of {allLogs} results");
+			var logCount = allLogsResult.Right.Count;
+			logger.LogInformation($"Fetched list of {logCount} results");
 
 			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
 		}

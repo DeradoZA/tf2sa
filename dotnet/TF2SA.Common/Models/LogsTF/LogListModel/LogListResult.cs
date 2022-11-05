@@ -17,5 +17,5 @@ public class LogListResult
 	public Parameters Parameters { get; set; } = new Parameters();
 
 	[JsonPropertyName("logs")]
-	public LogListItem[] Logs { get; set; } = Array.Empty<LogListItem>();
+	public List<LogListItem> Logs { get; set; } = new List<LogListItem>();
 }
