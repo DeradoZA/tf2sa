@@ -1,7 +1,7 @@
+using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.LogsTF.Client;
-using TF2SA.Http.LogsTF.Models;
 
 namespace TF2SA.StatsETLService;
 

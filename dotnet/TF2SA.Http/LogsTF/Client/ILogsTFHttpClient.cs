@@ -1,8 +1,7 @@
 using Monad;
+using TF2SA.Common.Models.LogsTF.GameLogModel;
+using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Http.Errors;
-using TF2SA.Http.LogsTF.Models;
-using TF2SA.Http.LogsTF.Models.GameLogModel;
-using TF2SA.Http.LogsTF.Models.LogListModel;
 
 namespace TF2SA.Http.LogsTF.Client;
 

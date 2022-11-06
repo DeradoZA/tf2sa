@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TF2SA.Http.LogsTF.Models.GameLogModel;
+namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
 public class LogInfo
 {

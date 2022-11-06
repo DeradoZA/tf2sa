@@ -1,5 +1,5 @@
 using System.Linq;
-using TF2SA.Http.LogsTF.Models.GameLogModel;
+using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Http.LogsTF.Serialization;
 using Xunit;
 

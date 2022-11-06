@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TF2SA.Http.LogsTF.Models.LogListModel;
+namespace TF2SA.Common.Models.LogsTF.LogListModel;
 
 public class LogListItem
 {
