@@ -31,8 +31,7 @@ public class LogsTFServiceTests
 			{
 				BaseUrl = "http://logs.tf/api/v1",
 				Uploaders = new ulong[] { 1, 2 }
-			}
-			);
+			});
 
 		httpClient
 			.Setup(x => x.Get<GameLog>(It.IsAny<string>()))
@@ -85,7 +84,6 @@ public class LogsTFServiceTests
 		Assert.True(logList.IsRight);
 		Assert.IsType<LogListResult>(logList.Right);
 	}
-
 
 	[Fact]
 	public async Task GetLogList_Failure_ReturnsError()
