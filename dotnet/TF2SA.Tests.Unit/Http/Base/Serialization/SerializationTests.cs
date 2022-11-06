@@ -1,5 +1,7 @@
 using System.Linq;
+using Monad;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
+using TF2SA.Http.Base.Errors;
 using TF2SA.Http.Base.Serialization;
 using Xunit;
 
@@ -13,10 +15,10 @@ public class SerializationTests
 	private readonly ClassStats ClassStats;
 	private readonly WeaponStats WeaponStats;
 	private readonly Round FirstRound;
+	private readonly TF2SAJsonSerializer serializer = new();
 
 	public SerializationTests()
 	{
-		TF2SAJsonSerializer serializer = new();
 		GameLog = serializer
 			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
 			.Right;
@@ -27,6 +29,15 @@ public class SerializationTests
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
 		FirstRound = GameLog.Rounds[0];
+	}
+
+	[Fact]
+	public void GivenEmptyString_ReturnsSerializationError()
+	{
+		EitherStrict<SerializationError, GameLog> nullGameLog =
+			serializer.Deserialize<GameLog>("");
+
+		Assert.True(nullGameLog.IsLeft);
 	}
 
 	[Fact]
