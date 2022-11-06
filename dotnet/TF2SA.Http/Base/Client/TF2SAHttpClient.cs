@@ -22,13 +22,12 @@ public class TF2SAHttpClient : IHttpClient
 
 	public async Task<EitherStrict<HttpError, TResponse>> Get<TResponse>(string url)
 	{
-		logger.LogInformation($"GET {url}");
 		HttpClient httpClient = httpClientFactory.CreateClient();
 
 		try
 		{
-			var response = await httpClient.GetAsync(url);
-			var json = await response.Content.ReadAsStringAsync();
+			HttpResponseMessage response = await httpClient.GetAsync(url);
+			string json = await response.Content.ReadAsStringAsync();
 
 			EitherStrict<SerializationError, TResponse> deserialized =
 				jsonSerializer.Deserialize<TResponse>(json);
@@ -38,7 +37,6 @@ public class TF2SAHttpClient : IHttpClient
 				return new HttpError(deserialized.Left.Message);
 			}
 
-			logger.LogInformation($"GET {url}: Succeeded");
 			return deserialized.Right;
 		}
 		catch (Exception e)

@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using Monad;
+using Moq;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.Base.Serialization;
@@ -29,6 +31,12 @@ public class SerializationTests
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
 		FirstRound = GameLog.Rounds[0];
+	}
+
+	[Fact]
+	public void NonImplementedThrows()
+	{
+		Assert.Throws<NotImplementedException>(() => serializer.Serialize(It.IsAny<GameLog>()));
 	}
 
 	[Fact]

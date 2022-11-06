@@ -26,7 +26,7 @@ public class TF2SAJsonSerializer : IJsonSerializer
 		}
 	}
 
-	public EitherStrict<SerializationError, TSerialized> Serialize<TSerialized>(string json)
+	public EitherStrict<SerializationError, string> Serialize<TSerialized>(TSerialized obj)
 	{
 		throw new NotImplementedException();
 	}
