@@ -3,7 +3,7 @@ using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Http.Base.Serialization;
 using Xunit;
 
-namespace TF2SA.Tests.Unit.Http;
+namespace TF2SA.Tests.Unit.Http.Base.Serialization;
 
 public class SerializationTests
 {
@@ -23,7 +23,7 @@ public class SerializationTests
 
 		MedicPlayer = GameLog.Players["[U:1:152151801]"];
 		MedicStats = MedicPlayer.MedicStats;
-		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(c => c.Type == "medic")!; // in this test, it will be defined.
+		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(c => c.Type == "medic")!;
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
 		FirstRound = GameLog.Rounds[0];
