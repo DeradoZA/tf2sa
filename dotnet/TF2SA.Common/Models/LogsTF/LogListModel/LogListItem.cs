@@ -20,5 +20,5 @@ public class LogListItem
 	public int Views { get; set; }
 
 	[JsonPropertyName("players")]
-	public int Players { get; set; }
+	public int? Players { get; set; }
 }

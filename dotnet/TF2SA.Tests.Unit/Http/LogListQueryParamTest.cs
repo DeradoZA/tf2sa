@@ -6,12 +6,23 @@ namespace TF2SA.Tests.Unit.Http;
 public class LogListQueryParamTest
 {
 	[Fact]
+	public void GivenNullFilter_ReturnsEmpty()
+	{
+		LogListQueryParams filter = new();
+		Assert.Empty(LogListQueryParams.GetQueryString(filter));
+	}
+
+	[Fact]
 	public void TestCorrectQueryString()
 	{
 		LogListQueryParams filter = new()
 		{
 			Title = "Bruh",
-			Uploader = 123U
+			Map = "cp_bruh",
+			Uploader = 123U,
+			Players = new ulong[] { 123U, 321U },
+			Limit = 10,
+			Offset = 1000
 		};
 
 		Assert.Equal("title=Bruh&uploader=123", LogListQueryParams.GetQueryString(filter));

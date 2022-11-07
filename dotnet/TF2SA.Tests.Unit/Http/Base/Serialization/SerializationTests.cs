@@ -1,9 +1,13 @@
+using System;
 using System.Linq;
+using Monad;
+using Moq;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
-using TF2SA.Http.LogsTF.Serialization;
+using TF2SA.Http.Base.Errors;
+using TF2SA.Http.Base.Serialization;
 using Xunit;
 
-namespace TF2SA.Tests.Unit.Http;
+namespace TF2SA.Tests.Unit.Http.Base.Serialization;
 
 public class SerializationTests
 {
@@ -13,19 +17,35 @@ public class SerializationTests
 	private readonly ClassStats ClassStats;
 	private readonly WeaponStats WeaponStats;
 	private readonly Round FirstRound;
+	private readonly TF2SAJsonSerializer serializer = new();
 
 	public SerializationTests()
 	{
-		GameLog = LogsTFSerializer<GameLog>
-			.Deserialize(SerializationStubs.NormalGameLogJsonResponse)
+		GameLog = serializer
+			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
 			.Right;
 
 		MedicPlayer = GameLog.Players["[U:1:152151801]"];
 		MedicStats = MedicPlayer.MedicStats;
-		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(c => c.Type == "medic")!; // in this test, it will be defined.
+		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(c => c.Type == "medic")!;
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
 		FirstRound = GameLog.Rounds[0];
+	}
+
+	[Fact]
+	public void NonImplementedThrows()
+	{
+		Assert.Throws<NotImplementedException>(() => serializer.Serialize(It.IsAny<GameLog>()));
+	}
+
+	[Fact]
+	public void GivenEmptyString_ReturnsSerializationError()
+	{
+		EitherStrict<SerializationError, GameLog> nullGameLog =
+			serializer.Deserialize<GameLog>("");
+
+		Assert.True(nullGameLog.IsLeft);
 	}
 
 	[Fact]

@@ -1,7 +1,7 @@
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
-using TF2SA.Http.LogsTF.Client;
+using TF2SA.Http.LogsTF.Service;
 
 namespace TF2SA.StatsETLService;
 
@@ -11,17 +11,17 @@ internal class StatsETLService : IStatsETLService
 	private const int PROCESS_INTERVAL_SECONDS = 20;
 	private readonly ILogger<StatsETLService> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
-	private readonly ILogsTFHttpClient logsTFHttpClient;
+	private readonly ILogsTFService logsTFService;
 
 	public StatsETLService(
 		ILogger<StatsETLService> logger,
 		IPlayersRepository<Player, ulong> playerRepository,
-		ILogsTFHttpClient logsTFHttpClient
+		ILogsTFService logsTFService
 	)
 	{
 		this.logger = logger;
 		this.playerRepository = playerRepository;
-		this.logsTFHttpClient = logsTFHttpClient;
+		this.logsTFService = logsTFService;
 	}
 
 	public async Task ProcessLogs(CancellationToken cancellationToken)
@@ -29,22 +29,17 @@ internal class StatsETLService : IStatsETLService
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
-			var playerCount = playerRepository.GetAll().Count;
-			logger.LogInformation(
-				$"Scoped Service executing: {count}, found {playerCount} players!"
-			);
-			var allLogsResult = await logsTFHttpClient.GetLogList(
-				new LogListQueryParams()
-				{
-					Uploader = 76561199085369255
-				}
-			);
+			var allLogsResult = await logsTFService.GetAllLogs();
 			if (allLogsResult.IsLeft)
 			{
+				// investigate 1 failing call
 				logger.LogWarning("Failed to fetch list");
 			}
-			var allLogs = allLogsResult.Right.Length;
-			logger.LogInformation($"Fetched list of {allLogs} results");
+			else
+			{
+				var logCount = allLogsResult.Right.Count;
+				logger.LogInformation($"Fetched list of {logCount} results");
+			}
 
 			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
 		}

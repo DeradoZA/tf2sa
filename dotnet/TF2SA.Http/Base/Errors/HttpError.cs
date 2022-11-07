@@ -1,6 +1,6 @@
 using TF2SA.Common.Errors;
 
-namespace TF2SA.Http.Errors;
+namespace TF2SA.Http.Base.Errors;
 
 public class HttpError : Error
 {
