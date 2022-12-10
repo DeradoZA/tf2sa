@@ -69,29 +69,44 @@ public class LogsTFService : ILogsTFService
 
 		foreach (ulong uploader in uploaders)
 		{
-			LogListQueryParams filter = new()
+			EitherStrict<HttpError, List<LogListItem>> uploaderLogs = await GetAllLogs(uploader);
+			if (uploaderLogs.IsLeft)
 			{
-				Uploader = uploader
-			};
+				return uploaderLogs.Left;
+			}
 
-			logger.LogInformation("fetching game logs for uploader {uploader}", uploader);
+			logs.AddRange(uploaderLogs.Right);
+		}
+
+		return logs;
+	}
+
+	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(ulong uploader)
+	{
+		List<LogListItem> logs = new();
+		LogListQueryParams filter = new()
+		{
+			Uploader = uploader,
+			Limit = LogListQueryParams.LIMIT_MAX
+		};
+
+		int totalLogsFetched = 0;
+		int totalLogCount;
+		do
+		{
+			filter.Offset = totalLogsFetched;
+
 			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
 			if (logListResult.IsLeft)
 			{
 				return logListResult.Left;
 			}
 
-			List<LogListItem>? logList = logListResult.Right.Logs;
-			if (logList is null)
-			{
-				logger.LogInformation("No gamelogs found for uploader {uploader}", uploader);
-			}
-			else
-			{
-				logger.LogInformation("uploader {uploader}: returned {logList.Count} logs", uploader, logList.Count);
-				logs.AddRange(logList);
-			}
-		}
+			logs.AddRange(logListResult.Right.Logs);
+
+			totalLogCount = logListResult.Right.Total;
+			totalLogsFetched = logListResult.Right.Results + logListResult.Right.Parameters.Offset;
+		} while (totalLogsFetched != totalLogCount);
 
 		return logs;
 	}
