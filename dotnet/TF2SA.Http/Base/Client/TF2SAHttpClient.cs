@@ -33,7 +33,7 @@ public class TF2SAHttpClient : IHttpClient
 				jsonSerializer.Deserialize<TResponse>(json);
 			if (deserialized.IsLeft)
 			{
-				logger.LogWarning($"GET {url}: {deserialized.Left.Message}.");
+				logger.LogWarning("GET {url}: {deserialized.Left.Message}.", url, deserialized.Left.Message);
 				return new HttpError(deserialized.Left.Message);
 			}
 
@@ -41,7 +41,7 @@ public class TF2SAHttpClient : IHttpClient
 		}
 		catch (Exception e)
 		{
-			logger.LogWarning($"GET {url}: Failed: ${e.Message}");
+			logger.LogWarning("GET {url}: Failed: {e.Message}", url, e.Message);
 			return new HttpError(e.Message);
 		}
 	}

@@ -74,7 +74,7 @@ public class LogsTFService : ILogsTFService
 				Uploader = uploader
 			};
 
-			logger.LogInformation($"fetching game logs for uploader {uploader}");
+			logger.LogInformation("fetching game logs for uploader {uploader}", uploader);
 			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
 			if (logListResult.IsLeft)
 			{
@@ -84,11 +84,11 @@ public class LogsTFService : ILogsTFService
 			List<LogListItem>? logList = logListResult.Right.Logs;
 			if (logList is null)
 			{
-				logger.LogInformation($"No gamelogs found for uploader {uploader}");
+				logger.LogInformation("No gamelogs found for uploader {uploader}", uploader);
 			}
 			else
 			{
-				logger.LogInformation($"uploader {uploader}: returned {logList.Count} logs");
+				logger.LogInformation("uploader {uploader}: returned {logList.Count} logs", uploader, logList.Count);
 				logs.AddRange(logList);
 			}
 		}

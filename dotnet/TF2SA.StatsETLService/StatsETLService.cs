@@ -38,7 +38,7 @@ internal class StatsETLService : IStatsETLService
 			else
 			{
 				var logCount = allLogsResult.Right.Count;
-				logger.LogInformation($"Fetched list of {logCount} results");
+				logger.LogInformation("Fetched list of {count} results", logCount);
 			}
 
 			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
