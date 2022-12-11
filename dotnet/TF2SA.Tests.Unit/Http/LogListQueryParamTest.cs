@@ -25,6 +25,6 @@ public class LogListQueryParamTest
 			Offset = 1000
 		};
 
-		Assert.Equal("title=Bruh&uploader=123", LogListQueryParams.GetQueryString(filter));
+		Assert.Equal("title=Bruh&uploader=123&limit=10&offset=1000", LogListQueryParams.GetQueryString(filter));
 	}
 }

@@ -84,17 +84,17 @@ public class LogsTFService : ILogsTFService
 	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(ulong uploader)
 	{
 		List<LogListItem> logs = new();
-		LogListQueryParams filter = new()
-		{
-			Uploader = uploader,
-			Limit = LogListQueryParams.LIMIT_MAX
-		};
 
 		int totalLogsFetched = 0;
 		int totalLogCount;
 		do
 		{
-			filter.Offset = totalLogsFetched;
+			LogListQueryParams filter = new()
+			{
+				Uploader = uploader,
+				Limit = LogListQueryParams.LIMIT_MAX,
+				Offset = totalLogsFetched
+			};
 
 			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
 			if (logListResult.IsLeft)
@@ -106,6 +106,7 @@ public class LogsTFService : ILogsTFService
 
 			totalLogCount = logListResult.Right.Total;
 			totalLogsFetched = logListResult.Right.Results + logListResult.Right.Parameters.Offset;
+			logger.LogTrace("Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}", uploader, totalLogsFetched, totalLogCount, filter.Offset);
 		} while (totalLogsFetched != totalLogCount);
 
 		return logs;

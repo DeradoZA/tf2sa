@@ -36,6 +36,11 @@ public class LogListQueryParams
 			query["limit"] = $"{filter.Limit}";
 		}
 
+		if (filter.Offset is not null)
+		{
+			query["offset"] = $"{filter.Offset}";
+		}
+
 		return query?.ToString();
 	}
 
