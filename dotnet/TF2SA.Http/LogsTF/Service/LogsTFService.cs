@@ -60,27 +60,6 @@ public class LogsTFService : ILogsTFService
 		return logList.Right;
 	}
 
-	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs()
-	{
-		logger.LogInformation("fetching game logs");
-
-		ulong[] uploaders = logsTFConfig.Uploaders;
-		List<LogListItem> logs = new();
-
-		foreach (ulong uploader in uploaders)
-		{
-			EitherStrict<HttpError, List<LogListItem>> uploaderLogs = await GetAllLogs(uploader);
-			if (uploaderLogs.IsLeft)
-			{
-				return uploaderLogs.Left;
-			}
-
-			logs.AddRange(uploaderLogs.Right);
-		}
-
-		return logs;
-	}
-
 	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(ulong uploader)
 	{
 		List<LogListItem> logs = new();
@@ -108,6 +87,27 @@ public class LogsTFService : ILogsTFService
 			totalLogsFetched = logListResult.Right.Results + logListResult.Right.Parameters.Offset;
 			logger.LogTrace("Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}", uploader, totalLogsFetched, totalLogCount, filter.Offset);
 		} while (totalLogsFetched != totalLogCount);
+
+		return logs;
+	}
+
+	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs()
+	{
+		logger.LogInformation("fetching game logs");
+
+		ulong[] uploaders = logsTFConfig.Uploaders;
+		List<LogListItem> logs = new();
+
+		foreach (ulong uploader in uploaders)
+		{
+			EitherStrict<HttpError, List<LogListItem>> uploaderLogs = await GetAllLogs(uploader);
+			if (uploaderLogs.IsLeft)
+			{
+				return uploaderLogs.Left;
+			}
+
+			logs.AddRange(uploaderLogs.Right);
+		}
 
 		return logs;
 	}
