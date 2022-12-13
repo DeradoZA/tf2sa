@@ -60,6 +60,37 @@ public class LogsTFService : ILogsTFService
 		return logList.Right;
 	}
 
+	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(ulong uploader)
+	{
+		List<LogListItem> logs = new();
+
+		int totalLogsFetched = 0;
+		int totalLogCount;
+		do
+		{
+			LogListQueryParams filter = new()
+			{
+				Uploader = uploader,
+				Limit = LogListQueryParams.LIMIT_MAX,
+				Offset = totalLogsFetched
+			};
+
+			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
+			if (logListResult.IsLeft)
+			{
+				return logListResult.Left;
+			}
+
+			logs.AddRange(logListResult.Right.Logs);
+
+			totalLogCount = logListResult.Right.Total;
+			totalLogsFetched = logListResult.Right.Results + logListResult.Right.Parameters.Offset;
+			logger.LogTrace("Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}", uploader, totalLogsFetched, totalLogCount, filter.Offset);
+		} while (totalLogsFetched != totalLogCount);
+
+		return logs;
+	}
+
 	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs()
 	{
 		logger.LogInformation("fetching game logs");
@@ -69,28 +100,13 @@ public class LogsTFService : ILogsTFService
 
 		foreach (ulong uploader in uploaders)
 		{
-			LogListQueryParams filter = new()
+			EitherStrict<HttpError, List<LogListItem>> uploaderLogs = await GetAllLogs(uploader);
+			if (uploaderLogs.IsLeft)
 			{
-				Uploader = uploader
-			};
-
-			logger.LogInformation($"fetching game logs for uploader {uploader}");
-			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
-			if (logListResult.IsLeft)
-			{
-				return logListResult.Left;
+				return uploaderLogs.Left;
 			}
 
-			List<LogListItem>? logList = logListResult.Right.Logs;
-			if (logList is null)
-			{
-				logger.LogInformation($"No gamelogs found for uploader {uploader}");
-			}
-			else
-			{
-				logger.LogInformation($"uploader {uploader}: returned {logList.Count} logs");
-				logs.AddRange(logList);
-			}
+			logs.AddRange(uploaderLogs.Right);
 		}
 
 		return logs;

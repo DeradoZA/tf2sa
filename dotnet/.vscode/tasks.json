@@ -7,7 +7,9 @@
             "command": "dotnet",
             "type": "process",
             "args": [
+                "watch",
                 "test",
+                "--project",
                 "${workspaceFolder}/TF2SA.Tests.Unit/TF2SA.Tests.Unit.csproj",
                 "/p:CollectCoverage=true",
                 "/p:CoverletOutputFormat=lcov",

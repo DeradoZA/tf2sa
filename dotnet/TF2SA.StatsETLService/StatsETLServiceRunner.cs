@@ -3,7 +3,7 @@ namespace TF2SA.StatsETLService;
 public class StatsETLServiceRunner : BackgroundService
 {
 	private readonly ILogger<StatsETLServiceRunner> logger;
-	public IServiceProvider serviceProvider { get; }
+	private readonly IServiceProvider serviceProvider;
 
 	public StatsETLServiceRunner(
 		ILogger<StatsETLServiceRunner> logger,
@@ -25,13 +25,11 @@ public class StatsETLServiceRunner : BackgroundService
 	{
 		logger.LogInformation("Pulling scoped service.");
 
-		using (var scope = serviceProvider.CreateScope())
-		{
-			var scopedStatsETLService =
-				scope.ServiceProvider.GetRequiredService<IStatsETLService>();
+		using var scope = serviceProvider.CreateScope();
+		var scopedStatsETLService =
+			scope.ServiceProvider.GetRequiredService<IStatsETLService>();
 
-			await scopedStatsETLService.ProcessLogs(cancellationToken);
-		}
+		await scopedStatsETLService.ProcessLogs(cancellationToken);
 	}
 
 	public override async Task StopAsync(CancellationToken cancellationToken)

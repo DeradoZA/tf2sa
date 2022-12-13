@@ -14,6 +14,7 @@ public class LogListQueryParams
 	/// </summary>
 	public ulong[]? Players { get; set; }
 	public int? Limit { get; set; }
+	public const int LIMIT_MAX = 10000;
 	public int? Offset { get; set; }
 
 	public static string? GetQueryString(LogListQueryParams filter)
@@ -28,6 +29,16 @@ public class LogListQueryParams
 		if (filter.Uploader is not null)
 		{
 			query["uploader"] = $"{filter.Uploader}";
+		}
+
+		if (filter.Limit is not null)
+		{
+			query["limit"] = $"{filter.Limit}";
+		}
+
+		if (filter.Offset is not null)
+		{
+			query["offset"] = $"{filter.Offset}";
 		}
 
 		return query?.ToString();

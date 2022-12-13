@@ -23,7 +23,7 @@ public class HomeController : Controller
 	public IActionResult Index()
 	{
 		var players = playerRepository.GetAll();
-		logger.LogInformation($" Players: {players.Count}");
+		logger.LogInformation("Players: {playerCount}", players.Count);
 		return View(players);
 	}
 
