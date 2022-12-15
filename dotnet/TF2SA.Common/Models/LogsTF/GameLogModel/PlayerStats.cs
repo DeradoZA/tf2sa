@@ -38,7 +38,8 @@ public class PlayerStats
 	public int Dapd { get; set; } = -1;
 	public int Dapm { get; set; } = -1;
 	public int Ubers { get; set; } = -1;
-	public Dictionary<string, int> UberTypes { get; set; } = new Dictionary<string, int>(0);
+	public Dictionary<string, int> UberTypes { get; set; } =
+		new Dictionary<string, int>(0);
 	public int Drops { get; set; } = -1;
 	public int MedKits { get; set; } = -1;
 

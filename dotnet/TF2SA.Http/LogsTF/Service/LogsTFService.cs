@@ -18,14 +18,17 @@ public class LogsTFService : ILogsTFService
 	public LogsTFService(
 		IOptions<LogsTFConfig> logsTFConfig,
 		ILogger<LogsTFService> logger,
-		IHttpClient httpClient)
+		IHttpClient httpClient
+	)
 	{
 		this.logsTFConfig = logsTFConfig.Value;
 		this.logger = logger;
 		this.httpClient = httpClient;
 	}
 
-	public async Task<EitherStrict<HttpError, LogListResult>> GetLogList(LogListQueryParams filter)
+	public async Task<EitherStrict<HttpError, LogListResult>> GetLogList(
+		LogListQueryParams filter
+	)
 	{
 		logger.LogInformation($"Fetching log list");
 
@@ -60,7 +63,9 @@ public class LogsTFService : ILogsTFService
 		return logList.Right;
 	}
 
-	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(ulong uploader)
+	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(
+		ulong uploader
+	)
 	{
 		List<LogListItem> logs = new();
 
@@ -68,14 +73,16 @@ public class LogsTFService : ILogsTFService
 		int totalLogCount;
 		do
 		{
-			LogListQueryParams filter = new()
-			{
-				Uploader = uploader,
-				Limit = LogListQueryParams.LIMIT_MAX,
-				Offset = totalLogsFetched
-			};
+			LogListQueryParams filter =
+				new()
+				{
+					Uploader = uploader,
+					Limit = LogListQueryParams.LIMIT_MAX,
+					Offset = totalLogsFetched
+				};
 
-			EitherStrict<HttpError, LogListResult> logListResult = await GetLogList(filter);
+			EitherStrict<HttpError, LogListResult> logListResult =
+				await GetLogList(filter);
 			if (logListResult.IsLeft)
 			{
 				return logListResult.Left;
@@ -84,8 +91,16 @@ public class LogsTFService : ILogsTFService
 			logs.AddRange(logListResult.Right.Logs);
 
 			totalLogCount = logListResult.Right.Total;
-			totalLogsFetched = logListResult.Right.Results + logListResult.Right.Parameters.Offset;
-			logger.LogTrace("Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}", uploader, totalLogsFetched, totalLogCount, filter.Offset);
+			totalLogsFetched =
+				logListResult.Right.Results
+				+ logListResult.Right.Parameters.Offset;
+			logger.LogTrace(
+				"Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}",
+				uploader,
+				totalLogsFetched,
+				totalLogCount,
+				filter.Offset
+			);
 		} while (totalLogsFetched != totalLogCount);
 
 		return logs;
@@ -100,7 +115,8 @@ public class LogsTFService : ILogsTFService
 
 		foreach (ulong uploader in uploaders)
 		{
-			EitherStrict<HttpError, List<LogListItem>> uploaderLogs = await GetAllLogs(uploader);
+			EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
+				await GetAllLogs(uploader);
 			if (uploaderLogs.IsLeft)
 			{
 				return uploaderLogs.Left;

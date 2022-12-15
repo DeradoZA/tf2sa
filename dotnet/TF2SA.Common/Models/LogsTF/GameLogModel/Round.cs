@@ -11,13 +11,15 @@ public class Round
 	public string WinnerTeam { get; set; } = string.Empty;
 
 	[JsonPropertyName("team")]
-	public Dictionary<string, TeamRound> TeamRound { get; set; } = new Dictionary<string, TeamRound>(0);
+	public Dictionary<string, TeamRound> TeamRound { get; set; } =
+		new Dictionary<string, TeamRound>(0);
 
 	[JsonPropertyName("events")]
 	public RoundEvent[] RoundEvents { get; set; } = Array.Empty<RoundEvent>();
 
 	[JsonPropertyName("players")]
-	public Dictionary<string, PlayerRound> PlayerRounds { get; set; } = new Dictionary<string, PlayerRound>(0);
+	public Dictionary<string, PlayerRound> PlayerRounds { get; set; } =
+		new Dictionary<string, PlayerRound>(0);
 
 	[JsonPropertyName("firstcap")]
 	public string FirstCapTeam { get; set; } = string.Empty;

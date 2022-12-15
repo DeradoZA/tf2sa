@@ -27,7 +27,9 @@ public class SerializationTests
 
 		MedicPlayer = GameLog.Players["[U:1:152151801]"];
 		MedicStats = MedicPlayer.MedicStats;
-		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(c => c.Type == "medic")!;
+		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(
+			c => c.Type == "medic"
+		)!;
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
 		FirstRound = GameLog.Rounds[0];
@@ -36,7 +38,9 @@ public class SerializationTests
 	[Fact]
 	public void NonImplementedThrows()
 	{
-		Assert.Throws<NotImplementedException>(() => serializer.Serialize(It.IsAny<GameLog>()));
+		Assert.Throws<NotImplementedException>(
+			() => serializer.Serialize(It.IsAny<GameLog>())
+		);
 	}
 
 	[Fact]
@@ -184,7 +188,10 @@ public class SerializationTests
 	[Fact]
 	public void TestHealSpread()
 	{
-		Assert.Equal(2201, GameLog?.HealSpread?["[U:1:152151801]"]["[U:1:51337520]"]);
+		Assert.Equal(
+			2201,
+			GameLog?.HealSpread?["[U:1:152151801]"]["[U:1:51337520]"]
+		);
 	}
 
 	[Fact]
@@ -213,7 +220,6 @@ public class SerializationTests
 		Assert.Equal(1, GameLog?.ClassDeaths?["[U:1:96137874]"].Sniper);
 	}
 
-
 	[Fact]
 	public void TestClassKillAssists()
 	{
@@ -237,11 +243,11 @@ public class SerializationTests
 		Assert.Equal("stop emailing", firstMessage.Message);
 	}
 
-
 	[Fact]
 	public void TestInfo()
 	{
-		LogInfo info = GameLog.Info; ;
+		LogInfo info = GameLog.Info;
+		;
 		Assert.Equal("cp_process_f9a", info.Map);
 		Assert.True(info.Supplemental);
 		Assert.Equal(1787, info.TotalLength);
@@ -277,5 +283,4 @@ public class SerializationTests
 		Assert.Equal(3, firstKillStreak.Streak);
 		Assert.Equal(36, firstKillStreak.Time);
 	}
-
 }

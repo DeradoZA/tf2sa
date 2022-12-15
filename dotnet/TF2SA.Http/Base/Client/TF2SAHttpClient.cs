@@ -10,17 +10,21 @@ public class TF2SAHttpClient : IHttpClient
 	private readonly IHttpClientFactory httpClientFactory;
 	private readonly ILogger<TF2SAHttpClient> logger;
 	private readonly IJsonSerializer jsonSerializer;
+
 	public TF2SAHttpClient(
 		IHttpClientFactory httpClientFactory,
 		ILogger<TF2SAHttpClient> logger,
-		IJsonSerializer jsonSerializer)
+		IJsonSerializer jsonSerializer
+	)
 	{
 		this.httpClientFactory = httpClientFactory;
 		this.logger = logger;
 		this.jsonSerializer = jsonSerializer;
 	}
 
-	public async Task<EitherStrict<HttpError, TResponse>> Get<TResponse>(string url)
+	public async Task<EitherStrict<HttpError, TResponse>> Get<TResponse>(
+		string url
+	)
 	{
 		HttpClient httpClient = httpClientFactory.CreateClient();
 
@@ -33,7 +37,11 @@ public class TF2SAHttpClient : IHttpClient
 				jsonSerializer.Deserialize<TResponse>(json);
 			if (deserialized.IsLeft)
 			{
-				logger.LogWarning("GET {url}: {deserialized.Left.Message}.", url, deserialized.Left.Message);
+				logger.LogWarning(
+					"GET {url}: {deserialized.Left.Message}.",
+					url,
+					deserialized.Left.Message
+				);
 				return new HttpError(deserialized.Left.Message);
 			}
 
@@ -46,7 +54,9 @@ public class TF2SAHttpClient : IHttpClient
 		}
 	}
 
-	public Task<EitherStrict<HttpError, TResponse>> Delete<TResponse>(string url)
+	public Task<EitherStrict<HttpError, TResponse>> Delete<TResponse>(
+		string url
+	)
 	{
 		throw new NotImplementedException();
 	}

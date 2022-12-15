@@ -9,8 +9,7 @@ public class LeaderboardController : Controller
 {
 	private readonly IStatsService<ulong> statsService;
 
-	public LeaderboardController(
-		IStatsService<ulong> statsService)
+	public LeaderboardController(IStatsService<ulong> statsService)
 	{
 		this.statsService = statsService;
 	}
@@ -77,9 +76,7 @@ public class LeaderboardController : Controller
 
 	public IActionResult PlayerPage(ulong steamid)
 	{
-		var playerHighlights = statsService.PlayerHighlightCollector(
-			steamid
-		);
+		var playerHighlights = statsService.PlayerHighlightCollector(steamid);
 		var playerScoutStats = statsService.MainStatsCollector(
 			StatsCollectionConstants.ALLTIME_THRESHOLD,
 			1,

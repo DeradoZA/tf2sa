@@ -27,11 +27,13 @@ public class LogsTFServiceTests
 	{
 		logsTFConfig
 			.Setup(x => x.Value)
-			.Returns(new LogsTFConfig()
-			{
-				BaseUrl = "http://logs.tf/api/v1",
-				Uploaders = new ulong[] { 1, 2 }
-			});
+			.Returns(
+				new LogsTFConfig()
+				{
+					BaseUrl = "http://logs.tf/api/v1",
+					Uploaders = new ulong[] { 1, 2 }
+				}
+			);
 
 		httpClient
 			.Setup(x => x.Get<GameLog>(It.IsAny<string>()))
@@ -43,35 +45,44 @@ public class LogsTFServiceTests
 		logsTFService = new(
 			logsTFConfig.Object,
 			logger.Object,
-			httpClient.Object);
+			httpClient.Object
+		);
 	}
 
-	private static EitherStrict<HttpError, GameLog> GetLogSuccess() => new GameLog();
-	private static EitherStrict<HttpError, GameLog> GetLogFailure() => new HttpError("Fail");
-	private static EitherStrict<HttpError, LogListResult> GetLogListSuccess()
-		=> new LogListResult()
-		{
-			Logs = new()
-		};
-	private static EitherStrict<HttpError, LogListResult> GetLogListSuccessWithMoreResultsThanLimit()
-		=> new LogListResult()
+	private static EitherStrict<HttpError, GameLog> GetLogSuccess() =>
+		new GameLog();
+
+	private static EitherStrict<HttpError, GameLog> GetLogFailure() =>
+		new HttpError("Fail");
+
+	private static EitherStrict<HttpError, LogListResult> GetLogListSuccess() =>
+		new LogListResult() { Logs = new() };
+
+	private static EitherStrict<
+		HttpError,
+		LogListResult
+	> GetLogListSuccessWithMoreResultsThanLimit() =>
+		new LogListResult()
 		{
 			Logs = new(),
 			Results = 10000,
 			Total = 15000
 		};
-	private static EitherStrict<HttpError, LogListResult> GetLogListSuccessWithMoreResultsThanLimitSecondSet()
-		=> new LogListResult()
+
+	private static EitherStrict<
+		HttpError,
+		LogListResult
+	> GetLogListSuccessWithMoreResultsThanLimitSecondSet() =>
+		new LogListResult()
 		{
 			Logs = new(),
 			Results = 5000,
 			Total = 15000,
-			Parameters = new()
-			{
-				Offset = 10000
-			}
+			Parameters = new() { Offset = 10000 }
 		};
-	private static EitherStrict<HttpError, LogListResult> GetLogListFailure() => new HttpError("Fail");
+
+	private static EitherStrict<HttpError, LogListResult> GetLogListFailure() =>
+		new HttpError("Fail");
 
 	[Fact]
 	public async Task GetGameLog_Success_ReturnsGameLogAsync()
@@ -126,16 +137,18 @@ public class LogsTFServiceTests
 	[Fact]
 	public async Task GetLogList_CallsWithCorrectUrl()
 	{
-		LogListQueryParams queryParams = new()
-		{
-			Uploader = 999
-		};
+		LogListQueryParams queryParams = new() { Uploader = 999 };
 
 		EitherStrict<HttpError, LogListResult> logList =
 			await logsTFService.GetLogList(queryParams);
 
 		httpClient.Verify(
-			x => x.Get<LogListResult>(It.Is<string>(s => s.Equals("http://logs.tf/api/v1/log?uploader=999"))),
+			x =>
+				x.Get<LogListResult>(
+					It.Is<string>(
+						s => s.Equals("http://logs.tf/api/v1/log?uploader=999")
+					)
+				),
 			Times.Once
 		);
 	}
@@ -165,8 +178,15 @@ public class LogsTFServiceTests
 			await logsTFService.GetAllLogs(uploader);
 
 		httpClient.Verify(
-			x => x.Get<LogListResult>(
-				It.Is<string>(s => s.Equals("http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"))),
+			x =>
+				x.Get<LogListResult>(
+					It.Is<string>(
+						s =>
+							s.Equals(
+								"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"
+							)
+					)
+				),
 			Times.Once
 		);
 	}
@@ -176,23 +196,59 @@ public class LogsTFServiceTests
 	{
 		ulong uploader = 123;
 		httpClient
-			.Setup(x => x.Get<LogListResult>(It.Is<string>(s => s.Equals("http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"))))
+			.Setup(
+				x =>
+					x.Get<LogListResult>(
+						It.Is<string>(
+							s =>
+								s.Equals(
+									"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"
+								)
+						)
+					)
+			)
 			.ReturnsAsync(() => GetLogListSuccessWithMoreResultsThanLimit());
 		httpClient
-			.Setup(x => x.Get<LogListResult>(It.Is<string>(s => s.Equals("http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=10000"))))
-			.ReturnsAsync(() => GetLogListSuccessWithMoreResultsThanLimitSecondSet());
+			.Setup(
+				x =>
+					x.Get<LogListResult>(
+						It.Is<string>(
+							s =>
+								s.Equals(
+									"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=10000"
+								)
+						)
+					)
+			)
+			.ReturnsAsync(
+				() => GetLogListSuccessWithMoreResultsThanLimitSecondSet()
+			);
 
 		EitherStrict<HttpError, List<LogListItem>> logList =
 			await logsTFService.GetAllLogs(uploader);
 
 		httpClient.Verify(
-			x => x.Get<LogListResult>(
-				It.Is<string>(s => s.Equals("http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"))),
+			x =>
+				x.Get<LogListResult>(
+					It.Is<string>(
+						s =>
+							s.Equals(
+								"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"
+							)
+					)
+				),
 			Times.Once
 		);
 		httpClient.Verify(
-			x => x.Get<LogListResult>(
-				It.Is<string>(s => s.Equals("http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=10000"))),
+			x =>
+				x.Get<LogListResult>(
+					It.Is<string>(
+						s =>
+							s.Equals(
+								"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=10000"
+							)
+					)
+				),
 			Times.Once
 		);
 	}
@@ -219,10 +275,8 @@ public class LogsTFServiceTests
 
 		Assert.True(logList.IsRight);
 		httpClient.Verify(
-			x => x.Get<LogListResult>(
-				It.IsAny<string>()),
+			x => x.Get<LogListResult>(It.IsAny<string>()),
 			Times.AtLeast(2)
 		);
 	}
-
 }

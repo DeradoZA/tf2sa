@@ -3,8 +3,7 @@ using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
-public class PlayerStatsRepository
-	: IPlayerStatsRepository<PlayerStat, uint>
+public class PlayerStatsRepository : IPlayerStatsRepository<PlayerStat, uint>
 {
 	private readonly TF2SADbContext tF2SADbContext;
 

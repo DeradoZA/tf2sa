@@ -15,16 +15,20 @@ public class LogListQueryParamTest
 	[Fact]
 	public void TestCorrectQueryString()
 	{
-		LogListQueryParams filter = new()
-		{
-			Title = "Bruh",
-			Map = "cp_bruh",
-			Uploader = 123U,
-			Players = new ulong[] { 123U, 321U },
-			Limit = 10,
-			Offset = 1000
-		};
+		LogListQueryParams filter =
+			new()
+			{
+				Title = "Bruh",
+				Map = "cp_bruh",
+				Uploader = 123U,
+				Players = new ulong[] { 123U, 321U },
+				Limit = 10,
+				Offset = 1000
+			};
 
-		Assert.Equal("title=Bruh&uploader=123&limit=10&offset=1000", LogListQueryParams.GetQueryString(filter));
+		Assert.Equal(
+			"title=Bruh&uploader=123&limit=10&offset=1000",
+			LogListQueryParams.GetQueryString(filter)
+		);
 	}
 }

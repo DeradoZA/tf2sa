@@ -8,7 +8,11 @@ namespace TF2SA.Http.LogsTF.Service;
 public interface ILogsTFService
 {
 	public Task<EitherStrict<HttpError, GameLog>> GetGameLog(ulong logId);
-	public Task<EitherStrict<HttpError, LogListResult>> GetLogList(LogListQueryParams filter);
+	public Task<EitherStrict<HttpError, LogListResult>> GetLogList(
+		LogListQueryParams filter
+	);
 	public Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs();
-	public Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(ulong uploader);
+	public Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(
+		ulong uploader
+	);
 }
