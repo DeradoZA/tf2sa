@@ -29,7 +29,9 @@ internal class StatsETLService : IStatsETLService
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
-			var allLogsResult = await logsTFService.GetAllLogs();
+			var allLogsResult = await logsTFService.GetAllLogs(
+				cancellationToken
+			);
 			if (allLogsResult.IsLeft)
 			{
 				// investigate 1 failing call

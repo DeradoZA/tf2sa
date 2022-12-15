@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -36,10 +37,22 @@ public class LogsTFServiceTests
 			);
 
 		httpClient
-			.Setup(x => x.Get<GameLog>(It.IsAny<string>()))
+			.Setup(
+				x =>
+					x.Get<GameLog>(
+						It.IsAny<string>(),
+						It.IsAny<CancellationToken>()
+					)
+			)
 			.ReturnsAsync(() => GetLogSuccess());
 		httpClient
-			.Setup(x => x.Get<LogListResult>(It.IsAny<string>()))
+			.Setup(
+				x =>
+					x.Get<LogListResult>(
+						It.IsAny<string>(),
+						It.IsAny<CancellationToken>()
+					)
+			)
 			.ReturnsAsync(() => GetLogListSuccess());
 
 		logsTFService = new(
@@ -88,7 +101,7 @@ public class LogsTFServiceTests
 	public async Task GetGameLog_Success_ReturnsGameLogAsync()
 	{
 		EitherStrict<HttpError, GameLog> gameLog =
-			await logsTFService.GetGameLog(123U);
+			await logsTFService.GetGameLog(123U, CancellationToken.None);
 		Assert.True(gameLog.IsRight);
 		Assert.IsType<GameLog>(gameLog.Right);
 	}
@@ -97,11 +110,13 @@ public class LogsTFServiceTests
 	public async Task GetGameLog_Failure_ReturnsError()
 	{
 		httpClient
-			.Setup(x => x.Get<GameLog>(It.IsAny<string>()))
+			.Setup(
+				x => x.Get<GameLog>(It.IsAny<string>(), CancellationToken.None)
+			)
 			.ReturnsAsync(() => GetLogFailure());
 
 		EitherStrict<HttpError, GameLog> gameLog =
-			await logsTFService.GetGameLog(123U);
+			await logsTFService.GetGameLog(123U, CancellationToken.None);
 		Assert.True(gameLog.IsLeft);
 		Assert.IsType<HttpError>(gameLog.Left);
 	}
@@ -112,7 +127,7 @@ public class LogsTFServiceTests
 		LogListQueryParams queryParams = new();
 
 		EitherStrict<HttpError, LogListResult> logList =
-			await logsTFService.GetLogList(queryParams);
+			await logsTFService.GetLogList(queryParams, CancellationToken.None);
 
 		Assert.True(logList.IsRight);
 		Assert.IsType<LogListResult>(logList.Right);
@@ -122,13 +137,19 @@ public class LogsTFServiceTests
 	public async Task GetLogList_Failure_ReturnsError()
 	{
 		httpClient
-			.Setup(x => x.Get<LogListResult>(It.IsAny<string>()))
+			.Setup(
+				x =>
+					x.Get<LogListResult>(
+						It.IsAny<string>(),
+						It.IsAny<CancellationToken>()
+					)
+			)
 			.ReturnsAsync(() => GetLogListFailure());
 
 		LogListQueryParams queryParams = new();
 
 		EitherStrict<HttpError, LogListResult> logList =
-			await logsTFService.GetLogList(queryParams);
+			await logsTFService.GetLogList(queryParams, CancellationToken.None);
 
 		Assert.True(logList.IsLeft);
 		Assert.IsType<HttpError>(logList.Left);
@@ -140,14 +161,15 @@ public class LogsTFServiceTests
 		LogListQueryParams queryParams = new() { Uploader = 999 };
 
 		EitherStrict<HttpError, LogListResult> logList =
-			await logsTFService.GetLogList(queryParams);
+			await logsTFService.GetLogList(queryParams, CancellationToken.None);
 
 		httpClient.Verify(
 			x =>
 				x.Get<LogListResult>(
 					It.Is<string>(
 						s => s.Equals("http://logs.tf/api/v1/log?uploader=999")
-					)
+					),
+					It.IsAny<CancellationToken>()
 				),
 			Times.Once
 		);
@@ -159,11 +181,17 @@ public class LogsTFServiceTests
 		ulong uploader = 123;
 
 		httpClient
-			.Setup(x => x.Get<LogListResult>(It.IsAny<string>()))
+			.Setup(
+				x =>
+					x.Get<LogListResult>(
+						It.IsAny<string>(),
+						It.IsAny<CancellationToken>()
+					)
+			)
 			.ReturnsAsync(() => GetLogListFailure());
 
 		EitherStrict<HttpError, List<LogListItem>> logList =
-			await logsTFService.GetAllLogs(uploader);
+			await logsTFService.GetAllLogs(uploader, CancellationToken.None);
 
 		Assert.True(logList.IsLeft);
 		Assert.IsType<HttpError>(logList.Left);
@@ -175,7 +203,7 @@ public class LogsTFServiceTests
 		ulong uploader = 123;
 
 		EitherStrict<HttpError, List<LogListItem>> logList =
-			await logsTFService.GetAllLogs(uploader);
+			await logsTFService.GetAllLogs(uploader, CancellationToken.None);
 
 		httpClient.Verify(
 			x =>
@@ -185,7 +213,8 @@ public class LogsTFServiceTests
 							s.Equals(
 								"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"
 							)
-					)
+					),
+					It.IsAny<CancellationToken>()
 				),
 			Times.Once
 		);
@@ -204,7 +233,8 @@ public class LogsTFServiceTests
 								s.Equals(
 									"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"
 								)
-						)
+						),
+						It.IsAny<CancellationToken>()
 					)
 			)
 			.ReturnsAsync(() => GetLogListSuccessWithMoreResultsThanLimit());
@@ -217,7 +247,8 @@ public class LogsTFServiceTests
 								s.Equals(
 									"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=10000"
 								)
-						)
+						),
+						It.IsAny<CancellationToken>()
 					)
 			)
 			.ReturnsAsync(
@@ -225,7 +256,7 @@ public class LogsTFServiceTests
 			);
 
 		EitherStrict<HttpError, List<LogListItem>> logList =
-			await logsTFService.GetAllLogs(uploader);
+			await logsTFService.GetAllLogs(uploader, CancellationToken.None);
 
 		httpClient.Verify(
 			x =>
@@ -235,7 +266,8 @@ public class LogsTFServiceTests
 							s.Equals(
 								"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=0"
 							)
-					)
+					),
+					It.IsAny<CancellationToken>()
 				),
 			Times.Once
 		);
@@ -247,7 +279,8 @@ public class LogsTFServiceTests
 							s.Equals(
 								"http://logs.tf/api/v1/log?uploader=123&limit=10000&offset=10000"
 							)
-					)
+					),
+					It.IsAny<CancellationToken>()
 				),
 			Times.Once
 		);
@@ -257,11 +290,17 @@ public class LogsTFServiceTests
 	public async Task GetAllLogsFromAllUploader_GivenHttpError_ReturnsError()
 	{
 		httpClient
-			.Setup(x => x.Get<LogListResult>(It.IsAny<string>()))
+			.Setup(
+				x =>
+					x.Get<LogListResult>(
+						It.IsAny<string>(),
+						It.IsAny<CancellationToken>()
+					)
+			)
 			.ReturnsAsync(() => GetLogListFailure());
 
 		EitherStrict<HttpError, List<LogListItem>> logList =
-			await logsTFService.GetAllLogs();
+			await logsTFService.GetAllLogs(CancellationToken.None);
 
 		Assert.True(logList.IsLeft);
 		Assert.IsType<HttpError>(logList.Left);
@@ -271,11 +310,15 @@ public class LogsTFServiceTests
 	public async Task GetAllLogsFromAllUploader_CallsMultipleGetsForEachUploader()
 	{
 		EitherStrict<HttpError, List<LogListItem>> logList =
-			await logsTFService.GetAllLogs();
+			await logsTFService.GetAllLogs(CancellationToken.None);
 
 		Assert.True(logList.IsRight);
 		httpClient.Verify(
-			x => x.Get<LogListResult>(It.IsAny<string>()),
+			x =>
+				x.Get<LogListResult>(
+					It.IsAny<string>(),
+					It.IsAny<CancellationToken>()
+				),
 			Times.AtLeast(2)
 		);
 	}

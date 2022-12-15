@@ -78,7 +78,8 @@ public class TF2SAHttpClientTests
 	public async Task Get_GivenSerializationFailure_ReturnsHttpError()
 	{
 		var result = await tF2SAHttpClient.Get<GameLog>(
-			"http://logs.tf/api/v1"
+			"http://logs.tf/api/v1",
+			CancellationToken.None
 		);
 		Assert.True(result.IsLeft);
 		Assert.IsType<HttpError>(result.Left);
@@ -93,7 +94,8 @@ public class TF2SAHttpClientTests
 			.Returns(SuccessSerializationResponse());
 
 		var result = await tF2SAHttpClient.Get<GameLog>(
-			"http://logs.tf/api/v1"
+			"http://logs.tf/api/v1",
+			CancellationToken.None
 		);
 		Assert.True(result.IsRight);
 		Assert.IsType<GameLog>(result.Right);
@@ -107,7 +109,8 @@ public class TF2SAHttpClientTests
 			.Throws<JsonException>();
 
 		var result = await tF2SAHttpClient.Get<GameLog>(
-			"http://logs.tf/api/v1"
+			"http://logs.tf/api/v1",
+			CancellationToken.None
 		);
 		Assert.True(result.IsLeft);
 		Assert.IsType<HttpError>(result.Left);
@@ -117,19 +120,35 @@ public class TF2SAHttpClientTests
 	public async Task NonImplementedThrows()
 	{
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Delete<GameLog>("http://logs.tf/api/v1")
+			() =>
+				tF2SAHttpClient.Delete<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
 		);
 
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Patch<GameLog>("http://logs.tf/api/v1")
+			() =>
+				tF2SAHttpClient.Patch<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
 		);
 
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Post<GameLog>("http://logs.tf/api/v1")
+			() =>
+				tF2SAHttpClient.Post<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
 		);
 
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Put<GameLog>("http://logs.tf/api/v1")
+			() =>
+				tF2SAHttpClient.Put<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
 		);
 	}
 }

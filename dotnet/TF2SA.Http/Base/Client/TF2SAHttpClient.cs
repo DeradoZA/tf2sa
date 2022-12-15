@@ -23,15 +23,21 @@ public class TF2SAHttpClient : IHttpClient
 	}
 
 	public async Task<EitherStrict<HttpError, TResponse>> Get<TResponse>(
-		string url
+		string url,
+		CancellationToken cancellationToken
 	)
 	{
 		HttpClient httpClient = httpClientFactory.CreateClient();
 
 		try
 		{
-			HttpResponseMessage response = await httpClient.GetAsync(url);
-			string json = await response.Content.ReadAsStringAsync();
+			HttpResponseMessage response = await httpClient.GetAsync(
+				url,
+				cancellationToken
+			);
+			string json = await response.Content.ReadAsStringAsync(
+				cancellationToken
+			);
 
 			EitherStrict<SerializationError, TResponse> deserialized =
 				jsonSerializer.Deserialize<TResponse>(json);
@@ -55,23 +61,33 @@ public class TF2SAHttpClient : IHttpClient
 	}
 
 	public Task<EitherStrict<HttpError, TResponse>> Delete<TResponse>(
-		string url
+		string url,
+		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<HttpError, TResponse>> Patch<TResponse>(string url)
+	public Task<EitherStrict<HttpError, TResponse>> Patch<TResponse>(
+		string url,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<HttpError, TResponse>> Post<TResponse>(string url)
+	public Task<EitherStrict<HttpError, TResponse>> Post<TResponse>(
+		string url,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<HttpError, TResponse>> Put<TResponse>(string url)
+	public Task<EitherStrict<HttpError, TResponse>> Put<TResponse>(
+		string url,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}

@@ -27,7 +27,8 @@ public class LogsTFService : ILogsTFService
 	}
 
 	public async Task<EitherStrict<HttpError, LogListResult>> GetLogList(
-		LogListQueryParams filter
+		LogListQueryParams filter,
+		CancellationToken cancellationToken
 	)
 	{
 		logger.LogInformation($"Fetching log list");
@@ -40,7 +41,7 @@ public class LogsTFService : ILogsTFService
 		}
 
 		EitherStrict<HttpError, LogListResult> logList =
-			await httpClient.Get<LogListResult>(url);
+			await httpClient.Get<LogListResult>(url, cancellationToken);
 		if (logList.IsLeft)
 		{
 			return logList.Left;
@@ -49,12 +50,15 @@ public class LogsTFService : ILogsTFService
 		return logList.Right;
 	}
 
-	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(ulong logId)
+	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(
+		ulong logId,
+		CancellationToken cancellationToken
+	)
 	{
 		var url = $"{logsTFConfig.BaseUrl}/log/{logId}";
 
 		EitherStrict<HttpError, GameLog> logList =
-			await httpClient.Get<GameLog>(url);
+			await httpClient.Get<GameLog>(url, cancellationToken);
 		if (logList.IsLeft)
 		{
 			return logList.Left;
@@ -64,7 +68,8 @@ public class LogsTFService : ILogsTFService
 	}
 
 	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(
-		ulong uploader
+		ulong uploader,
+		CancellationToken cancellationToken
 	)
 	{
 		List<LogListItem> logs = new();
@@ -82,7 +87,7 @@ public class LogsTFService : ILogsTFService
 				};
 
 			EitherStrict<HttpError, LogListResult> logListResult =
-				await GetLogList(filter);
+				await GetLogList(filter, cancellationToken);
 			if (logListResult.IsLeft)
 			{
 				return logListResult.Left;
@@ -106,7 +111,9 @@ public class LogsTFService : ILogsTFService
 		return logs;
 	}
 
-	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs()
+	public async Task<EitherStrict<HttpError, List<LogListItem>>> GetAllLogs(
+		CancellationToken cancellationToken
+	)
 	{
 		logger.LogInformation("fetching game logs");
 
@@ -116,7 +123,7 @@ public class LogsTFService : ILogsTFService
 		foreach (ulong uploader in uploaders)
 		{
 			EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
-				await GetAllLogs(uploader);
+				await GetAllLogs(uploader, cancellationToken);
 			if (uploaderLogs.IsLeft)
 			{
 				return uploaderLogs.Left;
