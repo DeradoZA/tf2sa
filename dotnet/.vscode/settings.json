@@ -10,5 +10,7 @@
 		"jacoco.xml",
 		"coverage.cobertura.xml"
 	],
-	"csharpier.enableDebugLogs": true
+	"csharpier.enableDebugLogs": true,
+	"omnisharp.enableRoslynAnalyzers": true,
+	"omnisharp.useModernNet": true,
 }

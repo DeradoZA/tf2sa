@@ -1,7 +1,6 @@
 {
 	"recommendations": [
 		"ryanluker.vscode-coverage-gutters",
-		"ms-dotnettools.csharp",
 		"kreativ-software.csharpextensions",
 		"csharpier.csharpier-vscode",
 		"patcx.vscode-nuget-gallery",
