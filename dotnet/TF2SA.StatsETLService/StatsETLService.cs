@@ -12,6 +12,7 @@ internal class StatsETLService : IStatsETLService
 {
 	private int count = 0;
 	private const int PROCESS_INTERVAL_SECONDS = 20;
+	private const int MAX_CONCURRENT_THREADS = 5;
 	private readonly ILogger<StatsETLService> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
@@ -64,10 +65,28 @@ internal class StatsETLService : IStatsETLService
 		{
 			return allLogsResult.Left;
 		}
+		List<LogListItem> allLogs = allLogsResult.Right;
 
-		int logCount = allLogsResult.Right.Count;
-		logger.LogInformation("Fetched list of {count} results", logCount);
+		await Parallel.ForEachAsync(
+			allLogs,
+			new ParallelOptions()
+			{
+				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
+				CancellationToken = cancellationToken
+			},
+			async (log, token) => await ProcessLog(log, token)
+		);
 
 		return OptionStrict<Error>.Nothing;
+	}
+
+	private async Task ProcessLog(
+		LogListItem log,
+		CancellationToken cancellationToken
+	)
+	{
+		logger.LogInformation("processing log {logId}", log.Id);
+
+		await Task.Delay(1 * 1000, cancellationToken);
 	}
 }
