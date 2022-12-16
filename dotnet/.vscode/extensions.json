@@ -1,0 +1,9 @@
+{
+	"recommendations": [
+		"ryanluker.vscode-coverage-gutters",
+		"kreativ-software.csharpextensions",
+		"csharpier.csharpier-vscode",
+		"patcx.vscode-nuget-gallery",
+		"formulahendry.dotnet-test-explorer"
+	]
+}

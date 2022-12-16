@@ -1,8 +1,9 @@
-namespace TF2SA.Tests.Unit.Http.Base.Serialization;
+﻿namespace TF2SA.Tests.Unit.Http.Base.Serialization;
 
 public static class SerializationStubs
 {
-	public const string NormalGameLogJsonResponse = @"{""version"": 3,
+	public const string NormalGameLogJsonResponse =
+		@"{""version"": 3,
 	""teams"": {
 		""Red"": {
 			""score"": 4,

@@ -13,7 +13,8 @@ public class ClassStats
 	public int Damage { get; set; } = -1;
 
 	[JsonPropertyName("weapon")]
-	public Dictionary<string, WeaponStats> Weapons { get; set; } = new Dictionary<string, WeaponStats>(0);
+	public Dictionary<string, WeaponStats> Weapons { get; set; } =
+		new Dictionary<string, WeaponStats>(0);
 
 	[JsonPropertyName("total_time")]
 	public int TotalTime { get; set; } = -1;

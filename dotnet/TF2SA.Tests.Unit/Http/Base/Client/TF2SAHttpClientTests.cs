@@ -26,25 +26,27 @@ public class TF2SAHttpClientTests
 
 	private readonly HttpResponseMessage httpResponseMessage;
 	private readonly TF2SAHttpClient tF2SAHttpClient;
+
 	public TF2SAHttpClientTests()
 	{
 		httpResponseMessage = new()
 		{
 			StatusCode = HttpStatusCode.OK,
 			Content = new StringContent(
-				SerializationStubs.NormalGameLogJsonResponse)
+				SerializationStubs.NormalGameLogJsonResponse
+			)
 		};
 
 		Mock<HttpMessageHandler> handlerMock = new(MockBehavior.Strict);
 		handlerMock
-		.Protected()
-		.Setup<Task<HttpResponseMessage>>(
-			"SendAsync",
-			ItExpr.IsAny<HttpRequestMessage>(),
-			ItExpr.IsAny<CancellationToken>()
-		)
-		.ReturnsAsync(httpResponseMessage)
-		.Verifiable();
+			.Protected()
+			.Setup<Task<HttpResponseMessage>>(
+				"SendAsync",
+				ItExpr.IsAny<HttpRequestMessage>(),
+				ItExpr.IsAny<CancellationToken>()
+			)
+			.ReturnsAsync(httpResponseMessage)
+			.Verifiable();
 		httpClient = new HttpClient(handlerMock.Object);
 
 		httpClientFactory
@@ -58,19 +60,27 @@ public class TF2SAHttpClientTests
 		tF2SAHttpClient = new(
 			httpClientFactory.Object,
 			logger.Object,
-			jsonSerializer.Object);
+			jsonSerializer.Object
+		);
 	}
 
-	private static EitherStrict<SerializationError, GameLog> ErrorSerializationResponse()
-		=> new SerializationError("Fail");
+	private static EitherStrict<
+		SerializationError,
+		GameLog
+	> ErrorSerializationResponse() => new SerializationError("Fail");
 
-	private static EitherStrict<SerializationError, GameLog> SuccessSerializationResponse()
-		=> new GameLog();
+	private static EitherStrict<
+		SerializationError,
+		GameLog
+	> SuccessSerializationResponse() => new GameLog();
 
 	[Fact]
 	public async Task Get_GivenSerializationFailure_ReturnsHttpError()
 	{
-		var result = await tF2SAHttpClient.Get<GameLog>("http://logs.tf/api/v1");
+		var result = await tF2SAHttpClient.Get<GameLog>(
+			"http://logs.tf/api/v1",
+			CancellationToken.None
+		);
 		Assert.True(result.IsLeft);
 		Assert.IsType<HttpError>(result.Left);
 		Assert.Equal("Fail", result.Left.Message);
@@ -79,12 +89,14 @@ public class TF2SAHttpClientTests
 	[Fact]
 	public async Task GetGivenGamelog_GivenSerializationSuccess_ReturnsGameLog()
 	{
-
 		jsonSerializer
 			.Setup(x => x.Deserialize<GameLog>(It.IsAny<string>()))
 			.Returns(SuccessSerializationResponse());
 
-		var result = await tF2SAHttpClient.Get<GameLog>("http://logs.tf/api/v1");
+		var result = await tF2SAHttpClient.Get<GameLog>(
+			"http://logs.tf/api/v1",
+			CancellationToken.None
+		);
 		Assert.True(result.IsRight);
 		Assert.IsType<GameLog>(result.Right);
 	}
@@ -96,7 +108,10 @@ public class TF2SAHttpClientTests
 			.Setup(x => x.Deserialize<GameLog>(It.IsAny<string>()))
 			.Throws<JsonException>();
 
-		var result = await tF2SAHttpClient.Get<GameLog>("http://logs.tf/api/v1");
+		var result = await tF2SAHttpClient.Get<GameLog>(
+			"http://logs.tf/api/v1",
+			CancellationToken.None
+		);
 		Assert.True(result.IsLeft);
 		Assert.IsType<HttpError>(result.Left);
 	}
@@ -105,15 +120,35 @@ public class TF2SAHttpClientTests
 	public async Task NonImplementedThrows()
 	{
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Delete<GameLog>("http://logs.tf/api/v1"));
+			() =>
+				tF2SAHttpClient.Delete<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
+		);
 
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Patch<GameLog>("http://logs.tf/api/v1"));
+			() =>
+				tF2SAHttpClient.Patch<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
+		);
 
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Post<GameLog>("http://logs.tf/api/v1"));
+			() =>
+				tF2SAHttpClient.Post<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
+		);
 
 		await Assert.ThrowsAsync<NotImplementedException>(
-			() => tF2SAHttpClient.Put<GameLog>("http://logs.tf/api/v1"));
+			() =>
+				tF2SAHttpClient.Put<GameLog>(
+					"http://logs.tf/api/v1",
+					CancellationToken.None
+				)
+		);
 	}
 }

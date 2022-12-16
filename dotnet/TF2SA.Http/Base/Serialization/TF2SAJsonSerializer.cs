@@ -9,11 +9,15 @@ public class TF2SAJsonSerializer : IJsonSerializer
 	private static readonly JsonSerializerOptions jsonOptions =
 		new() { PropertyNameCaseInsensitive = true };
 
-	public EitherStrict<SerializationError, TDeserialized> Deserialize<TDeserialized>(string json)
+	public EitherStrict<
+		SerializationError,
+		TDeserialized
+	> Deserialize<TDeserialized>(string json)
 	{
 		try
 		{
-			TDeserialized? dserialized = JsonSerializer.Deserialize<TDeserialized>(json, jsonOptions);
+			TDeserialized? dserialized =
+				JsonSerializer.Deserialize<TDeserialized>(json, jsonOptions);
 			if (dserialized is null)
 			{
 				return new SerializationError("Derialized result is null");
@@ -26,7 +30,9 @@ public class TF2SAJsonSerializer : IJsonSerializer
 		}
 	}
 
-	public EitherStrict<SerializationError, string> Serialize<TSerialized>(TSerialized obj)
+	public EitherStrict<SerializationError, string> Serialize<TSerialized>(
+		TSerialized obj
+	)
 	{
 		throw new NotImplementedException();
 	}

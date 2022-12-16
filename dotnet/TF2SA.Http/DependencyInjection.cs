@@ -11,10 +11,12 @@ public static class DependencyInjection
 {
 	public static void AddHttpServices(
 		this IServiceCollection services,
-		IConfiguration configuration)
+		IConfiguration configuration
+	)
 	{
 		services.Configure<LogsTFConfig>(
-			configuration.GetSection(LogsTFConfig.LogsTFConfigSection));
+			configuration.GetSection(LogsTFConfig.LogsTFConfigSection)
+		);
 		services.AddHttpClient();
 		services.AddTransient<IHttpClient, TF2SAHttpClient>();
 		services.AddSingleton<IJsonSerializer, TF2SAJsonSerializer>();

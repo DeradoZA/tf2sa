@@ -1,6 +1,8 @@
+using Monad;
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
+using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
 
 namespace TF2SA.StatsETLService;
@@ -29,7 +31,8 @@ internal class StatsETLService : IStatsETLService
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
-			var allLogsResult = await logsTFService.GetAllLogs();
+			EitherStrict<HttpError, List<LogListItem>> allLogsResult =
+				await logsTFService.GetAllLogs(cancellationToken);
 			if (allLogsResult.IsLeft)
 			{
 				// investigate 1 failing call
@@ -38,10 +41,16 @@ internal class StatsETLService : IStatsETLService
 			else
 			{
 				var logCount = allLogsResult.Right.Count;
-				logger.LogInformation("Fetched list of {count} results", logCount);
+				logger.LogInformation(
+					"Fetched list of {count} results",
+					logCount
+				);
 			}
 
-			await Task.Delay(PROCESS_INTERVAL_SECONDS * 1000, cancellationToken);
+			await Task.Delay(
+				PROCESS_INTERVAL_SECONDS * 1000,
+				cancellationToken
+			);
 		}
 	}
 }

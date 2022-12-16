@@ -23,7 +23,8 @@ public class StatsService : IStatsService<ulong>
 		IPlayersRepository<Player, ulong> playerRepository,
 		IPlayerStatsRepository<PlayerStat, uint> playerStatRepository,
 		IClassStatsRepository<ClassStat, uint> classStatsRepository,
-		IGamesRepository<Game, uint> gamesRepository)
+		IGamesRepository<Game, uint> gamesRepository
+	)
 	{
 		this.playerRepository = playerRepository;
 		this.playerStatRepository = playerStatRepository;
@@ -133,8 +134,7 @@ public class StatsService : IStatsService<ulong>
 
 		var allGames = joinedPlayerStats.Where(
 			game =>
-				game.Date
-				> DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
+				game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
 		);
 
 		if (classID != 0)
@@ -177,10 +177,8 @@ public class StatsService : IStatsService<ulong>
 		var joinedPlayerStats = PlayerStatsJoinList();
 		var allGames = joinedPlayerStats.Where(
 			game =>
-				game.Date
-					> DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
-				&& game.Playtime
-					> StatsCollectionConstants.PLAYTIME_THRESHOLD
+				game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
+				&& game.Playtime > StatsCollectionConstants.PLAYTIME_THRESHOLD
 		);
 
 		if (classID == 0)
@@ -205,9 +203,7 @@ public class StatsService : IStatsService<ulong>
 					player.Key,
 					(
 						avg
-							? player.Average(
-								d => d.Damage / (d.Playtime / 60)
-							)
+							? player.Average(d => d.Damage / (d.Playtime / 60))
 							: player.Max(d => d.Damage)
 					),
 					(
@@ -242,8 +238,7 @@ public class StatsService : IStatsService<ulong>
 
 		var allGames = joinedPlayerStats.Where(
 			game =>
-				game.Date
-				> DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
+				game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
 		);
 
 		if (classID == 0)
@@ -251,8 +246,7 @@ public class StatsService : IStatsService<ulong>
 			allGames = allGames.Where(
 				game =>
 					game.ClassId == StatsCollectionConstants.SOLDIER_CLASSID
-					|| game.ClassId
-						== StatsCollectionConstants.DEMOMAN_CLASSID
+					|| game.ClassId == StatsCollectionConstants.DEMOMAN_CLASSID
 			);
 		}
 		else
@@ -292,11 +286,9 @@ public class StatsService : IStatsService<ulong>
 
 		var allGames = joinedPlayerStats.Where(
 			game =>
-				game.Date
-					> DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
+				game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
 				&& game.ClassId == StatsCollectionConstants.MEDIC_CLASSID
-				&& game.Playtime
-					> StatsCollectionConstants.PLAYTIME_THRESHOLD
+				&& game.Playtime > StatsCollectionConstants.PLAYTIME_THRESHOLD
 		);
 
 		if (steamID != 0)
@@ -322,9 +314,7 @@ public class StatsService : IStatsService<ulong>
 					),
 					(
 						avg
-							? player.Average(
-								h => h.Heals / (h.Playtime / 60)
-							)
+							? player.Average(h => h.Heals / (h.Playtime / 60))
 							: player.Max(h => h.Heals)
 					)
 				)
@@ -343,8 +333,7 @@ public class StatsService : IStatsService<ulong>
 
 		var allGames = joinedPlayerStats.Where(
 			game =>
-				game.Date
-					> DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
+				game.Date > DateTimeOffset.Now.ToUnixTimeSeconds() - timeFrame
 				&& game.ClassId == StatsCollectionConstants.SNIPER_CLASSID
 		);
 
