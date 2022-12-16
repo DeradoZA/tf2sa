@@ -40,7 +40,7 @@ internal class StatsETLService : IStatsETLService
 			}
 			else
 			{
-				var logCount = allLogsResult.Right.Count;
+				int logCount = allLogsResult.Right.Count;
 				logger.LogInformation(
 					"Fetched list of {count} results",
 					logCount
