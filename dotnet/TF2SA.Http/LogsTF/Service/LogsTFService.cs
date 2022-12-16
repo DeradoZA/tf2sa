@@ -14,6 +14,7 @@ public class LogsTFService : ILogsTFService
 	private readonly LogsTFConfig logsTFConfig;
 	private readonly ILogger<LogsTFService> logger;
 	private readonly IHttpClient httpClient;
+	private const int MAX_CONCURRENT_THREADS = 10;
 
 	public LogsTFService(
 		IOptions<LogsTFConfig> logsTFConfig,
@@ -120,17 +121,26 @@ public class LogsTFService : ILogsTFService
 		ulong[] uploaders = logsTFConfig.Uploaders;
 		List<LogListItem> logs = new();
 
-		foreach (ulong uploader in uploaders)
-		{
-			EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
-				await GetAllLogs(uploader, cancellationToken);
-			if (uploaderLogs.IsLeft)
+		await Parallel.ForEachAsync(
+			uploaders,
+			new ParallelOptions()
 			{
-				return uploaderLogs.Left;
-			}
+				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
+				CancellationToken = cancellationToken
+			},
+			async (uploader, token) =>
+			{
+				EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
+					await GetAllLogs(uploader, cancellationToken);
+				if (uploaderLogs.IsLeft)
+				{
+					// HANDLE FAILING LOGS, maybe a List<Error> that we can handle
+					return;
+				}
 
-			logs.AddRange(uploaderLogs.Right);
-		}
+				logs.AddRange(uploaderLogs.Right);
+			}
+		);
 
 		return logs;
 	}
