@@ -26,7 +26,7 @@ internal class StatsETLService : IStatsETLService
 		this.logsTFService = logsTFService;
 	}
 
-	public async Task ProcessLogs(CancellationToken cancellationToken)
+	public async Task Execute(CancellationToken cancellationToken)
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
