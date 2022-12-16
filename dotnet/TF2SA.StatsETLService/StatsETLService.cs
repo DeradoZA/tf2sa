@@ -1,4 +1,5 @@
 using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
@@ -31,26 +32,42 @@ internal class StatsETLService : IStatsETLService
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
-			EitherStrict<HttpError, List<LogListItem>> allLogsResult =
-				await logsTFService.GetAllLogs(cancellationToken);
-			if (allLogsResult.IsLeft)
+			OptionStrict<Error> processResult = await ProcessLogs(
+				cancellationToken
+			);
+			if (processResult.HasValue)
 			{
-				// investigate 1 failing call
-				logger.LogWarning("Failed to fetch list");
-			}
-			else
-			{
-				int logCount = allLogsResult.Right.Count;
-				logger.LogInformation(
-					"Fetched list of {count} results",
-					logCount
+				logger.LogWarning(
+					"Failed to fetch logs: {Error}",
+					processResult.Value
 				);
 			}
+			logger.LogInformation(
+				"Successfully processed logs, iteration {iteration}",
+				count
+			);
 
 			await Task.Delay(
 				PROCESS_INTERVAL_SECONDS * 1000,
 				cancellationToken
 			);
 		}
+	}
+
+	private async Task<OptionStrict<Error>> ProcessLogs(
+		CancellationToken cancellationToken
+	)
+	{
+		EitherStrict<HttpError, List<LogListItem>> allLogsResult =
+			await logsTFService.GetAllLogs(cancellationToken);
+		if (allLogsResult.IsLeft)
+		{
+			return allLogsResult.Left;
+		}
+
+		int logCount = allLogsResult.Right.Count;
+		logger.LogInformation("Fetched list of {count} results", logCount);
+
+		return OptionStrict<Error>.Nothing;
 	}
 }
