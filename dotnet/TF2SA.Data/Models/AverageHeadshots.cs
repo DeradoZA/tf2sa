@@ -1,19 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+namespace TF2SA.Data.Models;
 
-namespace TF2SA.Data.Models
+public class AverageHeadshots
 {
-	public class AverageHeadshots
+	public AverageHeadshots(ulong steamId, double? headshots)
 	{
-		public AverageHeadshots(ulong steamId, double? headshots)
-		{
-			this.SteamId = steamId;
-			this.Headshots = headshots;
-		}
-
-		public ulong SteamId { get; set; }
-		public double? Headshots { get; set; }
+		this.SteamId = steamId;
+		this.Headshots = headshots;
 	}
+
+	public ulong SteamId { get; set; }
+	public double? Headshots { get; set; }
 }
