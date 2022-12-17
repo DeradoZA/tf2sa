@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Http.Base.Client;
@@ -120,6 +121,7 @@ public class LogsTFService : ILogsTFService
 
 		ulong[] uploaders = logsTFConfig.Uploaders;
 		List<LogListItem> logs = new();
+		List<HttpError> errors = new();
 
 		await Parallel.ForEachAsync(
 			uploaders,
@@ -134,13 +136,18 @@ public class LogsTFService : ILogsTFService
 					await GetAllLogs(uploader, cancellationToken);
 				if (uploaderLogs.IsLeft)
 				{
-					// HANDLE FAILING LOGS, maybe a List<Error> that we can handle
+					errors.Add(uploaderLogs.Left);
 					return;
 				}
 
 				logs.AddRange(uploaderLogs.Right);
 			}
 		);
+
+		if (errors.Any())
+		{
+			return errors[0];
+		}
 
 		return logs;
 	}
