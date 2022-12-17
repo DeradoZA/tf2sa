@@ -29,7 +29,7 @@ public class StatsETLServiceRunner : BackgroundService
 		var scopedStatsETLService =
 			scope.ServiceProvider.GetRequiredService<IStatsETLService>();
 
-		await scopedStatsETLService.ProcessLogs(cancellationToken);
+		await scopedStatsETLService.Execute(cancellationToken);
 	}
 
 	public override async Task StopAsync(CancellationToken cancellationToken)

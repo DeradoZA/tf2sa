@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Http.Base.Client;
@@ -14,6 +15,7 @@ public class LogsTFService : ILogsTFService
 	private readonly LogsTFConfig logsTFConfig;
 	private readonly ILogger<LogsTFService> logger;
 	private readonly IHttpClient httpClient;
+	private const int MAX_CONCURRENT_THREADS = 10;
 
 	public LogsTFService(
 		IOptions<LogsTFConfig> logsTFConfig,
@@ -119,17 +121,32 @@ public class LogsTFService : ILogsTFService
 
 		ulong[] uploaders = logsTFConfig.Uploaders;
 		List<LogListItem> logs = new();
+		List<HttpError> errors = new();
 
-		foreach (ulong uploader in uploaders)
-		{
-			EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
-				await GetAllLogs(uploader, cancellationToken);
-			if (uploaderLogs.IsLeft)
+		await Parallel.ForEachAsync(
+			uploaders,
+			new ParallelOptions()
 			{
-				return uploaderLogs.Left;
-			}
+				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
+				CancellationToken = cancellationToken
+			},
+			async (uploader, token) =>
+			{
+				EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
+					await GetAllLogs(uploader, cancellationToken);
+				if (uploaderLogs.IsLeft)
+				{
+					errors.Add(uploaderLogs.Left);
+					return;
+				}
 
-			logs.AddRange(uploaderLogs.Right);
+				logs.AddRange(uploaderLogs.Right);
+			}
+		);
+
+		if (errors.Any())
+		{
+			return errors[0];
 		}
 
 		return logs;
