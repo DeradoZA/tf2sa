@@ -18,15 +18,13 @@ public class StatsETLServiceRunner : BackgroundService
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		logger.LogInformation("Hosted service running.");
+		logger.LogInformation("StatsETLService running.");
 
 		await DoWork(stoppingToken);
 	}
 
 	private async Task DoWork(CancellationToken cancellationToken)
 	{
-		logger.LogInformation("Pulling scoped service.");
-
 		using IServiceScope scope = serviceProvider.CreateScope();
 		ILogsTFIngestionHandler scopedLogsTFIngestionHandler =
 			scope.ServiceProvider.GetRequiredService<ILogsTFIngestionHandler>();
@@ -36,7 +34,7 @@ public class StatsETLServiceRunner : BackgroundService
 
 	public override async Task StopAsync(CancellationToken cancellationToken)
 	{
-		logger.LogInformation("Hosted service stopping.");
+		logger.LogInformation("StatsETLService stopping.");
 		await base.StopAsync(cancellationToken);
 	}
 }
