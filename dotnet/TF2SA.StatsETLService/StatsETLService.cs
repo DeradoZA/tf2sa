@@ -74,7 +74,7 @@ internal class StatsETLService : IStatsETLService
 				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
 				CancellationToken = cancellationToken
 			},
-			async (log, token) => await ProcessLog(log, token)
+			async (log, token) => await ProcessLog(log, allLogs, token)
 		);
 
 		return OptionStrict<Error>.Nothing;
@@ -82,10 +82,16 @@ internal class StatsETLService : IStatsETLService
 
 	private async Task ProcessLog(
 		LogListItem log,
+		List<LogListItem> allLogs,
 		CancellationToken cancellationToken
 	)
 	{
-		logger.LogInformation("processing log {logId}", log.Id);
+		logger.LogInformation(
+			"processing {iteration} of {length}: log {logId}",
+			allLogs.IndexOf(log),
+			allLogs.Count,
+			log.Id
+		);
 
 		await Task.Delay(1 * 1000, cancellationToken);
 	}
