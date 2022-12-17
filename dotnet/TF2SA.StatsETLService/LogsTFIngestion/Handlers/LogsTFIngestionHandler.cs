@@ -6,19 +6,19 @@ using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
 
-namespace TF2SA.StatsETLService;
+namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 
-internal class StatsETLService : IStatsETLService
+internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
 	private const int PROCESS_INTERVAL_SECONDS = 20;
 	private const int MAX_CONCURRENT_THREADS = 5;
-	private readonly ILogger<StatsETLService> logger;
+	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
 
-	public StatsETLService(
-		ILogger<StatsETLService> logger,
+	public LogsTFIngestionHandler(
+		ILogger<LogsTFIngestionHandler> logger,
 		IPlayersRepository<Player, ulong> playerRepository,
 		ILogsTFService logsTFService
 	)
@@ -28,7 +28,7 @@ internal class StatsETLService : IStatsETLService
 		this.logsTFService = logsTFService;
 	}
 
-	public async Task Execute(CancellationToken cancellationToken)
+	public async Task ExecuteAsync(CancellationToken cancellationToken)
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{

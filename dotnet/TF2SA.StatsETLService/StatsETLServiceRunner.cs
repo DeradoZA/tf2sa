@@ -1,3 +1,5 @@
+using TF2SA.StatsETLService.LogsTFIngestion.Handlers;
+
 namespace TF2SA.StatsETLService;
 
 public class StatsETLServiceRunner : BackgroundService
@@ -25,11 +27,11 @@ public class StatsETLServiceRunner : BackgroundService
 	{
 		logger.LogInformation("Pulling scoped service.");
 
-		using var scope = serviceProvider.CreateScope();
-		var scopedStatsETLService =
-			scope.ServiceProvider.GetRequiredService<IStatsETLService>();
+		using IServiceScope scope = serviceProvider.CreateScope();
+		ILogsTFIngestionHandler scopedLogsTFIngestionHandler =
+			scope.ServiceProvider.GetRequiredService<ILogsTFIngestionHandler>();
 
-		await scopedStatsETLService.Execute(cancellationToken);
+		await scopedLogsTFIngestionHandler.ExecuteAsync(cancellationToken);
 	}
 
 	public override async Task StopAsync(CancellationToken cancellationToken)

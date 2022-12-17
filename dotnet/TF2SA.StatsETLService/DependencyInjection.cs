@@ -1,5 +1,6 @@
 using TF2SA.Data;
 using TF2SA.Http;
+using TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 
 namespace TF2SA.StatsETLService
 {
@@ -11,9 +12,12 @@ namespace TF2SA.StatsETLService
 		)
 		{
 			services.AddDataLayer(configuration);
-			services.AddHostedService<StatsETLServiceRunner>();
-			services.AddScoped<IStatsETLService, StatsETLService>();
+			services.AddScoped<
+				ILogsTFIngestionHandler,
+				LogsTFIngestionHandler
+			>();
 			services.AddHttpServices(configuration);
+			services.AddHostedService<StatsETLServiceRunner>();
 		}
 	}
 }
