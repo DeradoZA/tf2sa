@@ -13,16 +13,22 @@ public class LogsTFIngestor : ILogsTFIngestor
 	private readonly ILogger<LogsTFIngestor> logger;
 	private readonly ILogsTFService logsTFService;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
+	private readonly IBlacklistGamesRepository<
+		BlacklistGame,
+		uint
+	> blacklistGamesRepository;
 
 	public LogsTFIngestor(
 		ILogger<LogsTFIngestor> logger,
 		ILogsTFService logsTFService,
-		IGamesRepository<Game, uint> gamesRepository
+		IGamesRepository<Game, uint> gamesRepository,
+		IBlacklistGamesRepository<BlacklistGame, uint> blacklistGamesRepository
 	)
 	{
 		this.logger = logger;
 		this.logsTFService = logsTFService;
 		this.gamesRepository = gamesRepository;
+		this.blacklistGamesRepository = blacklistGamesRepository;
 	}
 
 	public async Task<EitherStrict<Error, List<LogListItem>>> GetLogsToProcess(
@@ -36,7 +42,8 @@ public class LogsTFIngestor : ILogsTFIngestor
 			return allLogsResult.Left;
 		}
 
-		var processedLogs = gamesRepository.GetAll();
+		List<Game> processedLogs = gamesRepository.GetAll();
+		List<BlacklistGame> BlacklistGames = blacklistGamesRepository.GetAll();
 
 		return allLogsResult.Right;
 	}
