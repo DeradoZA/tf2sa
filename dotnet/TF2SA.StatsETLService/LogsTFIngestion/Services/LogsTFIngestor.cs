@@ -37,5 +37,7 @@ public class LogsTFIngestor : ILogsTFIngestor
 		}
 
 		var processedLogs = gamesRepository.GetAll();
+
+		return allLogsResult.Right;
 	}
 }
