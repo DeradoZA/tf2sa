@@ -5,6 +5,7 @@ using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
+using TF2SA.StatsETLService.LogsTFIngestion.Services;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 
@@ -16,16 +17,19 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
+	private readonly ILogsTFIngestor logsTFIngestor;
 
 	public LogsTFIngestionHandler(
 		ILogger<LogsTFIngestionHandler> logger,
 		IPlayersRepository<Player, ulong> playerRepository,
-		ILogsTFService logsTFService
+		ILogsTFService logsTFService,
+		ILogsTFIngestor logsTFIngestor
 	)
 	{
 		this.logger = logger;
 		this.playerRepository = playerRepository;
 		this.logsTFService = logsTFService;
+		this.logsTFIngestor = logsTFIngestor;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -59,22 +63,22 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		CancellationToken cancellationToken
 	)
 	{
-		EitherStrict<HttpError, List<LogListItem>> allLogsResult =
-			await logsTFService.GetAllLogs(cancellationToken);
-		if (allLogsResult.IsLeft)
+		EitherStrict<Error, List<LogListItem>> logsToProcessResult =
+			await logsTFIngestor.GetLogsToProcess(cancellationToken);
+		if (logsToProcessResult.IsLeft)
 		{
-			return allLogsResult.Left;
+			return logsToProcessResult.Left;
 		}
-		List<LogListItem> allLogs = allLogsResult.Right;
+		List<LogListItem> logsToProcess = logsToProcessResult.Right;
 
 		await Parallel.ForEachAsync(
-			allLogs,
+			logsToProcess,
 			new ParallelOptions()
 			{
 				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
 				CancellationToken = cancellationToken
 			},
-			async (log, token) => await ProcessLog(log, allLogs, token)
+			async (log, token) => await ProcessLog(log, logsToProcess, token)
 		);
 
 		return OptionStrict<Error>.Nothing;

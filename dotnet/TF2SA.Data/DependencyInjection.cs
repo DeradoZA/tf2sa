@@ -44,6 +44,10 @@ public static class DependencyInjection
 			ClassStatsRepository
 		>();
 		services.AddScoped<IGamesRepository<Game, uint>, GamesRepository>();
+		services.AddScoped<
+			IBlacklistGamesRepository<BlacklistGame, uint>,
+			BlacklistGamesRepository
+		>();
 		services.AddScoped<IStatsService<ulong>, StatsService>();
 	}
 }

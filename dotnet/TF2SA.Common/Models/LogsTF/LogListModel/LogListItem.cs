@@ -5,7 +5,7 @@ namespace TF2SA.Common.Models.LogsTF.LogListModel;
 public class LogListItem
 {
 	[JsonPropertyName("id")]
-	public int Id { get; set; }
+	public uint Id { get; set; }
 
 	[JsonPropertyName("title")]
 	public string Title { get; set; } = string.Empty;
