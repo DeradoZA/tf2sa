@@ -1,6 +1,3 @@
-from tkinter import W
-
-
 def DBInit(cursor):
     print("confirming/recreating tables... ", end='')
     cursor.execute("SELECT DATABASE();")
