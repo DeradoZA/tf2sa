@@ -1,3 +1,17 @@
+SET
+	FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS WeaponStats,
+Weapons,
+ClassStats,
+PlayerStats,
+Players,
+Games,
+BlacklistGames;
+
+SET
+	FOREIGN_KEY_CHECKS = 1;
+
 CREATE TABLE
 	IF NOT EXISTS Games (
 		GameID INT UNSIGNED NOT NULL,
@@ -37,7 +51,7 @@ CREATE TABLE
 CREATE TABLE
 	IF NOT EXISTS Players (
 		SteamID BIGINT UNSIGNED NOT NULL,
-		PlayerName VARCHAR(32) CHARACTER NULL
+		PlayerName VARCHAR(32) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
 			PRIMARY KEY (SteamID)
