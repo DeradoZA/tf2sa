@@ -7,7 +7,6 @@ dotnet ef dbcontext scaffold \
     --context-dir . \
     --json \
     --no-onconfiguring \
-    --table BlacklistGames \
     --table ClassStats \
     --table Games \
     --table PlayerStats \
