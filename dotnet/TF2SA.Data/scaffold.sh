@@ -4,7 +4,7 @@ dotnet ef dbcontext scaffold \
     "Pomelo.EntityFrameworkCore.MySql" \
     --context TF2SADbContext \
     --force \
-    --output-dir Entities \
+    --output-dir Entities/MariaDb \
     --context-dir . \
     --json \
     --no-onconfiguring \
