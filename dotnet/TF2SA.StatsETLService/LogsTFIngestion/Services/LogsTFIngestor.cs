@@ -14,22 +14,16 @@ public class LogsTFIngestor : ILogsTFIngestor
 	private readonly ILogger<LogsTFIngestor> logger;
 	private readonly ILogsTFService logsTFService;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
-	private readonly IBlacklistGamesRepository<
-		BlacklistGame,
-		uint
-	> blacklistGamesRepository;
 
 	public LogsTFIngestor(
 		ILogger<LogsTFIngestor> logger,
 		ILogsTFService logsTFService,
-		IGamesRepository<Game, uint> gamesRepository,
-		IBlacklistGamesRepository<BlacklistGame, uint> blacklistGamesRepository
+		IGamesRepository<Game, uint> gamesRepository
 	)
 	{
 		this.logger = logger;
 		this.logsTFService = logsTFService;
 		this.gamesRepository = gamesRepository;
-		this.blacklistGamesRepository = blacklistGamesRepository;
 	}
 
 	public async Task<EitherStrict<Error, List<LogListItem>>> GetLogsToProcess(
@@ -46,7 +40,6 @@ public class LogsTFIngestor : ILogsTFIngestor
 		logger.LogInformation("Fetched all logs: {count}", allLogs.Count);
 
 		List<Game> processedLogs = new();
-		List<BlacklistGame> blacklistGames = new();
 		try
 		{
 			// repository methods should use monads - so we can handle db exceptions cleaner.
@@ -56,16 +49,9 @@ public class LogsTFIngestor : ILogsTFIngestor
 				"Processed logs: {count}",
 				processedLogs.Count
 			);
-			blacklistGames = blacklistGamesRepository.GetAll();
-			logger.LogInformation(
-				"Blacklisted logs: {count}",
-				blacklistGames.Count
-			);
 
 			int logsRemoved = allLogs.RemoveAll(
-				a =>
-					processedLogs.Where(p => p.GameId == a.Id).Any()
-					|| blacklistGames.Where(b => b.GameId == a.Id).Any()
+				a => processedLogs.Where(p => p.GameId == a.Id).Any()
 			);
 			logger.LogInformation(
 				"{logsRemoved} logs already processed. {logToProcess} logs to process",

@@ -258,10 +258,10 @@ public class SerializationTests
 		Assert.True(info.HasHPReal);
 		Assert.True(info.HasHeadShots);
 		Assert.True(info.HasHeadShotsHit);
-		Assert.True(info.HasBS);
-		Assert.True(info.HasCP);
-		Assert.False(info.HasSB);
-		Assert.True(info.HasDT);
+		Assert.True(info.HasBackStabs);
+		Assert.True(info.HasCapturePointsCaptured);
+		Assert.False(info.HasSentriesBuilt);
+		Assert.True(info.HasDamageTaken);
 		Assert.True(info.HasAirshots);
 		Assert.True(info.HasHealsReceived);
 		Assert.False(info.HasIntel);

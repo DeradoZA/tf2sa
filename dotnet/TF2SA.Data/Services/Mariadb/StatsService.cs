@@ -70,9 +70,9 @@ public class StatsService : IStatsService<ulong>
 				classStat.Deaths,
 				classStat.Damage,
 				gameStat.Date,
-				gameStat.Duration,
+				(short?)gameStat.Duration,
 				gameStat.Map,
-				gameStat.BluScore,
+				gameStat.BlueScore,
 				gameStat.RedScore
 			);
 
