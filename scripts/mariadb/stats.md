@@ -6,12 +6,13 @@ shows what we pull from where, and why
 root-level attributes used to identify a game entry and info on that log
  | JSON Field  | Included(DB Field)? | Notes | 
  | --- | --- | --- |
- | N/A | **GameID** | NULLABLE |
+ | N/A | **GameID** | REQUIRED |
  | N/A | **IsValidStats** | REQUIRED |
  | N/A | **InvalidStatsReason** | REQUIRED |
  | `version` | **Version** | NULLABLE |
- | `teams` | No | detailed in Teams |
- | `length` | **Duration** | REQUIRED |
+ | `teams.Red.score` | **RedScore** | REQUIRED |
+ | `teams.Blue.score` | **BlueScore** | REQUIRED |
+ | `length` | **Duration** | NULLABLE |
  | `players` | No | see PlayerStats |
  | `names` | No | see Players |
  | `rounds` | No | very low value - future enhancement |
@@ -26,17 +27,17 @@ root-level attributes used to identify a game entry and info on that log
  | `info.hasRealDamage` | **HasRealDamage**  | NULLABLE - weird damage values looks like we don't use |
  | `info.hasWeaponDamage` | **HasWeaponDamage**  | REQUIRED - useful |
  | `info.hasAccuracy` | **HasAccuracy**  | REQUIRED - we'd like to quantify this |
- | `info.hasHP` | **HasHP** | NULLABLE - this is probably less interesting |
+ | `info.hasHP` | **HasHP** | REQUIRED |
  | `info.hasHP_real` | **HasHPReal** | NULLABLE - weird real dmg |
  | `info.hasHS` | **HasHeadshots**  | REQUIRED |
  | `info.hasHS_hit` | **HasHeadshotsHit**  | REQUIRED |
  | `info.hasBS` | **HasBackstabs**  | REQUIRED |
- | `info.hasCP` | **HasCapturePointsCaptured**  | NULLABLE - less interesting |
- | `info.hasSB` | **HasSentriesBuilt**  | NULLABLE - less interesting |
+ | `info.hasCP` | **HasCapturePointsCaptured**  | REQUIRED |
+ | `info.hasSB` | **HasSentriesBuilt**  | REQUIRED |
  | `info.hasDT` | **HasDamageTaken**  | REQUIRED |
  | `info.hasAS` | **HasAirshots** | REQUIRED duh |
  | `info.hasHR` | **HasHealsReceived**  | REQUIRED |
- | `info.hasIntel` | **HasIntelCaptures**  | NULLABLE - not interested in gamemode |
+ | `info.hasIntel` | **HasIntelCaptures**  | REQUIRED |
  | `info.AD_scoring` | **HasADScoring**  | NULLABLE - dont know what this is |
  | `info.notifications` | **Notifications**  | NULLABLE |
  | `info.title` | **Title** | NULLABLE - non-essential |
