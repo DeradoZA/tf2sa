@@ -48,5 +48,56 @@ root-level attributes used to identify a game entry and info on that log
  | `killstreaks` | No |  |
  | `success` | **Success**  | NULLABLE |
 
-## teams.* -> Teams  
-*TODO:* Draw up schema
+## names[steamid].* -> Players  
+ | JSON Field  | Included(DB Field)? | Notes | 
+ | --- | --- | --- |
+ | N/A | **SteamID** | REQUIRED |
+ | N/A | **PlayerName** | NULLABLE |
+
+## players[steamid].* -> PlayerStats
+ | JSON Field  | Included(DB Field)? | Notes | 
+ | --- | --- | --- |
+ | N/A | **PlayerStatsID** | REQUIRED |
+ | N/A | **GameID** | REQUIRED |
+ | N/A | **SteamID** | REQUIRED |
+ | `team` | **TeamID** | REQUIRED |
+ | `class_stats` | No | see ClassStats |
+ | `kills` | No | see ClassStats - inferrable per class |
+ | `deaths` | No | see ClassStats - inferrable per class |
+ | `suicides` | No |  |
+ | `kapd` | No | see ClassStats - inferrable per class |
+ | `kpd` | No | see ClassStats - inferrable per class |
+ | `dmg` | No | see ClassStats - inferrable per class |
+ | `dmg_real` | No | see ClassStats - inferrable per class |
+ | `dt` | **DamageTaken** | Nullable  - HasDamageTaken must be true |
+ | `dt_real` | No | |
+ | `hr` | **HealsReceived** | Nullable - HasHealsReceived must be true |
+ | `lks` | **LongestKillstreak** | REQUIRED |
+ | `as` | **Airshots** | REQUIRED |
+ | `dapd` | No | |
+ | `dapm` | No | see ClassStats - inferrable per class|
+ | `ubers` | **Ubers** | Nullable - should only be counted when playing medic |
+ | `ubertypes` | No | low value - future enhancement |
+ | `drops` | **Drops** | Nullable - should only be counted when playing medic |
+ | `medkits` | **Medkits** | REQUIRED |
+ | `medkits_hp` | **MedkitsHP** | REQUIRED |
+ | `backstabs` | **Backstabs** | Nullable - HasBackstabs must be true and played spy |
+ | `headshots` | **Headshots** | Nullable - HasHeadshots must be true and played sniper |
+ | `headshots_hit` | **HeadshotsHit** | Nullable - HasHeadshotsHit must be true and played sniper |
+ | `sentries` | **SentriesBuilt** | Nullable - HasSentriesBuilt must be true and played engie |
+ | `heal` | **Heals** | Nullable - should only be counted when playing medic |
+ | `cpc` | **CapturePointsCaptured** | Nullable - HasCapturePointsCaptured must be true |
+ | `ic` | **IntelCaptures** | Nullable - HasIntelCaptures must be true and gamemmode involves intel |
+
+## players[steamid].class_stats.* -> ClassStats
+ | JSON Field  | Included(DB Field)? | Notes | 
+ | --- | --- | --- |
+ | N/A | **ClassStatsID** | REQUIRED |
+ | N/A | **PlayerStatsID** | REQUIRED |
+ | `type` | **ClassID** | REQUIRED |
+ | `kills` | **Kills** | REQUIRED |
+ | `assists` | **Assists** | REQUIRED |
+ | `deaths` | **Deaths** | REQUIRED |
+ | `dmg` | No |  |
+ | `weapon` | No | See WeaponStats |
+ | `total_time` | **Playtime** | REQUIRED |
