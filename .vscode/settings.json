@@ -2,7 +2,11 @@
     "github-actions.workflows.pinned.workflows": [".github/workflows/*"],
     "github-actions.workflows.pinned.refresh.enabled": true,
 	"github-actions.workflows.pinned.refresh.interval": 65,
+	"editor.formatOnSave": true,
 	"[csharp]": {
-		"editor.defaultFormatter": "ms-dotnettools.csharp"
+		"editor.defaultFormatter": "csharpier.csharpier-vscode",
 	},
+	"[sql]": {
+		"editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode",
+	}
 }

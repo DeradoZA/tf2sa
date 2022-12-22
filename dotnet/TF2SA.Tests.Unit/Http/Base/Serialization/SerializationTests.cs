@@ -263,7 +263,7 @@ public class SerializationTests
 		Assert.False(info.HasSB);
 		Assert.True(info.HasDT);
 		Assert.True(info.HasAirshots);
-		Assert.True(info.HasHR);
+		Assert.True(info.HasHealsReceived);
 		Assert.False(info.HasIntel);
 		Assert.False(info.ADScoring);
 		Assert.Equal("TF2SA Pug: RED vs fwian", info.Title);
