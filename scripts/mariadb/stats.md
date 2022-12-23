@@ -2,6 +2,7 @@
 brief notes on data we pull from logstf - based on their http response  
 shows what we pull from where, and why
 
+![ alt text for screen readers](erd.png "Text to show on mouseover")
 ## root level -> Games  
 root-level attributes used to identify a game entry and info on that log
  | JSON Field  | Included(DB Field)? | Notes | 
