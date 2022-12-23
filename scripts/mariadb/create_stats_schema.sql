@@ -7,7 +7,15 @@ ClassStats,
 PlayerStats,
 Players,
 Games,
-BlacklistGames;
+BlacklistGames,
+Progress,
+PollVotes,
+PollOptions,
+Polls,
+Images,
+Comments,
+Threads,
+Users;
 
 SET
 	FOREIGN_KEY_CHECKS = 1;
@@ -103,12 +111,12 @@ CREATE TABLE
 CREATE TABLE
 	IF NOT EXISTS WeaponStats (
 		WeaponStatsID INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		PlayerStatsID INT UNSIGNED NOT NULL,
+		ClassStatsID INT UNSIGNED NOT NULL,
 		WeaponName VARCHAR(32) NOT NULL,
 		Kills TINYINT UNSIGNED NOT NULL,
 		Damage MEDIUMINT UNSIGNED NOT NULL,
 		Shots MEDIUMINT UNSIGNED NOT NULL,
 		Hits MEDIUMINT UNSIGNED NOT NULL,
 		PRIMARY KEY (WeaponStatsID),
-		CONSTRAINT `fk_player_stats` FOREIGN KEY (PlayerStatsID) REFERENCES PlayerStats (PlayerStatsID) ON DELETE CASCADE ON UPDATE RESTRICT
+		CONSTRAINT `fk_class_stats` FOREIGN KEY (ClassStatsID) REFERENCES ClassStats (ClassStatsID) ON DELETE CASCADE ON UPDATE RESTRICT
 	) ENGINE = InnoDB;
