@@ -14,7 +14,6 @@ public partial class TF2SADbContext : DbContext
 	public virtual DbSet<Game> Games { get; set; } = null!;
 	public virtual DbSet<Player> Players { get; set; } = null!;
 	public virtual DbSet<PlayerStat> PlayerStats { get; set; } = null!;
-	public virtual DbSet<Weapon> Weapons { get; set; } = null!;
 	public virtual DbSet<WeaponStat> WeaponStats { get; set; } = null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -226,24 +225,24 @@ public partial class TF2SADbContext : DbContext
 				.HasConstraintName("fk_player_id");
 		});
 
-		modelBuilder.Entity<Weapon>(entity =>
-		{
-			entity
-				.Property(e => e.WeaponId)
-				.HasColumnType("smallint(5) unsigned")
-				.HasColumnName("WeaponID");
-
-			entity.Property(e => e.WeaponName).HasMaxLength(32);
-		});
-
 		modelBuilder.Entity<WeaponStat>(entity =>
 		{
-			entity
-				.HasKey(e => new { e.PlayerStatsId, e.WeaponId })
-				.HasName("PRIMARY")
-				.HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+			entity.HasKey(e => e.WeaponStatsId).HasName("PRIMARY");
 
-			entity.HasIndex(e => e.WeaponId, "fk_weapon_id");
+			entity.HasIndex(e => e.PlayerStatsId, "fk_player_stats");
+
+			entity
+				.Property(e => e.WeaponStatsId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("WeaponStatsID");
+
+			entity
+				.Property(e => e.Damage)
+				.HasColumnType("mediumint(8) unsigned");
+
+			entity.Property(e => e.Hits).HasColumnType("mediumint(8) unsigned");
+
+			entity.Property(e => e.Kills).HasColumnType("tinyint(3) unsigned");
 
 			entity
 				.Property(e => e.PlayerStatsId)
@@ -251,27 +250,16 @@ public partial class TF2SADbContext : DbContext
 				.HasColumnName("PlayerStatsID");
 
 			entity
-				.Property(e => e.WeaponId)
-				.HasColumnType("smallint(5) unsigned")
-				.HasColumnName("WeaponID");
-
-			entity
-				.Property(e => e.Damage)
+				.Property(e => e.Shots)
 				.HasColumnType("mediumint(8) unsigned");
 
-			entity.Property(e => e.Kills).HasColumnType("tinyint(3) unsigned");
+			entity.Property(e => e.WeaponName).HasMaxLength(32);
 
 			entity
 				.HasOne(d => d.PlayerStats)
 				.WithMany(p => p.WeaponStats)
 				.HasForeignKey(d => d.PlayerStatsId)
 				.HasConstraintName("fk_player_stats");
-
-			entity
-				.HasOne(d => d.Weapon)
-				.WithMany(p => p.WeaponStats)
-				.HasForeignKey(d => d.WeaponId)
-				.HasConstraintName("fk_weapon_id");
 		});
 
 		OnModelCreatingPartial(modelBuilder);
