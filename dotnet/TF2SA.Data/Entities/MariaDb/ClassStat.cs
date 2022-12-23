@@ -2,6 +2,11 @@
 
 public partial class ClassStat
 {
+	public ClassStat()
+	{
+		WeaponStats = new HashSet<WeaponStat>();
+	}
+
 	public uint ClassStatsId { get; set; }
 	public uint PlayerStatsId { get; set; }
 	public byte ClassId { get; set; }
@@ -12,4 +17,5 @@ public partial class ClassStat
 	public ushort Playtime { get; set; }
 
 	public virtual PlayerStat PlayerStats { get; set; } = null!;
+	public virtual ICollection<WeaponStat> WeaponStats { get; set; }
 }

@@ -5,7 +5,6 @@ public partial class PlayerStat
 	public PlayerStat()
 	{
 		ClassStats = new HashSet<ClassStat>();
-		WeaponStats = new HashSet<WeaponStat>();
 	}
 
 	public uint PlayerStatsId { get; set; }
@@ -31,5 +30,4 @@ public partial class PlayerStat
 	public virtual Game Game { get; set; } = null!;
 	public virtual Player Steam { get; set; } = null!;
 	public virtual ICollection<ClassStat> ClassStats { get; set; }
-	public virtual ICollection<WeaponStat> WeaponStats { get; set; }
 }

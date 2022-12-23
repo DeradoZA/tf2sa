@@ -229,12 +229,17 @@ public partial class TF2SADbContext : DbContext
 		{
 			entity.HasKey(e => e.WeaponStatsId).HasName("PRIMARY");
 
-			entity.HasIndex(e => e.PlayerStatsId, "fk_player_stats");
+			entity.HasIndex(e => e.ClassStatsId, "fk_class_stats");
 
 			entity
 				.Property(e => e.WeaponStatsId)
 				.HasColumnType("int(10) unsigned")
 				.HasColumnName("WeaponStatsID");
+
+			entity
+				.Property(e => e.ClassStatsId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("ClassStatsID");
 
 			entity
 				.Property(e => e.Damage)
@@ -245,21 +250,16 @@ public partial class TF2SADbContext : DbContext
 			entity.Property(e => e.Kills).HasColumnType("tinyint(3) unsigned");
 
 			entity
-				.Property(e => e.PlayerStatsId)
-				.HasColumnType("int(10) unsigned")
-				.HasColumnName("PlayerStatsID");
-
-			entity
 				.Property(e => e.Shots)
 				.HasColumnType("mediumint(8) unsigned");
 
 			entity.Property(e => e.WeaponName).HasMaxLength(32);
 
 			entity
-				.HasOne(d => d.PlayerStats)
+				.HasOne(d => d.ClassStats)
 				.WithMany(p => p.WeaponStats)
-				.HasForeignKey(d => d.PlayerStatsId)
-				.HasConstraintName("fk_player_stats");
+				.HasForeignKey(d => d.ClassStatsId)
+				.HasConstraintName("fk_class_stats");
 		});
 
 		OnModelCreatingPartial(modelBuilder);
