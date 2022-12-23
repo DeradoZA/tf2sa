@@ -17,7 +17,7 @@ namespace TF2SA.StatsETLService
 				ILogsTFIngestionHandler,
 				LogsTFIngestionHandler
 			>();
-			services.AddScoped<ILogsTFIngestor, LogsTFIngestor>();
+			services.AddScoped<ILogIngestor, LogIngestor>();
 			services.AddHttpServices(configuration);
 			services.AddHostedService<StatsETLServiceRunner>();
 		}
