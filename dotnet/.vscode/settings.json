@@ -13,4 +13,5 @@
 	"csharpier.enableDebugLogs": true,
 	"omnisharp.enableRoslynAnalyzers": true,
 	"omnisharp.useModernNet": true,
+	"csharpextensions.useFileScopedNamespace": true,
 }
