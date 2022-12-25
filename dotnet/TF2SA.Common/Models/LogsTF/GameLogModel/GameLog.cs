@@ -5,8 +5,8 @@ namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 public class GameLog
 {
 	public int Version { get; set; } = -1;
-	public Dictionary<string, TeamStats> Teams { get; set; } =
-		new Dictionary<string, TeamStats>(0);
+	public Dictionary<string, TeamStats>? Teams { get; set; }
+
 	public uint Length { get; set; }
 	public Dictionary<string, PlayerStats> Players { get; set; } =
 		new Dictionary<string, PlayerStats>(0);
