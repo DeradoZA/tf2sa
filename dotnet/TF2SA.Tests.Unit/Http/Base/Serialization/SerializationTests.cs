@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Monad;
 using Moq;
+using SteamKit2;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.Base.Serialization;
@@ -11,25 +12,32 @@ namespace TF2SA.Tests.Unit.Http.Base.Serialization;
 
 public class SerializationTests
 {
-	private readonly GameLog GameLog;
-	private readonly PlayerStats MedicPlayer;
-	private readonly MedicStats MedicStats;
-	private readonly ClassStats ClassStats;
-	private readonly WeaponStats WeaponStats;
-	private readonly Round FirstRound;
+	private readonly GameLog? GameLog;
+	private readonly PlayerStats? MedicPlayer;
+	private readonly MedicStats? MedicStats;
+	private readonly ClassStats? ClassStats;
+	private readonly WeaponStats? WeaponStats;
+	private readonly Round? FirstRound;
 	private readonly TF2SAJsonSerializer serializer = new();
 
 	public SerializationTests()
 	{
 		GameLog = serializer
 			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
-			.Right;
+			.Right!;
 
-		MedicPlayer = GameLog.Players["[U:1:152151801]"];
+		MedicPlayer = GameLog.Players.FirstOrDefault(
+			s =>
+				string.Equals(
+					s?.PlayerID?.ToString(),
+					"[U:1:152151801]",
+					StringComparison.InvariantCultureIgnoreCase
+				)
+		);
 		MedicStats = MedicPlayer.MedicStats;
 		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(
 			c => c.Type == "medic"
-		)!;
+		);
 		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
 
 		FirstRound = GameLog.Rounds[0];
@@ -163,7 +171,17 @@ public class SerializationTests
 	[Fact]
 	public void TestNames()
 	{
-		Assert.Equal("Skye", GameLog?.Names?["[U:1:28353669]"]);
+		Player expectedPlayer = GameLog?.Names?.SingleOrDefault(
+			n =>
+				string.Equals(
+					n?.PlayerID?.ToString(),
+					"[U:1:28353669]",
+					StringComparison.InvariantCultureIgnoreCase
+				)
+		)!;
+		var id = expectedPlayer.PlayerID.ToString();
+		Assert.NotNull(expectedPlayer);
+		Assert.Equal("Skye", expectedPlayer.PlayerName);
 	}
 
 	[Fact]

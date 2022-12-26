@@ -4,18 +4,17 @@ namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
 public class ClassStats
 {
-	public string Type { get; set; } = string.Empty;
-	public int Kills { get; set; } = -1;
-	public int Assists { get; set; } = -1;
-	public int Deaths { get; set; } = -1;
+	public string? Type { get; set; }
+	public int? Kills { get; set; }
+	public int? Assists { get; set; }
+	public int? Deaths { get; set; }
 
 	[JsonPropertyName("dmg")]
-	public int Damage { get; set; } = -1;
+	public int? Damage { get; set; }
 
 	[JsonPropertyName("weapon")]
-	public Dictionary<string, WeaponStats> Weapons { get; set; } =
-		new Dictionary<string, WeaponStats>(0);
+	public Dictionary<string, WeaponStats>? Weapons { get; set; }
 
 	[JsonPropertyName("total_time")]
-	public int TotalTime { get; set; } = -1;
+	public int? TotalTime { get; set; } = -1;
 }

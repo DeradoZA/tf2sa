@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SteamKit2;
 
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
@@ -19,7 +20,12 @@ public class GameLog : IJsonOnDeserialized
 
 	[JsonIgnore]
 	public List<PlayerStats>? Players { get; set; }
-	public Dictionary<string, string>? Names { get; set; }
+
+	[JsonPropertyName("names")]
+	public Dictionary<string, string>? NamesDict { get; set; }
+
+	[JsonIgnore]
+	public List<Player>? Names { get; set; }
 	public Round[]? Rounds { get; set; }
 
 	[JsonPropertyName("healspread")]
@@ -45,11 +51,24 @@ public class GameLog : IJsonOnDeserialized
 			})
 			.ToList();
 
+		Names = NamesDict
+			?.Select(nd =>
+			{
+				SteamID steamid = new();
+				steamid.SetFromSteam3String(nd.Key);
+				Player player =
+					new() { PlayerID = steamid, PlayerName = nd.Value };
+				return player;
+			})
+			.ToList();
+
 		Players = PlayersDict
 			?.Select(pd =>
 			{
 				PlayerStats playerStats = pd.Value;
-				playerStats.PlayerID = new(pd.Key);
+				SteamID steamid = new();
+				steamid.SetFromSteam3String(pd.Key);
+				playerStats.PlayerID = steamid;
 				return playerStats;
 			})
 			.ToList();
