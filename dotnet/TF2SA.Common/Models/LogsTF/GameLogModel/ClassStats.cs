@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
+[Serializable]
 public class ClassStats
 {
 	public string? Type { get; set; }
@@ -16,5 +17,5 @@ public class ClassStats
 	public Dictionary<string, WeaponStats>? Weapons { get; set; }
 
 	[JsonPropertyName("total_time")]
-	public int? TotalTime { get; set; } = -1;
+	public int? TotalTime { get; set; }
 }

@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
+[Serializable]
 public class TeamStats
 {
 	public string? TeamId { get; set; }

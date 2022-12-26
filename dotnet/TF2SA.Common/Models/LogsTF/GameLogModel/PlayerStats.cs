@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using SteamKit2;
 
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
@@ -7,10 +6,10 @@ namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 public class PlayerStats
 {
 	public Player? Player { get; set; }
-	public string? Team { get; set; } = string.Empty;
+	public string? Team { get; set; }
 
 	[JsonPropertyName("class_stats")]
-	public ClassStats[]? ClassStats { get; set; }
+	public List<ClassStats>? ClassStats { get; set; }
 	public int? Kills { get; set; }
 	public int? Deaths { get; set; }
 	public int? Assists { get; set; }
