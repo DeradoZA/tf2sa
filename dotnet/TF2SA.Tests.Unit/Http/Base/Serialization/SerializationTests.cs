@@ -63,11 +63,31 @@ public class SerializationTests
 	[Fact]
 	public void TestTeamStats()
 	{
-		TeamStats red = GameLog.Teams["Red"];
-		TeamStats blue = GameLog.Teams["Blue"];
+		TeamStats? red = GameLog.Teams
+			.Where(
+				t =>
+					string.Equals(
+						"Red",
+						t.TeamId,
+						StringComparison.InvariantCultureIgnoreCase
+					)
+			)
+			.SingleOrDefault();
+		TeamStats? blue = GameLog.Teams
+			.Where(
+				t =>
+					string.Equals(
+						"Blue",
+						t.TeamId,
+						StringComparison.InvariantCultureIgnoreCase
+					)
+			)
+			.SingleOrDefault();
 		Assert.NotNull(red);
 		Assert.NotNull(blue);
 
+		Assert.Equal("Red", red.TeamId);
+		Assert.Equal("Blue", blue.TeamId);
 		Assert.Equal(4, red.Score);
 		Assert.Equal(158, red.Kills);
 		Assert.Equal(0, red.Deaths);

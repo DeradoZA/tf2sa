@@ -4,20 +4,21 @@ namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
 public class TeamStats
 {
-	public int Score { get; set; } = -1;
-	public int Kills { get; set; } = -1;
-	public int Deaths { get; set; } = -1;
+	public string? TeamId { get; set; }
+	public int? Score { get; set; }
+	public int? Kills { get; set; }
+	public int? Deaths { get; set; }
 
 	[JsonPropertyName("dmg")]
-	public int Damage { get; set; } = -1;
+	public int? Damage { get; set; }
 
 	[JsonPropertyName("charges")]
-	public int UberCharges { get; set; } = -1;
-	public int Drops { get; set; } = -1;
+	public int? UberCharges { get; set; }
+	public int? Drops { get; set; }
 
 	[JsonPropertyName("firstcaps")]
-	public int FirstCaptures { get; set; } = -1;
+	public int? FirstCaptures { get; set; }
 
 	[JsonPropertyName("caps")]
-	public int Captures { get; set; } = -1;
+	public int? Captures { get; set; }
 }
