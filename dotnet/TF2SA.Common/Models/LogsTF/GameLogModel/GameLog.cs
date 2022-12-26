@@ -35,9 +35,9 @@ public class GameLog : IJsonOnDeserialized
 	public Dictionary<string, ClassValues>? ClassKillAssists { get; set; }
 
 	[JsonPropertyName("chat")]
-	public Chat[]? Chats { get; set; }
+	public List<Chat>? Chats { get; set; }
 	public LogInfo? Info { get; set; }
-	public KillStreak[]? KillStreaks { get; set; }
+	public List<KillStreak>? KillStreaks { get; set; }
 	public bool? Success { get; set; }
 
 	public void OnDeserialized()
