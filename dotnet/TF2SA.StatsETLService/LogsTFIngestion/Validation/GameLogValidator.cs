@@ -11,7 +11,11 @@ public class GameLogValidator : AbstractValidator<GameLog>
 
 	public GameLogValidator()
 	{
-		RuleFor(g => g.Length).GreaterThanOrEqualTo(MIN_GAME_LENGTH);
-		RuleFor(g => g.Players.Count).LessThanOrEqualTo(MAX_PLAYERS);
+		RuleFor(g => g.Length).NotNull().GreaterThanOrEqualTo(MIN_GAME_LENGTH);
+		RuleFor(g => g.Players).NotNull();
+		RuleFor(g => g.Players.Count)
+			.NotNull()
+			.GreaterThanOrEqualTo(MIN_PLAYERS)
+			.LessThanOrEqualTo(MAX_PLAYERS);
 	}
 }

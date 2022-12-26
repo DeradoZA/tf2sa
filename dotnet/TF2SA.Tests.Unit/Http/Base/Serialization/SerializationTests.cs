@@ -25,7 +25,7 @@ public class SerializationTests
 			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
 			.Right!;
 
-		MedicPlayer = GameLog.Players.FirstOrDefault(
+		MedicPlayer = GameLog?.Players?.FirstOrDefault(
 			s =>
 				string.Equals(
 					s?.Player?.PlayerID?.ToString(),
@@ -33,12 +33,12 @@ public class SerializationTests
 					StringComparison.InvariantCultureIgnoreCase
 				)
 		);
-		MedicStats = MedicPlayer.MedicStats;
-		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(
+		MedicStats = MedicPlayer?.MedicStats;
+		ClassStats = MedicPlayer?.ClassStats?.FirstOrDefault(
 			c => c.Type == "medic"
 		);
 
-		WeaponStats = ClassStats.WeaponStats.Single(
+		WeaponStats = ClassStats?.WeaponStats?.Single(
 			ws =>
 				string.Equals(
 					"crusaders_crossbow",
@@ -47,7 +47,7 @@ public class SerializationTests
 				)
 		);
 
-		FirstRound = GameLog.Rounds[0];
+		FirstRound = GameLog?.Rounds?[0];
 	}
 
 	[Fact]
@@ -70,16 +70,16 @@ public class SerializationTests
 	[Fact]
 	public void TestRootGameLog()
 	{
-		Assert.Equal(1787U, GameLog.Length);
-		Assert.True(GameLog.Success);
-		Assert.Equal(3, GameLog.Version);
+		Assert.Equal(1787U, GameLog?.Length);
+		Assert.True(GameLog?.Success);
+		Assert.Equal(3, GameLog?.Version);
 	}
 
 	[Fact]
 	public void TestTeamStats()
 	{
-		TeamStats? red = GameLog.Teams
-			.Where(
+		TeamStats? red = GameLog
+			?.Teams?.Where(
 				t =>
 					string.Equals(
 						"Red",
@@ -88,8 +88,8 @@ public class SerializationTests
 					)
 			)
 			.SingleOrDefault();
-		TeamStats? blue = GameLog.Teams
-			.Where(
+		TeamStats? blue = GameLog
+			?.Teams?.Where(
 				t =>
 					string.Equals(
 						"Blue",
@@ -98,8 +98,12 @@ public class SerializationTests
 					)
 			)
 			.SingleOrDefault();
-		Assert.NotNull(red);
-		Assert.NotNull(blue);
+		if (red is null || blue is null)
+		{
+			Assert.NotNull(red);
+			Assert.NotNull(blue);
+			return;
+		}
 
 		Assert.Equal("Red", red.TeamId);
 		Assert.Equal("Blue", blue.TeamId);
@@ -115,6 +119,11 @@ public class SerializationTests
 	[Fact]
 	public void TestPlayerStats()
 	{
+		if (MedicPlayer is null)
+		{
+			Assert.NotNull(MedicPlayer);
+			return;
+		}
 		Assert.Equal("Red", MedicPlayer.Team);
 		Assert.Equal(26, MedicPlayer.Kills);
 		Assert.Equal(18, MedicPlayer.Deaths);
@@ -146,6 +155,11 @@ public class SerializationTests
 	[Fact]
 	public void TestMedicStats()
 	{
+		if (MedicStats is null)
+		{
+			Assert.NotNull(MedicStats);
+			return;
+		}
 		Assert.Equal(0, MedicStats.AdvantagesLost);
 		Assert.Equal(0, MedicStats.BiggestAdvantageLost);
 		Assert.Equal(0, MedicStats.DeathsWith95To99Uber);
@@ -158,6 +172,11 @@ public class SerializationTests
 	[Fact]
 	public void TestClassStats()
 	{
+		if (ClassStats is null)
+		{
+			Assert.NotNull(ClassStats);
+			return;
+		}
 		Assert.Equal(4, ClassStats.Kills);
 		Assert.Equal(10, ClassStats.Assists);
 		Assert.Equal(5, ClassStats.Deaths);
@@ -168,6 +187,11 @@ public class SerializationTests
 	[Fact]
 	public void TestWeaponStats()
 	{
+		if (WeaponStats is null)
+		{
+			Assert.NotNull(WeaponStats);
+			return;
+		}
 		Assert.Equal(2, WeaponStats.Kills);
 		Assert.Equal(1132, WeaponStats.Damage);
 		Assert.Equal(53.904761904761905, WeaponStats.AverageDamage);
@@ -186,7 +210,6 @@ public class SerializationTests
 					StringComparison.InvariantCultureIgnoreCase
 				)
 		)!;
-		var id = expectedPlayer.PlayerID.ToString();
 		Assert.NotNull(expectedPlayer);
 		Assert.Equal("Skye", expectedPlayer.PlayerName);
 	}
@@ -194,6 +217,11 @@ public class SerializationTests
 	[Fact]
 	public void TestRounds()
 	{
+		if (FirstRound is null)
+		{
+			Assert.NotNull(FirstRound);
+			return;
+		}
 		Assert.Equal(1656195371, FirstRound.StartTime);
 		Assert.Equal("Red", FirstRound.WinnerTeam);
 		Assert.Equal("Red", FirstRound.FirstCapTeam);
@@ -203,7 +231,12 @@ public class SerializationTests
 	[Fact]
 	public void TestRoundTeam()
 	{
-		TeamRound redTeamRound = FirstRound.TeamRound["Red"];
+		TeamRound? redTeamRound = FirstRound?.TeamRound?["Red"];
+		if (redTeamRound is null)
+		{
+			Assert.NotNull(redTeamRound);
+			return;
+		}
 		Assert.Equal(1, redTeamRound.Score);
 		Assert.Equal(11, redTeamRound.Kills);
 		Assert.Equal(3334, redTeamRound.Damage);
@@ -213,7 +246,12 @@ public class SerializationTests
 	[Fact]
 	public void TestRoundEvents()
 	{
-		RoundEvent firstRoundEvent = FirstRound.RoundEvents[0];
+		RoundEvent? firstRoundEvent = FirstRound?.RoundEvents?[0];
+		if (firstRoundEvent is null)
+		{
+			Assert.NotNull(firstRoundEvent);
+			return;
+		}
 		Assert.Equal("medic_death", firstRoundEvent.Type);
 		Assert.Equal(41, firstRoundEvent.Time);
 		Assert.Equal("Blue", firstRoundEvent.Team);
@@ -224,7 +262,12 @@ public class SerializationTests
 	[Fact]
 	public void TestRoundPlayers()
 	{
-		PlayerRound firstPlayer = FirstRound.PlayerRounds["[U:1:51337520]"];
+		var firstPlayer = FirstRound?.PlayerRounds?["[U:1:51337520]"];
+		if (firstPlayer is null)
+		{
+			Assert.NotNull(firstPlayer);
+			return;
+		}
 		Assert.Equal("Red", firstPlayer.Team);
 		Assert.Equal(1, firstPlayer.Kills);
 		Assert.Equal(613, firstPlayer.Damage);
@@ -282,7 +325,12 @@ public class SerializationTests
 	[Fact]
 	public void TestChat()
 	{
-		Chat firstMessage = GameLog.Chats[0];
+		Chat? firstMessage = GameLog?.Chats?[0];
+		if (firstMessage is null)
+		{
+			Assert.NotNull(firstMessage);
+			return;
+		}
 		Assert.Equal("[U:1:159058380]", firstMessage.SteamId);
 		Assert.Equal("hondjo", firstMessage.Name);
 		Assert.Equal("stop emailing", firstMessage.Message);
@@ -291,8 +339,12 @@ public class SerializationTests
 	[Fact]
 	public void TestInfo()
 	{
-		LogInfo info = GameLog.Info;
-		;
+		LogInfo? info = GameLog?.Info;
+		if (info is null)
+		{
+			Assert.NotNull(info);
+			return;
+		}
 		Assert.Equal("cp_process_f9a", info.Map);
 		Assert.True(info.Supplemental);
 		Assert.Equal(1787, info.TotalLength);
@@ -314,7 +366,12 @@ public class SerializationTests
 		Assert.Equal("TF2SA Pug: RED vs fwian", info.Title);
 		Assert.Equal(1656197193, info.Date);
 
-		Uploader uploader = info.Uploader;
+		var uploader = info?.Uploader;
+		if (uploader is null)
+		{
+			Assert.NotNull(uploader);
+			return;
+		}
 		Assert.Equal("76561199085369255", uploader.Id);
 		Assert.Equal("TF2SA", uploader.Name);
 		Assert.Equal("LogsTF 2.3.0", uploader.Info);
@@ -323,7 +380,12 @@ public class SerializationTests
 	[Fact]
 	public void TestKillStreaks()
 	{
-		KillStreak firstKillStreak = GameLog.KillStreaks[0];
+		KillStreak? firstKillStreak = GameLog?.KillStreaks?[0];
+		if (firstKillStreak is null)
+		{
+			Assert.NotNull(firstKillStreak);
+			return;
+		}
 		Assert.Equal("[U:1:28353669]", firstKillStreak.SteamId);
 		Assert.Equal(3, firstKillStreak.Streak);
 		Assert.Equal(36, firstKillStreak.Time);
