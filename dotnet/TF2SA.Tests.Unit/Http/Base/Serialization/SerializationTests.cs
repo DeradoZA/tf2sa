@@ -29,7 +29,7 @@ public class SerializationTests
 		MedicPlayer = GameLog.Players.FirstOrDefault(
 			s =>
 				string.Equals(
-					s?.PlayerID?.ToString(),
+					s?.Player?.PlayerID?.ToString(),
 					"[U:1:152151801]",
 					StringComparison.InvariantCultureIgnoreCase
 				)

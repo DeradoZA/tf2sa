@@ -26,7 +26,7 @@ public class GameLog : IJsonOnDeserialized
 
 	[JsonIgnore]
 	public List<Player>? Names { get; set; }
-	public Round[]? Rounds { get; set; }
+	public List<Round>? Rounds { get; set; }
 
 	[JsonPropertyName("healspread")]
 	public Dictionary<string, Dictionary<string, int>>? HealSpread { get; set; }
@@ -66,9 +66,14 @@ public class GameLog : IJsonOnDeserialized
 			?.Select(pd =>
 			{
 				PlayerStats playerStats = pd.Value;
-				SteamID steamid = new();
-				steamid.SetFromSteam3String(pd.Key);
-				playerStats.PlayerID = steamid;
+				playerStats.Player = Names?.SingleOrDefault(
+					n =>
+						string.Equals(
+							pd.Key,
+							n?.PlayerID?.ToString(),
+							StringComparison.InvariantCultureIgnoreCase
+						)
+				);
 				return playerStats;
 			})
 			.ToList();

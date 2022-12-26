@@ -6,7 +6,7 @@ namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 [Serializable]
 public class PlayerStats
 {
-	public SteamID? PlayerID { get; set; }
+	public Player? Player { get; set; }
 	public string? Team { get; set; } = string.Empty;
 
 	[JsonPropertyName("class_stats")]
