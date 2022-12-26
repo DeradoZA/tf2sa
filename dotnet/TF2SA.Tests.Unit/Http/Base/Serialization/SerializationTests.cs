@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Monad;
 using Moq;
-using SteamKit2;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.Base.Serialization;
@@ -38,7 +37,15 @@ public class SerializationTests
 		ClassStats = MedicPlayer.ClassStats.FirstOrDefault(
 			c => c.Type == "medic"
 		);
-		WeaponStats = ClassStats.Weapons["crusaders_crossbow"];
+
+		WeaponStats = ClassStats.WeaponStats.Single(
+			ws =>
+				string.Equals(
+					"crusaders_crossbow",
+					ws.WeaponName,
+					StringComparison.CurrentCultureIgnoreCase
+				)
+		);
 
 		FirstRound = GameLog.Rounds[0];
 	}

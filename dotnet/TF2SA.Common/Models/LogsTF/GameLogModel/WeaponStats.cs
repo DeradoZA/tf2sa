@@ -5,6 +5,8 @@ namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 [Serializable]
 public class WeaponStats
 {
+	[JsonIgnore]
+	public string? WeaponName { get; set; }
 	public int? Kills { get; set; }
 
 	[JsonPropertyName("dmg")]
