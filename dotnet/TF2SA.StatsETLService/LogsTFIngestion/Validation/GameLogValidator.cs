@@ -17,5 +17,6 @@ public class GameLogValidator : AbstractValidator<GameLog>
 			.NotNull()
 			.GreaterThanOrEqualTo(MIN_PLAYERS)
 			.LessThanOrEqualTo(MAX_PLAYERS);
+		RuleForEach(g => g.Players).SetValidator(new PlayerStatsValidator());
 	}
 }
