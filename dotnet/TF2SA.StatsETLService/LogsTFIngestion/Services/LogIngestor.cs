@@ -36,7 +36,11 @@ public class LogIngestor : ILogIngestor
 			await logsTFService.GetGameLog(logListItem.Id, cancellationToken);
 		if (logResult.IsLeft)
 		{
-			ingestionErrors.Add(logResult.Left);
+			ingestionErrors.Add(
+				new IngestionError(
+					$"Failed to fetch Log: {logResult.Left.Message}"
+				)
+			);
 			return ingestionErrors;
 		}
 		GameLog log = logResult.Right;
@@ -49,7 +53,7 @@ public class LogIngestor : ILogIngestor
 				validationResult.Errors.Select(
 					error =>
 						new IngestionError(
-							$"Validation Error on gamelog: {error.ErrorMessage}"
+							$"Validation Error on Gamelog: {error.ErrorMessage}"
 						)
 				)
 			);

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Monad;
-using TF2SA.Common.Errors;
+using TF2SA.Common.Configuration;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Http.Base.Client;
@@ -15,7 +15,6 @@ public class LogsTFService : ILogsTFService
 	private readonly LogsTFConfig logsTFConfig;
 	private readonly ILogger<LogsTFService> logger;
 	private readonly IHttpClient httpClient;
-	private const int MAX_CONCURRENT_THREADS = 10;
 
 	public LogsTFService(
 		IOptions<LogsTFConfig> logsTFConfig,
@@ -127,7 +126,7 @@ public class LogsTFService : ILogsTFService
 			uploaders,
 			new ParallelOptions()
 			{
-				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
+				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
 				CancellationToken = cancellationToken
 			},
 			async (uploader, token) =>

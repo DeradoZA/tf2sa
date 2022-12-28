@@ -1,4 +1,5 @@
 using Monad;
+using TF2SA.Common.Configuration;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.LogsTF.LogListModel;
 using TF2SA.Data.Entities.MariaDb;
@@ -6,6 +7,7 @@ using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
+using TF2SA.StatsETLService.LogsTFIngestion.Services;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 
@@ -13,23 +15,25 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
 	private const int PROCESS_INTERVAL_SECONDS = 20;
-	private const int MAX_CONCURRENT_THREADS = 5;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
+	private readonly IServiceProvider serviceProvider;
 
 	public LogsTFIngestionHandler(
 		ILogger<LogsTFIngestionHandler> logger,
 		IPlayersRepository<Player, ulong> playerRepository,
 		ILogsTFService logsTFService,
-		IGamesRepository<Game, uint> gamesRepository
+		IGamesRepository<Game, uint> gamesRepository,
+		IServiceProvider serviceProvider
 	)
 	{
 		this.logger = logger;
 		this.playerRepository = playerRepository;
 		this.logsTFService = logsTFService;
 		this.gamesRepository = gamesRepository;
+		this.serviceProvider = serviceProvider;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -75,7 +79,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			logsToProcess,
 			new ParallelOptions()
 			{
-				MaxDegreeOfParallelism = MAX_CONCURRENT_THREADS,
+				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
 				CancellationToken = cancellationToken
 			},
 			async (log, token) => await ProcessLog(log, logsToProcess, token)
@@ -97,7 +101,31 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			log.Id
 		);
 
-		await Task.Delay(1 * 1000, cancellationToken);
+		using IServiceScope scope = serviceProvider.CreateScope();
+		ILogIngestor logIngestor =
+			scope.ServiceProvider.GetRequiredService<ILogIngestor>();
+
+		OptionStrict<List<Error>> ingestionResult = await logIngestor.IngestLog(
+			log,
+			cancellationToken
+		);
+
+		if (ingestionResult.HasValue)
+		{
+			IEnumerable<string> errors = ingestionResult.Value.Select(
+				e => e.Message
+			);
+			string errorString = string.Join(Environment.NewLine, errors);
+			logger.LogWarning(
+				"Log {logId} failed with errors: {listErrors}",
+				log.Id,
+				errorString
+			);
+			return;
+		}
+
+		logger.LogInformation("Log {logId} succeeded", log.Id);
+		return;
 	}
 
 	private async Task<EitherStrict<Error, List<LogListItem>>> GetLogsToProcess(
