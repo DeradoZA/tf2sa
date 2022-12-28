@@ -6,7 +6,7 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Validation;
 public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 {
 	public const int MAX_DAMAGE = 17500;
-	public const int MAX_HEALS_PER_MINUTE = 1300;
+	public const int MAX_HEALS_PER_MINUTE = 1350;
 
 	public PlayerStatsValidator()
 	{
@@ -18,7 +18,12 @@ public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 			.NotEmpty()
 			.LessThanOrEqualTo(MAX_DAMAGE);
 
-		RuleFor(p => p.Heals).NotNull().Must(HaveValidHealsPerMinute);
+		RuleFor(p => p.Heals)
+			.NotNull()
+			.Must(HaveValidHealsPerMinute)
+			.WithMessage(
+				"Player played medic with abnormally high heals per minute"
+			);
 	}
 
 	private readonly Func<PlayerStats, int?, bool> HaveValidHealsPerMinute = (
