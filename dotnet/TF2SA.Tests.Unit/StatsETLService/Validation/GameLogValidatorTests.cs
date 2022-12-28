@@ -72,18 +72,18 @@ public class GameLogValidatorTests
 		Assert.True(result.IsValid);
 	}
 
-	private GameLog CreateValidGameLog(int playerCount)
-	{
-		GameLog gamelog = fixture
+	private GameLog CreateValidGameLog(int playerCount) =>
+		fixture
 			.Build<GameLog>()
 			.With(x => x.Length, 1000U)
+			.With(
+				x => x.Players,
+				fixture
+					.Build<PlayerStats>()
+					.With(p => p.Heals, 0)
+					.With(p => p.Damage, 5000)
+					.CreateMany(playerCount)
+					.ToList()
+			)
 			.Create();
-		gamelog.Players = fixture
-			.Build<PlayerStats>()
-			.With(p => p.Heals, 0)
-			.With(p => p.Damage, 5000)
-			.CreateMany(playerCount)
-			.ToList();
-		return gamelog;
-	}
 }
