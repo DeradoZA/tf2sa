@@ -26,9 +26,12 @@ public class GameLogValidatorTests
 			};
 
 		ValidationResult result = validator.Validate(gamelog);
+		IEnumerable<string> returnedErrors = result.Errors.Select(
+			re => re.ErrorMessage
+		);
 
 		Assert.False(result.IsValid);
-		Assert.All(result.Errors, e => expectedErrors.Contains(e.ErrorMessage));
+		Assert.All(expectedErrors, e => Assert.Contains(e, returnedErrors));
 	}
 
 	[Theory]
@@ -41,7 +44,6 @@ public class GameLogValidatorTests
 	)
 	{
 		GameLog gamelog = CreateValidGameLog(playerCount);
-
 		string expectedError =
 			"Game is likely not a 6v6 game. Must contain 10-16 players.";
 
