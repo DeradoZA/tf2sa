@@ -12,10 +12,13 @@ public class GameLogValidator : AbstractValidator<GameLog>
 	public GameLogValidator()
 	{
 		RuleFor(g => g.Length).NotNull().GreaterThanOrEqualTo(MIN_GAME_LENGTH);
-		RuleFor(g => g.Players).NotNull().NotEmpty();
-		RuleFor(g => g.Players.Count)
+		RuleFor(g => g.Players)
 			.NotNull()
-			.InclusiveBetween(MIN_PLAYERS, MAX_PLAYERS);
+			.Must(
+				(players) =>
+					players?.Count > MIN_PLAYERS && players.Count < MAX_PLAYERS
+			)
+			.WithMessage("No players passed to game log");
 		RuleForEach(g => g.Players).SetValidator(new PlayerStatsValidator());
 	}
 }
