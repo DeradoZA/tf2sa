@@ -7,7 +7,7 @@ public class GameLogValidator : AbstractValidator<GameLog>
 {
 	public const uint MIN_GAME_LENGTH = 10 * 60;
 	public const int MIN_PLAYERS = 10;
-	public const int MAX_PLAYERS = 15;
+	public const int MAX_PLAYERS = 16;
 
 	public GameLogValidator()
 	{
@@ -16,9 +16,13 @@ public class GameLogValidator : AbstractValidator<GameLog>
 			.NotNull()
 			.Must(
 				(players) =>
-					players?.Count > MIN_PLAYERS && players.Count < MAX_PLAYERS
+					players?.Count >= MIN_PLAYERS
+					&& players.Count <= MAX_PLAYERS
 			)
-			.WithMessage("No players passed to game log");
+			.WithMessage(
+				$"Game is likely not a 6v6 game. "
+					+ $"Must contain {MIN_PLAYERS}-{MAX_PLAYERS} players."
+			);
 		RuleForEach(g => g.Players).SetValidator(new PlayerStatsValidator());
 	}
 }
