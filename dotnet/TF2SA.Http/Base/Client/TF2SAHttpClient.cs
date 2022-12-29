@@ -35,6 +35,13 @@ public class TF2SAHttpClient : IHttpClient
 				url,
 				cancellationToken
 			);
+			if (!response.IsSuccessStatusCode)
+			{
+				return new HttpError(
+					$"Failed HTTP request with code {response.StatusCode}. Headers: {response.Headers}"
+				);
+			}
+
 			string json = await response.Content.ReadAsStringAsync(
 				cancellationToken
 			);
@@ -44,9 +51,10 @@ public class TF2SAHttpClient : IHttpClient
 			if (deserialized.IsLeft)
 			{
 				logger.LogWarning(
-					"GET {url}: {deserialized.Left.Message}.",
+					"GET {url}: Failed deserialization: {deserialized.Left.Message}. String: {jsonString}",
 					url,
-					deserialized.Left.Message
+					deserialized.Left.Message,
+					json
 				);
 				return new HttpError(deserialized.Left.Message);
 			}
