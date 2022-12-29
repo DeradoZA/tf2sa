@@ -20,7 +20,11 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		this.logger = logger;
 	}
 
-	public async Task<OptionStrict<Error>> InsertInvalidLog(GameLog log)
+	public async Task<OptionStrict<Error>> InsertInvalidLog(
+		GameLog log,
+		uint logId,
+		CancellationToken cancellationToken
+	)
 	{
 		Game gameEntity = new() { };
 
@@ -40,7 +44,11 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		return OptionStrict<Error>.Nothing;
 	}
 
-	public Task<OptionStrict<Error>> InsertValidLog(GameLog log)
+	public Task<OptionStrict<Error>> InsertValidLog(
+		GameLog log,
+		uint logId,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
