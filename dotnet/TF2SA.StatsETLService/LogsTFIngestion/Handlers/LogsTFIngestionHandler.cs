@@ -14,7 +14,8 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
-	private const int PROCESS_INTERVAL_SECONDS = 20;
+	private const int PROCESS_INTERVAL_MINUTES = 30;
+	private bool ENABLE_PROCESSING = false;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
@@ -41,6 +42,17 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
+
+			if (!ENABLE_PROCESSING)
+			{
+				logger.LogInformation(
+					"Processing disabled, iteration {iteration}",
+					count
+				);
+				await Task.Delay(20 * 1000, cancellationToken);
+				continue;
+			}
+
 			OptionStrict<Error> processResult = await ProcessLogs(
 				cancellationToken
 			);
@@ -57,7 +69,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			);
 
 			await Task.Delay(
-				PROCESS_INTERVAL_SECONDS * 1000,
+				PROCESS_INTERVAL_MINUTES * 1000 * 60,
 				cancellationToken
 			);
 		}
