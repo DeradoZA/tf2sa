@@ -51,13 +51,18 @@ public class LogIngestor : ILogIngestor
 				logListItem,
 				ingestionErrors,
 				validationResult,
-				log
+				log,
+				cancellationToken
 			);
 			return false;
 		}
 
 		OptionStrict<Error> insertValidLogResult =
-			await repositoryUpdater.InsertValidLog(log);
+			await repositoryUpdater.InsertValidLog(
+				log,
+				logListItem.Id,
+				cancellationToken
+			);
 		// Insert valid log
 
 		return true;
@@ -84,7 +89,8 @@ public class LogIngestor : ILogIngestor
 		LogListItem logListItem,
 		List<Error> ingestionErrors,
 		ValidationResult validationResult,
-		GameLog log
+		GameLog log,
+		CancellationToken cancellationToken
 	)
 	{
 		ingestionErrors.AddRange(
@@ -97,7 +103,11 @@ public class LogIngestor : ILogIngestor
 		);
 
 		OptionStrict<Error> insertInvalidLogResult =
-			await repositoryUpdater.InsertInvalidLog(log);
+			await repositoryUpdater.InsertInvalidLog(
+				log,
+				logListItem.Id,
+				cancellationToken
+			);
 
 		string errorString = string.Join(
 			Environment.NewLine,

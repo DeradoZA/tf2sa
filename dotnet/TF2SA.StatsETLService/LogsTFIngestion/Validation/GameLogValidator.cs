@@ -24,5 +24,21 @@ public class GameLogValidator : AbstractValidator<GameLog>
 					+ $"Must contain {MIN_PLAYERS}-{MAX_PLAYERS} players."
 			);
 		RuleForEach(g => g.Players).SetValidator(new PlayerStatsValidator());
+		RuleFor(g => g.Info)
+			.NotNull()
+			.NotEmpty()
+			.Must(
+				(log, info) =>
+				{
+					if (info is null)
+					{
+						return false;
+					}
+					return new LogInfoValidator().Validate(info).IsValid;
+				}
+			)
+			.WithMessage(
+				"Required LogInfo properties/or the LogInfo object are null."
+			);
 	}
 }

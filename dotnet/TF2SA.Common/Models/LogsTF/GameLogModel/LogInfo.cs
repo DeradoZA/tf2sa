@@ -30,13 +30,13 @@ public class LogInfo
 	public bool? HasHPReal { get; set; }
 
 	[JsonPropertyName("hasHS")]
-	public bool? HasHeadShots { get; set; }
+	public bool? HasHeadshots { get; set; }
 
 	[JsonPropertyName("hasHS_hit")]
-	public bool? HasHeadShotsHit { get; set; }
+	public bool? HasHeadshotsHit { get; set; }
 
 	[JsonPropertyName("hasBS")]
-	public bool? HasBackStabs { get; set; }
+	public bool? HasBackstabs { get; set; }
 
 	[JsonPropertyName("hasCP")]
 	public bool? HasCapturePointsCaptured { get; set; }
@@ -54,7 +54,7 @@ public class LogInfo
 	public bool? HasHealsReceived { get; set; }
 
 	[JsonPropertyName("hasIntel")]
-	public bool? HasIntel { get; set; }
+	public bool? HasIntelCaptures { get; set; }
 
 	[JsonPropertyName("AD_scoring")]
 	public bool? ADScoring { get; set; }
