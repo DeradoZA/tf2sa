@@ -7,7 +7,6 @@ using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
 using TF2SA.StatsETLService.LogsTFIngestion.Errors;
 using TF2SA.StatsETLService.LogsTFIngestion.Validation;
-using System.Linq;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 
@@ -25,7 +24,7 @@ public class LogIngestor : ILogIngestor
 		this.logsTFService = logsTFService;
 	}
 
-	public async Task<OptionStrict<List<Error>>> IngestLog(
+	public async Task<bool> IngestLog(
 		LogListItem logListItem,
 		CancellationToken cancellationToken
 	)
@@ -36,19 +35,8 @@ public class LogIngestor : ILogIngestor
 			await logsTFService.GetGameLog(logListItem.Id, cancellationToken);
 		if (logResult.IsLeft)
 		{
-			ingestionErrors.Add(
-				new IngestionError(
-					$"Failed to fetch Log: {logResult.Left.Message}"
-				)
-			);
-			logger.LogWarning(
-				"Failed to fetch {logId} from LogsTF API. "
-					+ "No changes to database. Error: {error}",
-				logListItem.Id,
-				logResult.Left.Message
-			);
-
-			return ingestionErrors;
+			ReportLogFetchFailed(logListItem, ingestionErrors, logResult);
+			return false;
 		}
 		GameLog log = logResult.Right;
 
@@ -56,35 +44,64 @@ public class LogIngestor : ILogIngestor
 		ValidationResult validationResult = validator.Validate(log);
 		if (!validationResult.IsValid)
 		{
-			ingestionErrors.AddRange(
-				validationResult.Errors.Select(
-					error =>
-						new IngestionError(
-							$"Validation Error on Gamelog: {error.ErrorMessage}"
-						)
-				)
+			ReportLogValidationFailed(
+				logListItem,
+				ingestionErrors,
+				validationResult
 			);
-
-			// insertInvalidLog
-
-			string errorString = string.Join(
-				Environment.NewLine,
-				validationResult.Errors.Select(e => e.ErrorMessage)
-			);
-			logger.LogWarning(
-				"Failed to validate GameLog {logId} from LogsTF API. "
-					+ "Log marked as invalid written to database. "
-					+ "Validation Errors:{newline}{errors}",
-				logListItem.Id,
-				Environment.NewLine,
-				errorString
-			);
-
-			return ingestionErrors;
+			return false;
 		}
 
 		// Insert valid log
 
-		return OptionStrict<List<Error>>.Nothing;
+		return true;
+	}
+
+	private void ReportLogFetchFailed(
+		LogListItem logListItem,
+		List<Error> ingestionErrors,
+		EitherStrict<HttpError, GameLog> logResult
+	)
+	{
+		ingestionErrors.Add(
+			new IngestionError($"Failed to fetch Log: {logResult.Left.Message}")
+		);
+		logger.LogWarning(
+			"Failed to fetch {logId} from LogsTF API. "
+				+ "No changes to database. Error: {error}",
+			logListItem.Id,
+			logResult.Left.Message
+		);
+	}
+
+	private void ReportLogValidationFailed(
+		LogListItem logListItem,
+		List<Error> ingestionErrors,
+		ValidationResult validationResult
+	)
+	{
+		ingestionErrors.AddRange(
+			validationResult.Errors.Select(
+				error =>
+					new IngestionError(
+						$"Validation Error on Gamelog: {error.ErrorMessage}"
+					)
+			)
+		);
+
+		// insertInvalidLog
+
+		string errorString = string.Join(
+			Environment.NewLine,
+			validationResult.Errors.Select(e => e.ErrorMessage)
+		);
+		logger.LogWarning(
+			"Failed to validate GameLog {logId} from LogsTF API. "
+				+ "Log marked as invalid written to database. "
+				+ "Validation Errors:{newline}{errors}",
+			logListItem.Id,
+			Environment.NewLine,
+			errorString
+		);
 	}
 }

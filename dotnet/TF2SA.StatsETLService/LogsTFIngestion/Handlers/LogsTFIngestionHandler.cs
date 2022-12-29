@@ -117,26 +117,19 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		ILogIngestor logIngestor =
 			scope.ServiceProvider.GetRequiredService<ILogIngestor>();
 
-		OptionStrict<List<Error>> ingestionResult = await logIngestor.IngestLog(
+		bool ingestionSucceeded = await logIngestor.IngestLog(
 			log,
 			cancellationToken
 		);
 
-		if (ingestionResult.HasValue)
+		if (!ingestionSucceeded)
 		{
-			IEnumerable<string> errors = ingestionResult.Value.Select(
-				e => e.Message
-			);
-			string errorString = string.Join(Environment.NewLine, errors);
-			logger.LogWarning(
-				"Log {logId} failed with errors: {listErrors}",
-				log.Id,
-				errorString
-			);
+			logger.LogWarning("Log {logId} failed to ingest.", log.Id);
 			return;
 		}
 
-		logger.LogInformation("Log {logId} succeeded", log.Id);
+		logger.LogInformation("Log {logId} succeeded.", log.Id);
+
 		return;
 	}
 
