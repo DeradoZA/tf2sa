@@ -10,30 +10,15 @@ public partial class TF2SADbContext : DbContext
 	public TF2SADbContext(DbContextOptions<TF2SADbContext> options)
 		: base(options) { }
 
-	public virtual DbSet<BlacklistGame> BlacklistGames { get; set; } = null!;
 	public virtual DbSet<ClassStat> ClassStats { get; set; } = null!;
 	public virtual DbSet<Game> Games { get; set; } = null!;
 	public virtual DbSet<Player> Players { get; set; } = null!;
 	public virtual DbSet<PlayerStat> PlayerStats { get; set; } = null!;
-	public virtual DbSet<Weapon> Weapons { get; set; } = null!;
 	public virtual DbSet<WeaponStat> WeaponStats { get; set; } = null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.UseCollation("utf8mb4_unicode_ci").HasCharSet("utf8mb4");
-
-		modelBuilder.Entity<BlacklistGame>(entity =>
-		{
-			entity.HasKey(e => e.GameId).HasName("PRIMARY");
-
-			entity
-				.Property(e => e.GameId)
-				.HasColumnType("int(10) unsigned")
-				.ValueGeneratedNever()
-				.HasColumnName("GameID");
-
-			entity.Property(e => e.Reason).HasMaxLength(32);
-		});
 
 		modelBuilder.Entity<ClassStat>(entity =>
 		{
@@ -88,17 +73,44 @@ public partial class TF2SADbContext : DbContext
 				.HasColumnName("GameID");
 
 			entity
-				.Property(e => e.BluScore)
+				.Property(e => e.BlueScore)
 				.HasColumnType("tinyint(3) unsigned");
 
 			entity.Property(e => e.Date).HasColumnType("int(10) unsigned");
 
-			entity.Property(e => e.Duration).HasColumnType("smallint(6)");
+			entity
+				.Property(e => e.Duration)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity.Property(e => e.HasAdscoring).HasColumnName("HasADScoring");
+
+			entity.Property(e => e.HasHp).HasColumnName("HasHP");
+
+			entity.Property(e => e.HasHpreal).HasColumnName("HasHPReal");
+
+			entity.Property(e => e.InvalidStatsReason).HasMaxLength(255);
 
 			entity.Property(e => e.Map).HasMaxLength(32);
 
+			entity.Property(e => e.Notifications).HasMaxLength(255);
+
 			entity
 				.Property(e => e.RedScore)
+				.HasColumnType("tinyint(3) unsigned");
+
+			entity.Property(e => e.Title).HasMaxLength(32);
+
+			entity
+				.Property(e => e.UploaderId)
+				.HasColumnType("bigint(20) unsigned")
+				.HasColumnName("UploaderID");
+
+			entity.Property(e => e.UploaderInfo).HasMaxLength(32);
+
+			entity.Property(e => e.UploaderName).HasMaxLength(32);
+
+			entity
+				.Property(e => e.Version)
 				.HasColumnType("tinyint(3) unsigned");
 		});
 
@@ -137,6 +149,10 @@ public partial class TF2SADbContext : DbContext
 				.HasColumnType("tinyint(3) unsigned");
 
 			entity
+				.Property(e => e.CapturePointsCaptured)
+				.HasColumnType("tinyint(3) unsigned");
+
+			entity
 				.Property(e => e.DamageTaken)
 				.HasColumnType("mediumint(8) unsigned");
 
@@ -152,6 +168,10 @@ public partial class TF2SADbContext : DbContext
 				.HasColumnType("tinyint(3) unsigned");
 
 			entity
+				.Property(e => e.HeadshotsHit)
+				.HasColumnType("tinyint(3) unsigned");
+
+			entity
 				.Property(e => e.Heals)
 				.HasColumnType("mediumint(8) unsigned");
 
@@ -160,9 +180,25 @@ public partial class TF2SADbContext : DbContext
 				.HasColumnType("mediumint(8) unsigned");
 
 			entity
+				.Property(e => e.IntelCaptures)
+				.HasColumnType("tinyint(3) unsigned");
+
+			entity
+				.Property(e => e.LongestKillStreak)
+				.HasColumnType("mediumint(8) unsigned");
+
+			entity
+				.Property(e => e.Medkits)
+				.HasColumnType("mediumint(8) unsigned");
+
+			entity
 				.Property(e => e.MedkitsHp)
 				.HasColumnType("mediumint(8) unsigned")
 				.HasColumnName("MedkitsHP");
+
+			entity
+				.Property(e => e.SentriesBuilt)
+				.HasColumnType("tinyint(3) unsigned");
 
 			entity
 				.Property(e => e.SteamId)
@@ -189,46 +225,41 @@ public partial class TF2SADbContext : DbContext
 				.HasConstraintName("fk_player_id");
 		});
 
-		modelBuilder.Entity<Weapon>(entity =>
-		{
-			entity
-				.Property(e => e.WeaponId)
-				.HasColumnType("smallint(5) unsigned")
-				.HasColumnName("WeaponID");
-
-			entity.Property(e => e.WeaponName).HasMaxLength(32);
-		});
-
 		modelBuilder.Entity<WeaponStat>(entity =>
 		{
-			entity
-				.HasKey(e => new { e.PlayerStatsId, e.WeaponId })
-				.HasName("PRIMARY")
-				.HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+			entity.HasKey(e => e.WeaponStatsId).HasName("PRIMARY");
 
-			entity.HasIndex(e => e.WeaponId, "fk_weapon_id");
+			entity.HasIndex(e => e.ClassStatsId, "fk_class_stats");
 
 			entity
-				.Property(e => e.PlayerStatsId)
+				.Property(e => e.WeaponStatsId)
 				.HasColumnType("int(10) unsigned")
-				.HasColumnName("PlayerStatsID");
+				.HasColumnName("WeaponStatsID");
 
 			entity
-				.Property(e => e.WeaponId)
-				.HasColumnType("smallint(5) unsigned")
-				.HasColumnName("WeaponID");
+				.Property(e => e.ClassStatsId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("ClassStatsID");
 
 			entity
-				.HasOne(d => d.PlayerStats)
+				.Property(e => e.Damage)
+				.HasColumnType("mediumint(8) unsigned");
+
+			entity.Property(e => e.Hits).HasColumnType("mediumint(8) unsigned");
+
+			entity.Property(e => e.Kills).HasColumnType("tinyint(3) unsigned");
+
+			entity
+				.Property(e => e.Shots)
+				.HasColumnType("mediumint(8) unsigned");
+
+			entity.Property(e => e.WeaponName).HasMaxLength(32);
+
+			entity
+				.HasOne(d => d.ClassStats)
 				.WithMany(p => p.WeaponStats)
-				.HasForeignKey(d => d.PlayerStatsId)
-				.HasConstraintName("fk_player_stats");
-
-			entity
-				.HasOne(d => d.Weapon)
-				.WithMany(p => p.WeaponStats)
-				.HasForeignKey(d => d.WeaponId)
-				.HasConstraintName("fk_weapon_id");
+				.HasForeignKey(d => d.ClassStatsId)
+				.HasConstraintName("fk_class_stats");
 		});
 
 		OnModelCreatingPartial(modelBuilder);
