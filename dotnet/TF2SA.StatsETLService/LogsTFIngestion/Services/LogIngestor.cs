@@ -14,14 +14,17 @@ public class LogIngestor : ILogIngestor
 {
 	private readonly ILogger<LogIngestor> logger;
 	private readonly ILogsTFService logsTFService;
+	private readonly ILogIngestionRepositoryUpdater repositoryUpdater;
 
 	public LogIngestor(
 		ILogger<LogIngestor> logger,
-		ILogsTFService logsTFService
+		ILogsTFService logsTFService,
+		ILogIngestionRepositoryUpdater repositoryUpdater
 	)
 	{
 		this.logger = logger;
 		this.logsTFService = logsTFService;
+		this.repositoryUpdater = repositoryUpdater;
 	}
 
 	public async Task<bool> IngestLog(
@@ -47,11 +50,14 @@ public class LogIngestor : ILogIngestor
 			ReportLogValidationFailed(
 				logListItem,
 				ingestionErrors,
-				validationResult
+				validationResult,
+				log
 			);
 			return false;
 		}
 
+		OptionStrict<Error> insertValidLogResult =
+			await repositoryUpdater.InsertValidLog(log);
 		// Insert valid log
 
 		return true;
@@ -74,10 +80,11 @@ public class LogIngestor : ILogIngestor
 		);
 	}
 
-	private void ReportLogValidationFailed(
+	private async void ReportLogValidationFailed(
 		LogListItem logListItem,
 		List<Error> ingestionErrors,
-		ValidationResult validationResult
+		ValidationResult validationResult,
+		GameLog log
 	)
 	{
 		ingestionErrors.AddRange(
@@ -89,7 +96,8 @@ public class LogIngestor : ILogIngestor
 			)
 		);
 
-		// insertInvalidLog
+		OptionStrict<Error> insertInvalidLogResult =
+			await repositoryUpdater.InsertInvalidLog(log);
 
 		string errorString = string.Join(
 			Environment.NewLine,
