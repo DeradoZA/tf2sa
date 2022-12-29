@@ -41,6 +41,13 @@ public class LogIngestor : ILogIngestor
 					$"Failed to fetch Log: {logResult.Left.Message}"
 				)
 			);
+			logger.LogWarning(
+				"Failed to fetch {logId} from LogsTF API. "
+					+ "No changes to database. Error: {error}",
+				logListItem.Id,
+				logResult.Left.Message
+			);
+
 			return ingestionErrors;
 		}
 		GameLog log = logResult.Right;
@@ -57,8 +64,26 @@ public class LogIngestor : ILogIngestor
 						)
 				)
 			);
+
+			// insertInvalidLog
+
+			string errorString = string.Join(
+				Environment.NewLine,
+				validationResult.Errors.Select(e => e.ErrorMessage)
+			);
+			logger.LogWarning(
+				"Failed to validate GameLog {logId} from LogsTF API. "
+					+ "Log marked as invalid written to database. "
+					+ "Validation Errors:{newline}{errors}",
+				logListItem.Id,
+				Environment.NewLine,
+				errorString
+			);
+
 			return ingestionErrors;
 		}
+
+		// Insert valid log
 
 		return OptionStrict<List<Error>>.Nothing;
 	}
