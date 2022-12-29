@@ -1,3 +1,5 @@
+using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 
@@ -12,7 +14,7 @@ public class GamesRepository : IGamesRepository<Game, uint>
 		this.tF2SADbContext = tF2SADbContext;
 	}
 
-	public Game Delete(Game entity)
+	public Task<EitherStrict<Error, Game>> Delete(Game entity)
 	{
 		throw new NotImplementedException();
 	}
@@ -27,17 +29,17 @@ public class GamesRepository : IGamesRepository<Game, uint>
 		return tF2SADbContext.Games.AsQueryable();
 	}
 
-	public Game? GetById(uint id)
+	public Task<EitherStrict<Error, Game?>> GetById(uint id)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Game Insert(Game entity)
+	public Task<EitherStrict<Error, Game>> Insert(Game entity)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Game Update(Game entity)
+	public Task<EitherStrict<Error, Game>> Update(Game entity)
 	{
 		throw new NotImplementedException();
 	}

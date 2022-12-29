@@ -1,3 +1,5 @@
+using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 
@@ -12,11 +14,9 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		this.tF2SADbContext = tF2SADbContext;
 	}
 
-	public Player Delete(Player entity)
+	public Task<EitherStrict<Error, Player>> Delete(Player entity)
 	{
-		tF2SADbContext.Players.Remove(entity);
-		tF2SADbContext.SaveChanges();
-		return entity;
+		throw new NotImplementedException();
 	}
 
 	public List<Player> GetAll()
@@ -29,10 +29,9 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return tF2SADbContext.Players.AsQueryable();
 	}
 
-	public Player? GetById(ulong id)
+	public Task<EitherStrict<Error, Player?>> GetById(ulong id)
 	{
-		var result = tF2SADbContext.Players.Find(id);
-		return result;
+		throw new NotImplementedException();
 	}
 
 	public List<Player> GetPlayerByName(string name)
@@ -43,17 +42,13 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return Result;
 	}
 
-	public Player Insert(Player entity)
+	public Task<EitherStrict<Error, Player>> Insert(Player entity)
 	{
-		tF2SADbContext.Players.Add(entity);
-		tF2SADbContext.SaveChanges();
-		return entity;
+		throw new NotImplementedException();
 	}
 
-	public Player Update(Player entity)
+	public Task<EitherStrict<Error, Player>> Update(Player entity)
 	{
-		tF2SADbContext.Players.Update(entity);
-		tF2SADbContext.SaveChanges();
-		return entity;
+		throw new NotImplementedException();
 	}
 }
