@@ -15,7 +15,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
 	private const int PROCESS_INTERVAL_MINUTES = 30;
-	private bool ENABLE_PROCESSING = false;
+	private bool ENABLE_PROCESSING = true;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
