@@ -14,7 +14,10 @@ public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
 		this.tF2SADbContext = tF2SADbContext;
 	}
 
-	public Task<EitherStrict<Error, ClassStat>> Delete(ClassStat entity)
+	public Task<EitherStrict<Error, ClassStat>> Delete(
+		ClassStat entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
@@ -29,17 +32,26 @@ public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
 		return tF2SADbContext.ClassStats.AsQueryable();
 	}
 
-	public Task<EitherStrict<Error, ClassStat?>> GetById(uint id)
+	public Task<EitherStrict<Error, ClassStat?>> GetById(
+		uint id,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<Error, ClassStat>> Insert(ClassStat entity)
+	public Task<EitherStrict<Error, ClassStat>> Insert(
+		ClassStat entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<Error, ClassStat>> Update(ClassStat entity)
+	public Task<EitherStrict<Error, ClassStat>> Update(
+		ClassStat entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}

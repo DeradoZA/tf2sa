@@ -14,7 +14,10 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		this.tF2SADbContext = tF2SADbContext;
 	}
 
-	public Task<EitherStrict<Error, Player>> Delete(Player entity)
+	public Task<EitherStrict<Error, Player>> Delete(
+		Player entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
@@ -29,7 +32,10 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return tF2SADbContext.Players.AsQueryable();
 	}
 
-	public Task<EitherStrict<Error, Player?>> GetById(ulong id)
+	public Task<EitherStrict<Error, Player?>> GetById(
+		ulong id,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
@@ -42,12 +48,18 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return Result;
 	}
 
-	public Task<EitherStrict<Error, Player>> Insert(Player entity)
+	public Task<EitherStrict<Error, Player>> Insert(
+		Player entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<Error, Player>> Update(Player entity)
+	public Task<EitherStrict<Error, Player>> Update(
+		Player entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
