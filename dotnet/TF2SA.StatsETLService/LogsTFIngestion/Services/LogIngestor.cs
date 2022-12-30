@@ -57,14 +57,6 @@ public class LogIngestor : ILogIngestor
 			return false;
 		}
 
-		OptionStrict<Error> insertValidLogResult =
-			await repositoryUpdater.InsertValidLog(
-				log,
-				logListItem.Id,
-				cancellationToken
-			);
-		// Insert valid log
-
 		return true;
 	}
 

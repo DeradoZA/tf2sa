@@ -14,7 +14,7 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
-	private const int PROCESS_INTERVAL_MINUTES = 30;
+	private const int PROCESS_INTERVAL_MINUTES = 10;
 	private bool ENABLE_PROCESSING = true;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
@@ -69,7 +69,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			);
 
 			await Task.Delay(
-				PROCESS_INTERVAL_MINUTES * 1000 * 60,
+				PROCESS_INTERVAL_MINUTES * 1000,
 				cancellationToken
 			);
 		}

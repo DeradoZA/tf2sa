@@ -15,6 +15,10 @@ public static class DependencyInjection
 		services.AddDataLayer(configuration);
 		services.AddScoped<ILogsTFIngestionHandler, LogsTFIngestionHandler>();
 		services.AddScoped<ILogIngestor, LogIngestor>();
+		services.AddScoped<
+			ILogIngestionRepositoryUpdater,
+			LogIngestionRepositoryUpdater
+		>();
 		services.AddHttpServices(configuration);
 		services.AddHostedService<StatsETLServiceRunner>();
 	}
