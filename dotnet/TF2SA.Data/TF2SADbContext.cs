@@ -88,26 +88,26 @@ public partial class TF2SADbContext : DbContext
 
 			entity.Property(e => e.HasHpreal).HasColumnName("HasHPReal");
 
-			entity.Property(e => e.InvalidStatsReason).HasMaxLength(255);
+			entity.Property(e => e.InvalidStatsReason).HasMaxLength(1000);
 
-			entity.Property(e => e.Map).HasMaxLength(32);
+			entity.Property(e => e.Map).HasMaxLength(255);
 
-			entity.Property(e => e.Notifications).HasMaxLength(255);
+			entity.Property(e => e.Notifications).HasMaxLength(1000);
 
 			entity
 				.Property(e => e.RedScore)
 				.HasColumnType("tinyint(3) unsigned");
 
-			entity.Property(e => e.Title).HasMaxLength(32);
+			entity.Property(e => e.Title).HasMaxLength(255);
 
 			entity
 				.Property(e => e.UploaderId)
 				.HasColumnType("bigint(20) unsigned")
 				.HasColumnName("UploaderID");
 
-			entity.Property(e => e.UploaderInfo).HasMaxLength(32);
+			entity.Property(e => e.UploaderInfo).HasMaxLength(255);
 
-			entity.Property(e => e.UploaderName).HasMaxLength(32);
+			entity.Property(e => e.UploaderName).HasMaxLength(255);
 
 			entity
 				.Property(e => e.Version)
@@ -124,7 +124,7 @@ public partial class TF2SADbContext : DbContext
 				.ValueGeneratedNever()
 				.HasColumnName("SteamID");
 
-			entity.Property(e => e.PlayerName).HasMaxLength(32);
+			entity.Property(e => e.PlayerName).HasMaxLength(255);
 		});
 
 		modelBuilder.Entity<PlayerStat>(entity =>
@@ -253,7 +253,7 @@ public partial class TF2SADbContext : DbContext
 				.Property(e => e.Shots)
 				.HasColumnType("mediumint(8) unsigned");
 
-			entity.Property(e => e.WeaponName).HasMaxLength(32);
+			entity.Property(e => e.WeaponName).HasMaxLength(255);
 
 			entity
 				.HasOne(d => d.ClassStats)
