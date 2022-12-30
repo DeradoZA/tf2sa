@@ -27,10 +27,14 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 	public async Task<OptionStrict<Error>> InsertInvalidLog(
 		GameLog log,
 		uint logId,
+		List<Error> ingestionErrors,
 		CancellationToken cancellationToken
 	)
 	{
 		Game game = mapper.Map<Game>(log);
+		game.GameId = logId;
+		game.IsValidStats = false;
+		game.InvalidStatsReason = string.Join(", ", ingestionErrors.Select(e => e.Message));
 
 		await Task.Delay(1 * 1000, cancellationToken);
 		//EitherStrict<Error, Game> insertResult = await gamesRepository.Insert(

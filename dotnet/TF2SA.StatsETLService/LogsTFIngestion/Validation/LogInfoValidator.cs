@@ -9,7 +9,7 @@ public class LogInfoValidator : AbstractValidator<LogInfo>
 	{
 		RuleFor(i => i.HasWeaponDamage).NotNull();
 		RuleFor(i => i.HasAccuracy).NotNull();
-		RuleFor(i => i.HasHP).NotNull();
+		RuleFor(i => i.HasHp).NotNull();
 		RuleFor(i => i.HasHeadshots).NotNull();
 		RuleFor(i => i.HasHeadshotsHit).NotNull();
 		RuleFor(i => i.HasBackstabs).NotNull();

@@ -70,7 +70,7 @@ public class SerializationTests
 	[Fact]
 	public void TestRootGameLog()
 	{
-		Assert.Equal(1787U, GameLog?.Length);
+		Assert.Equal(1787U, GameLog?.Duration);
 		Assert.True(GameLog?.Success);
 		Assert.Equal(3, GameLog?.Version);
 	}
@@ -346,12 +346,12 @@ public class SerializationTests
 			return;
 		}
 		Assert.Equal("cp_process_f9a", info.Map);
-		Assert.True(info.Supplemental);
+		Assert.True(info.IsSupplemental);
 		Assert.Equal(1787, info.TotalLength);
 		Assert.True(info.HasRealDamage);
 		Assert.True(info.HasWeaponDamage);
 		Assert.True(info.HasAccuracy);
-		Assert.True(info.HasHP);
+		Assert.True(info.HasHp);
 		Assert.True(info.HasHPReal);
 		Assert.True(info.HasHeadshots);
 		Assert.True(info.HasHeadshotsHit);
@@ -362,7 +362,7 @@ public class SerializationTests
 		Assert.True(info.HasAirshots);
 		Assert.True(info.HasHealsReceived);
 		Assert.False(info.HasIntelCaptures);
-		Assert.False(info.ADScoring);
+		Assert.False(info.HasAdscoring);
 		Assert.Equal("TF2SA Pug: RED vs fwian", info.Title);
 		Assert.Equal(1656197193, info.Date);
 

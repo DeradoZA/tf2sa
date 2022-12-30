@@ -77,7 +77,7 @@ public class GameLogValidatorTests
 	private GameLog CreateValidGameLog(int playerCount) =>
 		fixture
 			.Build<GameLog>()
-			.With(x => x.Length, 1000U)
+			.With(x => x.Duration, 1000U)
 			.With(
 				x => x.Players,
 				fixture

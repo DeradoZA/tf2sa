@@ -11,7 +11,9 @@ public class GameLogValidator : AbstractValidator<GameLog>
 
 	public GameLogValidator()
 	{
-		RuleFor(g => g.Length).NotNull().GreaterThanOrEqualTo(MIN_GAME_LENGTH);
+		RuleFor(g => g.Duration)
+			.NotNull()
+			.GreaterThanOrEqualTo(MIN_GAME_LENGTH);
 		RuleFor(g => g.Players)
 			.NotNull()
 			.Must(

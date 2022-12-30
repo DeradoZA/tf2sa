@@ -98,6 +98,7 @@ public class LogIngestor : ILogIngestor
 			await repositoryUpdater.InsertInvalidLog(
 				log,
 				logListItem.Id,
+				ingestionErrors,
 				cancellationToken
 			);
 

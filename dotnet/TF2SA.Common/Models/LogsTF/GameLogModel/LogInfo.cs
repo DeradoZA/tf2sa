@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
 [Serializable]
-public class LogInfo
+public class LogInfo : IJsonOnDeserialized
 {
 	[JsonPropertyName("map")]
 	public string? Map { get; set; }
 
 	[JsonPropertyName("supplemental")]
-	public bool? Supplemental { get; set; }
+	public bool? IsSupplemental { get; set; }
 
 	[JsonPropertyName("total_length")]
 	public int? TotalLength { get; set; }
@@ -24,7 +24,7 @@ public class LogInfo
 	public bool? HasAccuracy { get; set; }
 
 	[JsonPropertyName("hasHP")]
-	public bool? HasHP { get; set; }
+	public bool? HasHp { get; set; }
 
 	[JsonPropertyName("hasHP_real")]
 	public bool? HasHPReal { get; set; }
@@ -57,10 +57,12 @@ public class LogInfo
 	public bool? HasIntelCaptures { get; set; }
 
 	[JsonPropertyName("AD_scoring")]
-	public bool? ADScoring { get; set; }
+	public bool? HasAdscoring { get; set; }
 
 	[JsonPropertyName("notifications")]
-	public List<string>? Notifications { get; set; }
+	public List<string>? NotificationsArray { get; set; }
+	[JsonIgnore]
+	public string? Notifications { get; set; }
 
 	[JsonPropertyName("title")]
 	public string? Title { get; set; }
@@ -70,4 +72,11 @@ public class LogInfo
 
 	[JsonPropertyName("uploader")]
 	public Uploader? Uploader { get; set; }
+
+    public void OnDeserialized()
+    {
+		if (NotificationsArray is not null){
+        Notifications = string.Join(",", NotificationsArray);
+		}
+    }
 }

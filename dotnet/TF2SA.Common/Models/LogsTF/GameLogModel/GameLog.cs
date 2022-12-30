@@ -13,7 +13,9 @@ public class GameLog : IJsonOnDeserialized
 
 	[JsonIgnore]
 	public List<TeamStats>? Teams { get; set; }
-	public uint? Length { get; set; }
+
+	[JsonPropertyName("length")]
+	public uint? Duration { get; set; }
 
 	[JsonPropertyName("players")]
 	public Dictionary<string, PlayerStats>? PlayersDict { get; set; }

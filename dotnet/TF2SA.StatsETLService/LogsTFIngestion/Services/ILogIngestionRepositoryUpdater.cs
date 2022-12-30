@@ -9,6 +9,7 @@ public interface ILogIngestionRepositoryUpdater
 	Task<OptionStrict<Error>> InsertInvalidLog(
 		GameLog log,
 		uint logId,
+		List<Error> ingestionErrors,
 		CancellationToken cancellationToken
 	);
 	Task<OptionStrict<Error>> InsertValidLog(
