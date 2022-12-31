@@ -20,24 +20,24 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
-	private readonly IServiceProvider serviceProvider;
+	private readonly ILogIngestor logIngestor ;
 
-	public LogsTFIngestionHandler(
-		ILogger<LogsTFIngestionHandler> logger,
-		IPlayersRepository<Player, ulong> playerRepository,
-		ILogsTFService logsTFService,
-		IGamesRepository<Game, uint> gamesRepository,
-		IServiceProvider serviceProvider
-	)
-	{
-		this.logger = logger;
-		this.playerRepository = playerRepository;
-		this.logsTFService = logsTFService;
-		this.gamesRepository = gamesRepository;
-		this.serviceProvider = serviceProvider;
-	}
+    public LogsTFIngestionHandler(
+        ILogger<LogsTFIngestionHandler> logger,
+        IPlayersRepository<Player, ulong> playerRepository,
+        ILogsTFService logsTFService,
+        IGamesRepository<Game, uint> gamesRepository
+,
+        ILogIngestor logIngestor)
+    {
+        this.logger = logger;
+        this.playerRepository = playerRepository;
+        this.logsTFService = logsTFService;
+        this.gamesRepository = gamesRepository;
+        this.logIngestor = logIngestor;
+    }
 
-	public async Task ExecuteAsync(CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CancellationToken cancellationToken)
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
@@ -94,43 +94,10 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
 				CancellationToken = cancellationToken
 			},
-			async (log, token) => await ProcessLog(log, logsToProcess, token)
+			async (log, token) => await logIngestor.IngestLog(log, logsToProcess.IndexOf(log), logsToProcess.Count, token)
 		);
 
 		return OptionStrict<Error>.Nothing;
-	}
-
-	private async Task ProcessLog(
-		LogListItem log,
-		List<LogListItem> allLogs,
-		CancellationToken cancellationToken
-	)
-	{
-		logger.LogInformation(
-			"processing {iteration} of {length}: log {logId}",
-			allLogs.IndexOf(log),
-			allLogs.Count,
-			log.Id
-		);
-
-		using IServiceScope scope = serviceProvider.CreateScope();
-		ILogIngestor logIngestor =
-			scope.ServiceProvider.GetRequiredService<ILogIngestor>();
-
-		bool ingestionSucceeded = await logIngestor.IngestLog(
-			log,
-			cancellationToken
-		);
-
-		if (!ingestionSucceeded)
-		{
-			logger.LogWarning("Log {logId} failed to ingest.", log.Id);
-			return;
-		}
-
-		logger.LogInformation("Log {logId} succeeded.", log.Id);
-
-		return;
 	}
 
 	private async Task<EitherStrict<Error, List<LogListItem>>> GetLogsToProcess(
@@ -168,7 +135,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		}
 		catch (Exception e)
 		{
-			return new DataAccessError(
+			return new DatabaseError(
 				$"Failed to access games/blacklist from database: {e.Message}"
 			);
 		}

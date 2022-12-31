@@ -1,17 +1,24 @@
+using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
 public class GamesRepository : IGamesRepository<Game, uint>
 {
-	private readonly TF2SADbContext tF2SADbContext;
+	private readonly TF2SADbContext dbContext;
+	private readonly ILogger<GamesRepository> logger;
 
-	public GamesRepository(TF2SADbContext tF2SADbContext)
+	public GamesRepository(
+		TF2SADbContext dbContext,
+		ILogger<GamesRepository> logger
+	)
 	{
-		this.tF2SADbContext = tF2SADbContext;
+		this.dbContext = dbContext;
+		this.logger = logger;
 	}
 
 	public Task<EitherStrict<Error, Game>> Delete(
@@ -29,23 +36,45 @@ public class GamesRepository : IGamesRepository<Game, uint>
 
 	public IQueryable<Game> GetAllQueryable()
 	{
-		return tF2SADbContext.Games.AsQueryable();
+		return dbContext.Games.AsQueryable();
 	}
 
-	public Task<EitherStrict<Error, Game?>> GetById(
+	public async Task<EitherStrict<Error, Game?>> GetById(
 		uint id,
 		CancellationToken cancellationToken
 	)
 	{
-		throw new NotImplementedException();
+		try
+		{
+			Game? entity = await dbContext.Games.FindAsync(
+				new object?[] { id },
+				cancellationToken: cancellationToken
+			);
+			return entity;
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError($"Failed to fetch game {id}: {e.Message}");
+		}
 	}
 
-	public Task<EitherStrict<Error, Game>> Insert(
+	public async Task<EitherStrict<Error, Game>> Insert(
 		Game entity,
 		CancellationToken cancellationToken
 	)
 	{
-		throw new NotImplementedException();
+		try
+		{
+			await dbContext.Games.AddAsync(entity, cancellationToken);
+			await dbContext.SaveChangesAsync(cancellationToken);
+			return entity;
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError(
+				$"Failed to insert game with error: {e.Message}"
+			);
+		}
 	}
 
 	public Task<EitherStrict<Error, Game>> Update(

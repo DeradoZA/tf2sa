@@ -22,6 +22,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		this.gamesRepository = gamesRepository;
 		this.logger = logger;
 		this.mapper = mapper;
+		logger.LogInformation("init LogIngestionRepositoryUpdater");
 	}
 
 	public async Task<OptionStrict<Error>> InsertInvalidLog(
@@ -34,21 +35,24 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		Game game = mapper.Map<Game>(log);
 		game.GameId = logId;
 		game.IsValidStats = false;
-		game.InvalidStatsReason = string.Join(", ", ingestionErrors.Select(e => e.Message));
+		game.InvalidStatsReason = string.Join(
+			", ",
+			ingestionErrors.Select(e => e.Message)
+		);
 
-		await Task.Delay(1 * 1000, cancellationToken);
-		//EitherStrict<Error, Game> insertResult = await gamesRepository.Insert(
-		//	gameEntity
-		//);
+		EitherStrict<Error, Game> insertResult = await gamesRepository.Insert(
+			game,
+			cancellationToken
+		);
 
-		//if (insertResult.IsLeft)
-		//{
-		//	logger.LogWarning(
-		//		"Failed to write game to db: {error}",
-		//		insertResult.Left.Message
-		//	);
-		//	return insertResult.Left;
-		//}
+		if (insertResult.IsLeft)
+		{
+			logger.LogWarning(
+				"Failed to write game to db: {error}",
+				insertResult.Left.Message
+			);
+			return insertResult.Left;
+		}
 
 		return OptionStrict<Error>.Nothing;
 	}

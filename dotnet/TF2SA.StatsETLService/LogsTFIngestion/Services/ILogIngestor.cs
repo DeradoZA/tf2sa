@@ -6,6 +6,8 @@ public interface ILogIngestor
 {
 	Task<bool> IngestLog(
 		LogListItem logListItem,
+		int index,
+		int total,
 		CancellationToken cancellationToken
 	);
 }

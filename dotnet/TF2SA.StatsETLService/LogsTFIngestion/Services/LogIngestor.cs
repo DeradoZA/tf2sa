@@ -25,13 +25,23 @@ public class LogIngestor : ILogIngestor
 		this.logger = logger;
 		this.logsTFService = logsTFService;
 		this.repositoryUpdater = repositoryUpdater;
+		logger.LogInformation("init LogIngestor");
 	}
 
 	public async Task<bool> IngestLog(
 		LogListItem logListItem,
+		int index,
+		int total,
 		CancellationToken cancellationToken
 	)
 	{
+		logger.LogInformation(
+			"processing {iteration} of {length}: log {logId}",
+			index,
+			total,
+			logListItem.Id
+		);
+
 		List<Error> ingestionErrors = new();
 
 		EitherStrict<HttpError, GameLog> logResult =
