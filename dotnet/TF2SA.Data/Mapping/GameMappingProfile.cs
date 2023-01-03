@@ -55,8 +55,8 @@ public class GameMappingProfile : Profile
 				opt => opt.MapFrom(p => p.SteamId!.ConvertToUInt64())
 			);
 		CreateMap<PlayerStat, PlayerEntity>();
-		// TODO: Validate that there is always a steamid to fetch
 		CreateMap<ClassStats, ClassStat>();
+		// TODO: Validate WeaponStats
 		CreateMap<WeaponStats, WeaponStat>();
 	}
 }
