@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Monad;
 using TF2SA.Common.Configuration;
 using TF2SA.Common.Errors;
@@ -7,6 +8,7 @@ using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
+using TF2SA.StatsETLService.LogsTFIngestion.Configuration;
 using TF2SA.StatsETLService.LogsTFIngestion.Services;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
@@ -14,42 +16,43 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
-	private const int PROCESS_INTERVAL_MINUTES = 10;
-	private bool ENABLE_PROCESSING = true;
+	private readonly LogsTFIngestionConfig logsTFIngestionConfig;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
-	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
-	private readonly ILogIngestor logIngestor ;
+	private readonly ILogIngestor logIngestor;
 
-    public LogsTFIngestionHandler(
-        ILogger<LogsTFIngestionHandler> logger,
-        IPlayersRepository<Player, ulong> playerRepository,
-        ILogsTFService logsTFService,
-        IGamesRepository<Game, uint> gamesRepository
-,
-        ILogIngestor logIngestor)
-    {
-        this.logger = logger;
-        this.playerRepository = playerRepository;
-        this.logsTFService = logsTFService;
-        this.gamesRepository = gamesRepository;
-        this.logIngestor = logIngestor;
-    }
+	public LogsTFIngestionHandler(
+		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
+		ILogger<LogsTFIngestionHandler> logger,
+		ILogsTFService logsTFService,
+		IGamesRepository<Game, uint> gamesRepository,
+		ILogIngestor logIngestor
+	)
+	{
+		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
+		this.logger = logger;
+		this.logsTFService = logsTFService;
+		this.gamesRepository = gamesRepository;
+		this.logIngestor = logIngestor;
+	}
 
-    public async Task ExecuteAsync(CancellationToken cancellationToken)
+	public async Task ExecuteAsync(CancellationToken cancellationToken)
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			count++;
 
-			if (!ENABLE_PROCESSING)
+			if (!logsTFIngestionConfig.EnableIngestion)
 			{
 				logger.LogInformation(
 					"Processing disabled, iteration {iteration}",
 					count
 				);
-				await Task.Delay(20 * 1000, cancellationToken);
+				await Task.Delay(
+					logsTFIngestionConfig.IngestionIntervalSeconds * 1000,
+					cancellationToken
+				);
 				continue;
 			}
 
@@ -69,7 +72,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			);
 
 			await Task.Delay(
-				PROCESS_INTERVAL_MINUTES * 1000,
+				logsTFIngestionConfig.IngestionIntervalSeconds * 1000,
 				cancellationToken
 			);
 		}
@@ -94,7 +97,13 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
 				CancellationToken = cancellationToken
 			},
-			async (log, token) => await logIngestor.IngestLog(log, logsToProcess.IndexOf(log), logsToProcess.Count, token)
+			async (log, token) =>
+				await logIngestor.IngestLog(
+					log,
+					logsToProcess.IndexOf(log),
+					logsToProcess.Count,
+					token
+				)
 		);
 
 		return OptionStrict<Error>.Nothing;
