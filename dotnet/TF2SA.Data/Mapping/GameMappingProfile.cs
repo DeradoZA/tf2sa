@@ -16,7 +16,7 @@ public class GameMappingProfile : Profile
 				opt =>
 					opt.MapFrom(
 						gl =>
-							gl.Teams
+							gl!.Teams!
 								.Single(
 									t =>
 										string.Equals(
@@ -33,7 +33,7 @@ public class GameMappingProfile : Profile
 				opt =>
 					opt.MapFrom(
 						gl =>
-							gl.Teams
+							gl!.Teams!
 								.Single(
 									t =>
 										string.Equals(
@@ -51,7 +51,7 @@ public class GameMappingProfile : Profile
 		CreateMap<PlayerDto, PlayerStat>()
 			.ForMember(
 				ps => ps.SteamId,
-				opt => opt.MapFrom(p => p.SteamId.ConvertToUInt64())
+				opt => opt.MapFrom(p => p.SteamId!.ConvertToUInt64())
 			);
 		CreateMap<PlayerStat, PlayerEntity>();
 		CreateMap<ClassStats, ClassStat>();
