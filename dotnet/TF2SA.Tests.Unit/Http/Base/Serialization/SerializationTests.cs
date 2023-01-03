@@ -25,10 +25,10 @@ public class SerializationTests
 			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
 			.Right!;
 
-		MedicPlayer = GameLog?.Players?.FirstOrDefault(
+		MedicPlayer = GameLog?.PlayerStats?.FirstOrDefault(
 			s =>
 				string.Equals(
-					s?.Player?.PlayerID?.ToString(),
+					s?.Player?.SteamId?.ToString(),
 					"[U:1:152151801]",
 					StringComparison.InvariantCultureIgnoreCase
 				)
@@ -135,7 +135,7 @@ public class SerializationTests
 		Assert.Equal(6192, MedicPlayer.DamageTaken);
 		Assert.Equal(662, MedicPlayer.DamageTakenReal);
 		Assert.Equal(822, MedicPlayer.HealsReceived);
-		Assert.Equal(7, MedicPlayer.Lks);
+		Assert.Equal(7, MedicPlayer.LongestKillStreak);
 		Assert.Equal(0, MedicPlayer.Airshots);
 		Assert.Equal(435, MedicPlayer.Dapd);
 		Assert.Equal(263, MedicPlayer.Dapm);
@@ -143,13 +143,13 @@ public class SerializationTests
 		Assert.Equal(5, MedicPlayer.UberTypes?["medigun"]);
 		Assert.Equal(0, MedicPlayer.Drops);
 		Assert.Equal(54, MedicPlayer.MedKits);
-		Assert.Equal(1602, MedicPlayer.MedKitsHealth);
-		Assert.Equal(0, MedicPlayer.BackStabs);
+		Assert.Equal(1602, MedicPlayer.MedkitsHp);
+		Assert.Equal(0, MedicPlayer.Backstabs);
 		Assert.Equal(0, MedicPlayer.Headshots);
 		Assert.Equal(0, MedicPlayer.HeadshotsHit);
-		Assert.Equal(0, MedicPlayer.Sentries);
+		Assert.Equal(0, MedicPlayer.SentriesBuilt);
 		Assert.Equal(12219, MedicPlayer.Heals);
-		Assert.Equal(3, MedicPlayer.Cpc);
+		Assert.Equal(3, MedicPlayer.CapturePointsCaptured);
 	}
 
 	[Fact]
@@ -181,7 +181,7 @@ public class SerializationTests
 		Assert.Equal(10, ClassStats.Assists);
 		Assert.Equal(5, ClassStats.Deaths);
 		Assert.Equal(1652, ClassStats.Damage);
-		Assert.Equal(767, ClassStats.TotalTime);
+		Assert.Equal(767, ClassStats.Playtime);
 	}
 
 	[Fact]
@@ -205,7 +205,7 @@ public class SerializationTests
 		Player expectedPlayer = GameLog?.Names?.SingleOrDefault(
 			n =>
 				string.Equals(
-					n?.PlayerID?.ToString(),
+					n?.SteamId?.ToString(),
 					"[U:1:28353669]",
 					StringComparison.InvariantCultureIgnoreCase
 				)

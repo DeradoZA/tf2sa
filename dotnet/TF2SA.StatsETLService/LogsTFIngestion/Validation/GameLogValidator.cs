@@ -14,7 +14,7 @@ public class GameLogValidator : AbstractValidator<GameLog>
 		RuleFor(g => g.Duration)
 			.NotNull()
 			.GreaterThanOrEqualTo(MIN_GAME_LENGTH);
-		RuleFor(g => g.Players)
+		RuleFor(g => g.PlayerStats)
 			.NotNull()
 			.Must(
 				(players) =>
@@ -25,7 +25,8 @@ public class GameLogValidator : AbstractValidator<GameLog>
 				$"Game is likely not a 6v6 game. "
 					+ $"Must contain {MIN_PLAYERS}-{MAX_PLAYERS} players."
 			);
-		RuleForEach(g => g.Players).SetValidator(new PlayerStatsValidator());
+		RuleForEach(g => g.PlayerStats)
+			.SetValidator(new PlayerStatsValidator());
 		RuleFor(g => g.Info)
 			.NotNull()
 			.NotEmpty()

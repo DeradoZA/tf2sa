@@ -1,12 +1,16 @@
 using System.Text.Json.Serialization;
+using TF2SA.Common.Models.LogsTF.Constants;
 
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
 [Serializable]
-public class PlayerStats
+public class PlayerStats : IJsonOnDeserialized
 {
 	public Player? Player { get; set; }
 	public string? Team { get; set; }
+
+	[JsonIgnore]
+	public byte TeamId { get; set; }
 
 	[JsonPropertyName("class_stats")]
 	public List<ClassStats>? ClassStats { get; set; }
@@ -33,7 +37,7 @@ public class PlayerStats
 	public int? HealsReceived { get; set; }
 
 	[JsonPropertyName("lks")]
-	public int? Lks { get; set; }
+	public int? LongestKillStreak { get; set; }
 
 	[JsonPropertyName("as")]
 	public int? Airshots { get; set; }
@@ -45,17 +49,34 @@ public class PlayerStats
 	public int? MedKits { get; set; }
 
 	[JsonPropertyName("medkits_hp")]
-	public int? MedKitsHealth { get; set; }
-	public int? BackStabs { get; set; }
+	public int? MedkitsHp { get; set; }
+	public int? Backstabs { get; set; }
 	public int? Headshots { get; set; }
 
 	[JsonPropertyName("headshots_hit")]
 	public int? HeadshotsHit { get; set; }
-	public int? Sentries { get; set; }
+
+	[JsonPropertyName("sentries")]
+	public int? SentriesBuilt { get; set; }
 
 	[JsonPropertyName("heal")]
 	public int? Heals { get; set; }
-	public int? Cpc { get; set; }
-	public int? Ic { get; set; }
+
+	[JsonPropertyName("cpc")]
+	public int? CapturePointsCaptured { get; set; }
+
+	[JsonPropertyName("ic")]
+	public int? IntelCaptures { get; set; }
 	public MedicStats? MedicStats { get; set; }
+
+	public void OnDeserialized()
+	{
+		ClassStats?.RemoveAll(
+			cs => !Enum.TryParse(cs.Type, true, out ClassId classId)
+		);
+		if (Enum.TryParse(Team, true, out TeamId teamId))
+		{
+			TeamId = (byte)teamId;
+		}
+	}
 }

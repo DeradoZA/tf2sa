@@ -1,4 +1,5 @@
 using FluentValidation;
+using TF2SA.Common.Models.LogsTF.Constants;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Validation;
@@ -11,7 +12,20 @@ public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 	public PlayerStatsValidator()
 	{
 		RuleFor(p => p.ClassStats).NotNull().NotEmpty();
+
+		RuleFor(p => p.Team)
+			.NotNull()
+			.Must(t => Enum.TryParse(t, true, out TeamId teamId))
+			.WithMessage(
+				"TeamId type '{PropertyValue}' is invalid. Expecting 'Red' or 'Blue'"
+			);
+
 		RuleForEach(p => p.ClassStats).SetValidator(new ClassStatsValidator());
+
+		RuleFor(p => p.DamageTaken).NotNull();
+		RuleFor(p => p.LongestKillStreak).NotNull();
+		RuleFor(p => p.MedKits).NotNull();
+		RuleFor(p => p.MedkitsHp).NotNull();
 
 		RuleFor(p => p.Damage)
 			.NotNull()
@@ -41,14 +55,14 @@ public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 		);
 		if (
 			medicStats is null
-			|| medicStats.TotalTime is null
-			|| medicStats.TotalTime == 0
+			|| medicStats.Playtime is null
+			|| medicStats.Playtime == 0
 		)
 		{
 			return true;
 		}
 
-		if ((heals / medicStats.TotalTime * 60) >= MAX_HEALS_PER_MINUTE)
+		if ((heals / medicStats.Playtime * 60) >= MAX_HEALS_PER_MINUTE)
 		{
 			return false;
 		}

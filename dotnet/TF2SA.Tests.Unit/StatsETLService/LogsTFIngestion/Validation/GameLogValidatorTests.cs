@@ -79,7 +79,7 @@ public class GameLogValidatorTests
 			.Build<GameLog>()
 			.With(x => x.Duration, 1000U)
 			.With(
-				x => x.Players,
+				x => x.PlayerStats,
 				fixture
 					.Build<PlayerStats>()
 					.With(p => p.Heals, 0)

@@ -105,7 +105,7 @@ public class PlayerStatsValidatorTests
 				p => p.ClassStats,
 				fixture
 					.Build<ClassStats>()
-					.With(c => c.TotalTime, medicPlayTime)
+					.With(c => c.Playtime, medicPlayTime)
 					.With(c => c.Type, "medic")
 					.CreateMany(1)
 					.ToList()
