@@ -51,9 +51,11 @@ public class GameMappingProfile : Profile
 		CreateMap<PlayerDto, PlayerStat>()
 			.ForMember(
 				ps => ps.SteamId,
+				// TODO: Validate that there is always a steamid to fetch
 				opt => opt.MapFrom(p => p.SteamId!.ConvertToUInt64())
 			);
 		CreateMap<PlayerStat, PlayerEntity>();
+		// TODO: Validate that there is always a steamid to fetch
 		CreateMap<ClassStats, ClassStat>();
 		CreateMap<WeaponStats, WeaponStat>();
 	}
