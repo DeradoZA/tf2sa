@@ -15,7 +15,18 @@ Polls,
 Images,
 Comments,
 Threads,
-Users;
+Users,
+OverallStatsAllTime,
+OverallStatsRecent,
+ScoutAllTime,
+ScoutRecent,
+SoldierAllTime,
+SoldierRecent,
+DemomanAllTime,
+DemomanRecent,
+MedicAllTime,
+MedicRecent,
+PlayerHighlights;
 
 SET
 	FOREIGN_KEY_CHECKS = 1;
@@ -120,3 +131,188 @@ CREATE TABLE
 		PRIMARY KEY (WeaponStatsID),
 		CONSTRAINT `fk_class_stats` FOREIGN KEY (ClassStatsID) REFERENCES ClassStats (ClassStatsID) ON DELETE CASCADE ON UPDATE RESTRICT
 	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS OverallStatsAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL,
+		AverageAirshots FLOAT NOT NULL,
+		AverageHeadshots FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS OverallStatsRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL,
+		AverageAirshots FLOAT NOT NULL,
+		AverageHeadshots FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS ScoutRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS ScoutAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS ScoutRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS SoldierAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAirshots FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS SoldierRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAirshots FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS DemomanAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAirshots FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS DemomanRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAirshots FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
+
+CREATE TABLE
+	IF NOT EXISTS MedicAllTime(
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL,
+		AverageUbers FLOAT NOT NULL,
+		AverageDrops FLOAT NOT NULL,
+		AverageHPM FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)
+	)
+
+CREATE TABLE
+	IF NOT EXISTS MedicRecent(
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageKills FLOAT NOT NULL,
+		AverageAssists FLOAT NOT NULL,
+		AverageDeaths FLOAT NOT NULL,
+		AverageUbers FLOAT NOT NULL,
+		AverageDrops FLOAT NOT NULL,
+		AverageHPM FLOAT NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)
+	)
+
+CREATE TABLE
+	IF NOT EXISTS PlayerHighlights (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(32) CHARACTER,
+		TopScoutKills SMALLINT UNSIGNED NOT NULL,
+		TopScoutDamage SMALLINT UNSIGNED NOT NULL,
+		TopSoldierKills SMALLINT UNSIGNED NOT NULL,
+		TopSoldierDamage SMALLINT UNSIGNED NOT NULL,
+		TopSoldierAirshots SMALLINT UNSIGNED NOT NULL,
+		TopDemomanKills SMALLINT UNSIGNED NOT NULL,
+		TopDemomanDamage SMALLINT UNSIGNED NOT NULL,
+		TopDemomanAirshots SMALLINT UNSIGNED NOT NULL,
+		TopMedicHeals SMALLINT UNSIGNED NOT NULL,
+		TopMedicUbers SMALLINT UNSIGNED NOT NULL
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	)
