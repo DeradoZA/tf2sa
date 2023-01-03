@@ -2,16 +2,19 @@ using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
+using System.Data;
+using TF2SA.Data.Errors;
+using Microsoft.EntityFrameworkCore;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
 public class PlayersRepository : IPlayersRepository<Player, ulong>
 {
-	private readonly TF2SADbContext tF2SADbContext;
+	private readonly TF2SADbContext dbContext;
 
-	public PlayersRepository(TF2SADbContext tF2SADbContext)
+	public PlayersRepository(TF2SADbContext dbContext)
 	{
-		this.tF2SADbContext = tF2SADbContext;
+		this.dbContext = dbContext;
 	}
 
 	public Task<EitherStrict<Error, Player>> Delete(
@@ -29,7 +32,7 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 
 	public IQueryable<Player> GetAllQueryable()
 	{
-		return tF2SADbContext.Players.AsQueryable();
+		return dbContext.Players.AsQueryable();
 	}
 
 	public Task<EitherStrict<Error, Player?>> GetById(
@@ -54,6 +57,35 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 	)
 	{
 		throw new NotImplementedException();
+	}
+
+	public async Task<OptionStrict<Error>> InsertPlayersIfNotExists(
+		IEnumerable<Player> players,
+		CancellationToken cancellationToken
+	)
+	{
+		try
+		{
+			IEnumerable<ulong> keys = players.Select(p => p.SteamId);
+			List<ulong> existingEntites = await dbContext.Players
+				.Select(p => p.SteamId)
+				.Where(id => keys.Contains(id))
+				.ToListAsync(cancellationToken: cancellationToken);
+
+			IEnumerable<ulong> idsToAdd = keys.Except(existingEntites);
+			IEnumerable<Player> playersToAdd = players.Where(
+				p => idsToAdd.Contains(p.SteamId)
+			);
+
+			await dbContext.AddRangeAsync(playersToAdd, cancellationToken);
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError(e.Message);
+		}
+
+		return OptionStrict<Error>.Nothing;
 	}
 
 	public Task<EitherStrict<Error, Player>> Update(

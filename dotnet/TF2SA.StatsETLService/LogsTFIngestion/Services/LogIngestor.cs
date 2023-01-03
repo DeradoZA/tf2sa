@@ -67,6 +67,27 @@ public class LogIngestor : ILogIngestor
 			return false;
 		}
 
+		OptionStrict<Error> insertResult =
+			await repositoryUpdater.InsertValidLog(
+				log,
+				logListItem.Id,
+				cancellationToken
+			);
+		if (insertResult.HasValue)
+		{
+			logger.LogInformation(
+				"Failed to insert valid log {logId} with errors {errors}",
+				logListItem.Id,
+				insertResult.Value.Message
+			);
+			return false;
+		}
+
+		logger.LogInformation(
+			"Successfully inserted valid log {logId}",
+			logListItem.Id
+		);
+
 		return true;
 	}
 
