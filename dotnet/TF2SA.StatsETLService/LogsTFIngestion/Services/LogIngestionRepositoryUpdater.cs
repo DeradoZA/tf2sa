@@ -129,6 +129,53 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		game.GameId = logId;
 		game.IsValidStats = true;
 
+		foreach (PlayerStat playerStat in game.PlayerStats)
+		{
+			playerStat.Headshots = !game.HasHeadshots
+				? null
+				: playerStat.Headshots;
+			playerStat.HeadshotsHit = !game.HasHeadshotsHit
+				? null
+				: playerStat.HeadshotsHit;
+			playerStat.Backstabs = !game.HasBackstabs
+				? null
+				: playerStat.Backstabs;
+			playerStat.CapturePointsCaptured = !game.HasCapturePointsCaptured
+				? null
+				: playerStat.CapturePointsCaptured;
+			playerStat.SentriesBuilt = !game.HasSentriesBuilt
+				? null
+				: playerStat.SentriesBuilt;
+			playerStat.DamageTaken = !game.HasDamageTaken
+				? null
+				: playerStat.DamageTaken;
+			playerStat.Airshots = !game.HasAirshots
+				? null
+				: playerStat.Airshots;
+			playerStat.HealsReceived = !game.HasHealsReceived
+				? null
+				: playerStat.HealsReceived;
+			playerStat.IntelCaptures = !game.HasIntelCaptures
+				? null
+				: playerStat.IntelCaptures;
+
+			foreach (ClassStat classStat in playerStat.ClassStats)
+			{
+				foreach (WeaponStat weaponStat in classStat.WeaponStats)
+				{
+					if (!game.HasWeaponDamage)
+					{
+						weaponStat.Damage = null;
+					}
+					if (!game.HasAccuracy)
+					{
+						weaponStat.Shots = null;
+						weaponStat.Hits = null;
+					}
+				}
+			}
+		}
+
 		return game;
 	}
 }
