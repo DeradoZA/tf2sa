@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using FluentValidation.Results;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
@@ -61,8 +59,19 @@ public class PlayerStatsValidatorTests
 	{
 		PlayerStats playerStats = fixture
 			.Build<PlayerStats>()
+			.With(p => p.TeamId, 0)
+			.With(p => p.Team, "Blue")
 			.With(p => p.Damage, 6000)
 			.With(p => p.Heals, 0)
+			.With(
+				p => p.ClassStats,
+				fixture
+					.Build<ClassStats>()
+					.With(c => c.ClassId, (byte)1)
+					.With(c => c.Type, "scout")
+					.CreateMany(1)
+					.ToList()
+			)
 			.Create();
 
 		ValidationResult result = validator.Validate(playerStats);
@@ -101,11 +110,12 @@ public class PlayerStatsValidatorTests
 			.Build<PlayerStats>()
 			.With(p => p.Damage, 600)
 			.With(p => p.Heals, heals)
+			.With(p => p.Team, "Red")
 			.With(
 				p => p.ClassStats,
 				fixture
 					.Build<ClassStats>()
-					.With(c => c.TotalTime, medicPlayTime)
+					.With(c => c.Playtime, medicPlayTime)
 					.With(c => c.Type, "medic")
 					.CreateMany(1)
 					.ToList()

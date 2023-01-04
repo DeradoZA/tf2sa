@@ -11,8 +11,10 @@ public class GameLogValidator : AbstractValidator<GameLog>
 
 	public GameLogValidator()
 	{
-		RuleFor(g => g.Length).NotNull().GreaterThanOrEqualTo(MIN_GAME_LENGTH);
-		RuleFor(g => g.Players)
+		RuleFor(g => g.Duration)
+			.NotNull()
+			.GreaterThanOrEqualTo(MIN_GAME_LENGTH);
+		RuleFor(g => g.PlayerStats)
 			.NotNull()
 			.Must(
 				(players) =>
@@ -23,6 +25,23 @@ public class GameLogValidator : AbstractValidator<GameLog>
 				$"Game is likely not a 6v6 game. "
 					+ $"Must contain {MIN_PLAYERS}-{MAX_PLAYERS} players."
 			);
-		RuleForEach(g => g.Players).SetValidator(new PlayerStatsValidator());
+		RuleForEach(g => g.PlayerStats)
+			.SetValidator(new PlayerStatsValidator());
+		RuleFor(g => g.Info)
+			.NotNull()
+			.NotEmpty()
+			.Must(
+				(log, info) =>
+				{
+					if (info is null)
+					{
+						return false;
+					}
+					return new LogInfoValidator().Validate(info).IsValid;
+				}
+			)
+			.WithMessage(
+				"Required LogInfo properties/or the LogInfo object are null."
+			);
 	}
 }

@@ -13,13 +13,15 @@ public class GameLog : IJsonOnDeserialized
 
 	[JsonIgnore]
 	public List<TeamStats>? Teams { get; set; }
-	public uint? Length { get; set; }
+
+	[JsonPropertyName("length")]
+	public uint? Duration { get; set; }
 
 	[JsonPropertyName("players")]
 	public Dictionary<string, PlayerStats>? PlayersDict { get; set; }
 
 	[JsonIgnore]
-	public List<PlayerStats>? Players { get; set; }
+	public List<PlayerStats>? PlayerStats { get; set; }
 
 	[JsonPropertyName("names")]
 	public Dictionary<string, string>? NamesDict { get; set; }
@@ -57,12 +59,12 @@ public class GameLog : IJsonOnDeserialized
 				SteamID steamid = new();
 				steamid.SetFromSteam3String(nd.Key);
 				Player player =
-					new() { PlayerID = steamid, PlayerName = nd.Value };
+					new() { SteamId = steamid, PlayerName = nd.Value };
 				return player;
 			})
 			.ToList();
 
-		Players = PlayersDict
+		PlayerStats = PlayersDict
 			?.Select(pd =>
 			{
 				PlayerStats playerStats = pd.Value;
@@ -70,7 +72,7 @@ public class GameLog : IJsonOnDeserialized
 					n =>
 						string.Equals(
 							pd.Key,
-							n?.PlayerID?.ToString(),
+							n?.SteamId?.ToString(),
 							StringComparison.InvariantCultureIgnoreCase
 						)
 				);

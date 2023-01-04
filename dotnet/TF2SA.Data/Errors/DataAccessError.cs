@@ -2,9 +2,9 @@ using TF2SA.Common.Errors;
 
 namespace TF2SA.Data.Errors;
 
-public class DataAccessError : Error
+public class DatabaseError : Error
 {
-	public DataAccessError(string message)
+	public DatabaseError(string message)
 	{
 		Message = message;
 	}

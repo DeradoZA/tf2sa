@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Monad;
 using TF2SA.Common.Configuration;
 using TF2SA.Common.Errors;
@@ -7,6 +8,7 @@ using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
+using TF2SA.StatsETLService.LogsTFIngestion.Configuration;
 using TF2SA.StatsETLService.LogsTFIngestion.Services;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
@@ -14,27 +16,25 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
 	private int count = 0;
-	private const int PROCESS_INTERVAL_MINUTES = 30;
-	private bool ENABLE_PROCESSING = false;
+	private readonly LogsTFIngestionConfig logsTFIngestionConfig;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
-	private readonly IPlayersRepository<Player, ulong> playerRepository;
 	private readonly ILogsTFService logsTFService;
-	private readonly IServiceProvider serviceProvider;
+	private readonly ILogIngestor logIngestor;
 
 	public LogsTFIngestionHandler(
+		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
 		ILogger<LogsTFIngestionHandler> logger,
-		IPlayersRepository<Player, ulong> playerRepository,
 		ILogsTFService logsTFService,
 		IGamesRepository<Game, uint> gamesRepository,
-		IServiceProvider serviceProvider
+		ILogIngestor logIngestor
 	)
 	{
+		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
 		this.logger = logger;
-		this.playerRepository = playerRepository;
 		this.logsTFService = logsTFService;
 		this.gamesRepository = gamesRepository;
-		this.serviceProvider = serviceProvider;
+		this.logIngestor = logIngestor;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -43,13 +43,16 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		{
 			count++;
 
-			if (!ENABLE_PROCESSING)
+			if (!logsTFIngestionConfig.EnableIngestion)
 			{
 				logger.LogInformation(
 					"Processing disabled, iteration {iteration}",
 					count
 				);
-				await Task.Delay(20 * 1000, cancellationToken);
+				await Task.Delay(
+					logsTFIngestionConfig.IngestionIntervalSeconds * 1000,
+					cancellationToken
+				);
 				continue;
 			}
 
@@ -69,7 +72,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			);
 
 			await Task.Delay(
-				PROCESS_INTERVAL_MINUTES * 1000 * 60,
+				logsTFIngestionConfig.IngestionIntervalSeconds * 1000,
 				cancellationToken
 			);
 		}
@@ -94,50 +97,16 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
 				CancellationToken = cancellationToken
 			},
-			async (log, token) => await ProcessLog(log, logsToProcess, token)
+			async (log, token) =>
+				await logIngestor.IngestLog(
+					log,
+					logsToProcess.IndexOf(log),
+					logsToProcess.Count,
+					token
+				)
 		);
 
 		return OptionStrict<Error>.Nothing;
-	}
-
-	private async Task ProcessLog(
-		LogListItem log,
-		List<LogListItem> allLogs,
-		CancellationToken cancellationToken
-	)
-	{
-		logger.LogInformation(
-			"processing {iteration} of {length}: log {logId}",
-			allLogs.IndexOf(log),
-			allLogs.Count,
-			log.Id
-		);
-
-		using IServiceScope scope = serviceProvider.CreateScope();
-		ILogIngestor logIngestor =
-			scope.ServiceProvider.GetRequiredService<ILogIngestor>();
-
-		OptionStrict<List<Error>> ingestionResult = await logIngestor.IngestLog(
-			log,
-			cancellationToken
-		);
-
-		if (ingestionResult.HasValue)
-		{
-			IEnumerable<string> errors = ingestionResult.Value.Select(
-				e => e.Message
-			);
-			string errorString = string.Join(Environment.NewLine, errors);
-			logger.LogWarning(
-				"Log {logId} failed with errors: {listErrors}",
-				log.Id,
-				errorString
-			);
-			return;
-		}
-
-		logger.LogInformation("Log {logId} succeeded", log.Id);
-		return;
 	}
 
 	private async Task<EitherStrict<Error, List<LogListItem>>> GetLogsToProcess(
@@ -156,8 +125,10 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		List<Game> processedLogs = new();
 		try
 		{
-			// repository methods should use monads - so we can handle db exceptions cleaner.
-			// therefore here we need try catch to handle failure
+			// TODO repository methods should use monads and propagate cancellation tokens
+			// this will enhance error handling and we won't have to try catch everywhere
+			// propagate cancellation tokens so we can handle cancellation properly
+			// milestone: StatsETL
 			processedLogs = gamesRepository.GetAll();
 			logger.LogInformation(
 				"Processed logs: {count}",
@@ -175,7 +146,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		}
 		catch (Exception e)
 		{
-			return new DataAccessError(
+			return new DatabaseError(
 				$"Failed to access games/blacklist from database: {e.Message}"
 			);
 		}

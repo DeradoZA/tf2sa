@@ -25,10 +25,10 @@ public class SerializationTests
 			.Deserialize<GameLog>(SerializationStubs.NormalGameLogJsonResponse)
 			.Right!;
 
-		MedicPlayer = GameLog?.Players?.FirstOrDefault(
+		MedicPlayer = GameLog?.PlayerStats?.FirstOrDefault(
 			s =>
 				string.Equals(
-					s?.Player?.PlayerID?.ToString(),
+					s?.Player?.SteamId?.ToString(),
 					"[U:1:152151801]",
 					StringComparison.InvariantCultureIgnoreCase
 				)
@@ -70,7 +70,7 @@ public class SerializationTests
 	[Fact]
 	public void TestRootGameLog()
 	{
-		Assert.Equal(1787U, GameLog?.Length);
+		Assert.Equal(1787U, GameLog?.Duration);
 		Assert.True(GameLog?.Success);
 		Assert.Equal(3, GameLog?.Version);
 	}
@@ -135,7 +135,7 @@ public class SerializationTests
 		Assert.Equal(6192, MedicPlayer.DamageTaken);
 		Assert.Equal(662, MedicPlayer.DamageTakenReal);
 		Assert.Equal(822, MedicPlayer.HealsReceived);
-		Assert.Equal(7, MedicPlayer.Lks);
+		Assert.Equal(7, MedicPlayer.LongestKillStreak);
 		Assert.Equal(0, MedicPlayer.Airshots);
 		Assert.Equal(435, MedicPlayer.Dapd);
 		Assert.Equal(263, MedicPlayer.Dapm);
@@ -143,13 +143,13 @@ public class SerializationTests
 		Assert.Equal(5, MedicPlayer.UberTypes?["medigun"]);
 		Assert.Equal(0, MedicPlayer.Drops);
 		Assert.Equal(54, MedicPlayer.MedKits);
-		Assert.Equal(1602, MedicPlayer.MedKitsHealth);
-		Assert.Equal(0, MedicPlayer.BackStabs);
+		Assert.Equal(1602, MedicPlayer.MedkitsHp);
+		Assert.Equal(0, MedicPlayer.Backstabs);
 		Assert.Equal(0, MedicPlayer.Headshots);
 		Assert.Equal(0, MedicPlayer.HeadshotsHit);
-		Assert.Equal(0, MedicPlayer.Sentries);
+		Assert.Equal(0, MedicPlayer.SentriesBuilt);
 		Assert.Equal(12219, MedicPlayer.Heals);
-		Assert.Equal(3, MedicPlayer.Cpc);
+		Assert.Equal(3, MedicPlayer.CapturePointsCaptured);
 	}
 
 	[Fact]
@@ -181,7 +181,7 @@ public class SerializationTests
 		Assert.Equal(10, ClassStats.Assists);
 		Assert.Equal(5, ClassStats.Deaths);
 		Assert.Equal(1652, ClassStats.Damage);
-		Assert.Equal(767, ClassStats.TotalTime);
+		Assert.Equal(767, ClassStats.Playtime);
 	}
 
 	[Fact]
@@ -205,7 +205,7 @@ public class SerializationTests
 		Player expectedPlayer = GameLog?.Names?.SingleOrDefault(
 			n =>
 				string.Equals(
-					n?.PlayerID?.ToString(),
+					n?.SteamId?.ToString(),
 					"[U:1:28353669]",
 					StringComparison.InvariantCultureIgnoreCase
 				)
@@ -346,23 +346,23 @@ public class SerializationTests
 			return;
 		}
 		Assert.Equal("cp_process_f9a", info.Map);
-		Assert.True(info.Supplemental);
+		Assert.True(info.IsSupplemental);
 		Assert.Equal(1787, info.TotalLength);
 		Assert.True(info.HasRealDamage);
 		Assert.True(info.HasWeaponDamage);
 		Assert.True(info.HasAccuracy);
-		Assert.True(info.HasHP);
+		Assert.True(info.HasHp);
 		Assert.True(info.HasHPReal);
-		Assert.True(info.HasHeadShots);
-		Assert.True(info.HasHeadShotsHit);
-		Assert.True(info.HasBackStabs);
+		Assert.True(info.HasHeadshots);
+		Assert.True(info.HasHeadshotsHit);
+		Assert.True(info.HasBackstabs);
 		Assert.True(info.HasCapturePointsCaptured);
 		Assert.False(info.HasSentriesBuilt);
 		Assert.True(info.HasDamageTaken);
 		Assert.True(info.HasAirshots);
 		Assert.True(info.HasHealsReceived);
-		Assert.False(info.HasIntel);
-		Assert.False(info.ADScoring);
+		Assert.False(info.HasIntelCaptures);
+		Assert.False(info.HasAdscoring);
 		Assert.Equal("TF2SA Pug: RED vs fwian", info.Title);
 		Assert.Equal(1656197193, info.Date);
 

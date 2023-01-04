@@ -1,22 +1,28 @@
+using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
+using System.Data;
+using TF2SA.Data.Errors;
+using Microsoft.EntityFrameworkCore;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
 public class PlayersRepository : IPlayersRepository<Player, ulong>
 {
-	private readonly TF2SADbContext tF2SADbContext;
+	private readonly TF2SADbContext dbContext;
 
-	public PlayersRepository(TF2SADbContext tF2SADbContext)
+	public PlayersRepository(TF2SADbContext dbContext)
 	{
-		this.tF2SADbContext = tF2SADbContext;
+		this.dbContext = dbContext;
 	}
 
-	public Player Delete(Player entity)
+	public Task<EitherStrict<Error, Player>> Delete(
+		Player entity,
+		CancellationToken cancellationToken
+	)
 	{
-		tF2SADbContext.Players.Remove(entity);
-		tF2SADbContext.SaveChanges();
-		return entity;
+		throw new NotImplementedException();
 	}
 
 	public List<Player> GetAll()
@@ -26,13 +32,15 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 
 	public IQueryable<Player> GetAllQueryable()
 	{
-		return tF2SADbContext.Players.AsQueryable();
+		return dbContext.Players.AsQueryable();
 	}
 
-	public Player? GetById(ulong id)
+	public Task<EitherStrict<Error, Player?>> GetById(
+		ulong id,
+		CancellationToken cancellationToken
+	)
 	{
-		var result = tF2SADbContext.Players.Find(id);
-		return result;
+		throw new NotImplementedException();
 	}
 
 	public List<Player> GetPlayerByName(string name)
@@ -43,17 +51,51 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return Result;
 	}
 
-	public Player Insert(Player entity)
+	public Task<EitherStrict<Error, Player>> Insert(
+		Player entity,
+		CancellationToken cancellationToken
+	)
 	{
-		tF2SADbContext.Players.Add(entity);
-		tF2SADbContext.SaveChanges();
-		return entity;
+		throw new NotImplementedException();
 	}
 
-	public Player Update(Player entity)
+	// TODO generify InsertPlayersIfNotExists as DbSet extension method
+	// this can be added as an extension method on the DbSet
+	// milestone: StatsETL
+	public async Task<OptionStrict<Error>> InsertPlayersIfNotExists(
+		IEnumerable<Player> players,
+		CancellationToken cancellationToken
+	)
 	{
-		tF2SADbContext.Players.Update(entity);
-		tF2SADbContext.SaveChanges();
-		return entity;
+		try
+		{
+			IEnumerable<ulong> keys = players.Select(p => p.SteamId);
+			List<ulong> existingEntites = await dbContext.Players
+				.Select(p => p.SteamId)
+				.Where(id => keys.Contains(id))
+				.ToListAsync(cancellationToken: cancellationToken);
+
+			IEnumerable<ulong> idsToAdd = keys.Except(existingEntites);
+			IEnumerable<Player> playersToAdd = players.Where(
+				p => idsToAdd.Contains(p.SteamId)
+			);
+
+			await dbContext.AddRangeAsync(playersToAdd, cancellationToken);
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError(e.Message);
+		}
+
+		return OptionStrict<Error>.Nothing;
+	}
+
+	public Task<EitherStrict<Error, Player>> Update(
+		Player entity,
+		CancellationToken cancellationToken
+	)
+	{
+		throw new NotImplementedException();
 	}
 }

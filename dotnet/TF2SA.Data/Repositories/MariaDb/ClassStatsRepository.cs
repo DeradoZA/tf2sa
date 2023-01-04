@@ -1,3 +1,5 @@
+using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 
@@ -12,7 +14,10 @@ public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
 		this.tF2SADbContext = tF2SADbContext;
 	}
 
-	public ClassStat Delete(ClassStat entity)
+	public Task<EitherStrict<Error, ClassStat>> Delete(
+		ClassStat entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
@@ -27,17 +32,26 @@ public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
 		return tF2SADbContext.ClassStats.AsQueryable();
 	}
 
-	public ClassStat? GetById(uint id)
+	public Task<EitherStrict<Error, ClassStat?>> GetById(
+		uint id,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public ClassStat Insert(ClassStat entity)
+	public Task<EitherStrict<Error, ClassStat>> Insert(
+		ClassStat entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public ClassStat Update(ClassStat entity)
+	public Task<EitherStrict<Error, ClassStat>> Update(
+		ClassStat entity,
+		CancellationToken cancellationToken
+	)
 	{
 		throw new NotImplementedException();
 	}

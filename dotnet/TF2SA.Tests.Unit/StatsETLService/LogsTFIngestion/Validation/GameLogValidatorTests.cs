@@ -21,8 +21,8 @@ public class GameLogValidatorTests
 		List<string> expectedErrors =
 			new()
 			{
-				"'Length' must not be empty.",
-				"'Players' must not be empty."
+				"'Duration' must not be empty.",
+				"'Player Stats' must not be empty."
 			};
 
 		ValidationResult result = validator.Validate(gamelog);
@@ -77,13 +77,24 @@ public class GameLogValidatorTests
 	private GameLog CreateValidGameLog(int playerCount) =>
 		fixture
 			.Build<GameLog>()
-			.With(x => x.Length, 1000U)
+			.With(x => x.Duration, 1000U)
 			.With(
-				x => x.Players,
+				x => x.PlayerStats,
 				fixture
 					.Build<PlayerStats>()
+					.With(p => p.Team, "Red")
+					.With(p => p.TeamId, 0)
 					.With(p => p.Heals, 0)
 					.With(p => p.Damage, 5000)
+					.With(
+						p => p.ClassStats,
+						fixture
+							.Build<ClassStats>()
+							.With(cs => cs.ClassId, (byte)1)
+							.With(cs => cs.Type, "Scout")
+							.CreateMany()
+							.ToList()
+					)
 					.CreateMany(playerCount)
 					.ToList()
 			)

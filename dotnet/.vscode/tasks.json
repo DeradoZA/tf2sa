@@ -20,6 +20,42 @@
                 "kind": "test",
                 "isDefault": true
             }
-        }
+		},
+		{
+			"label": "build",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/TF2SA.StatsETLService/TF2SA.StatsETLService.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "publish",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"publish",
+				"${workspaceFolder}/TF2SA.StatsETLService/TF2SA.StatsETLService.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "watch",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"watch",
+				"run",
+				"--project",
+				"${workspaceFolder}/TF2SA.StatsETLService/TF2SA.StatsETLService.csproj"
+			],
+			"problemMatcher": "$msCompile"
+		}
     ]
 }

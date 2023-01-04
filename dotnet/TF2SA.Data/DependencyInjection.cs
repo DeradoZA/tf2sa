@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
 using TF2SA.Data.Services.Base;
@@ -27,8 +28,9 @@ public static class DependencyInjection
 					// The following three options help with debugging, but should
 					// be changed or removed for production.
 					.LogTo(Console.WriteLine, LogLevel.Information)
-					.EnableSensitiveDataLogging()
-					.EnableDetailedErrors()
+					//.EnableSensitiveDataLogging()
+					.EnableDetailedErrors(),
+			contextLifetime: ServiceLifetime.Transient
 		);
 
 		services.AddScoped<
@@ -45,5 +47,7 @@ public static class DependencyInjection
 		>();
 		services.AddScoped<IGamesRepository<Game, uint>, GamesRepository>();
 		services.AddScoped<IStatsService<ulong>, StatsService>();
+
+		services.AddAutoMapper(typeof(GameMappingProfile));
 	}
 }
