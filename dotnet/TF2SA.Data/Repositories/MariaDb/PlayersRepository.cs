@@ -59,6 +59,9 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		throw new NotImplementedException();
 	}
 
+	// TODO generify InsertPlayersIfNotExists as DbSet extension method
+	// this can be added as an extension method on the DbSet
+	// milestone: StatsETL
 	public async Task<OptionStrict<Error>> InsertPlayersIfNotExists(
 		IEnumerable<Player> players,
 		CancellationToken cancellationToken

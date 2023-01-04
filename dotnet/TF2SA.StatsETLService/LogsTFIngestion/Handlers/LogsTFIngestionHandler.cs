@@ -125,8 +125,10 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		List<Game> processedLogs = new();
 		try
 		{
-			// repository methods should use monads - so we can handle db exceptions cleaner.
-			// therefore here we need try catch to handle failure
+			// TODO repository methods should use monads and propagate cancellation tokens
+			// this will enhance error handling and we won't have to try catch everywhere
+			// propagate cancellation tokens so we can handle cancellation properly
+			// milestone: StatsETL
 			processedLogs = gamesRepository.GetAll();
 			logger.LogInformation(
 				"Processed logs: {count}",
