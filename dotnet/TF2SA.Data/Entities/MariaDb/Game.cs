@@ -19,7 +19,7 @@ public partial class Game
 	public bool? HasRealDamage { get; set; }
 	public bool HasWeaponDamage { get; set; }
 	public bool HasAccuracy { get; set; }
-	public bool HasHp { get; set; }
+	public bool? HasHp { get; set; }
 	public bool? HasHpreal { get; set; }
 	public bool HasHeadshots { get; set; }
 	public bool HasHeadshotsHit { get; set; }
