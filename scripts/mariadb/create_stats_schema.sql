@@ -15,7 +15,17 @@ Polls,
 Images,
 Comments,
 Threads,
-Users;
+Users,
+OverallStatsAllTime,
+OverallStatsRecent,
+ScoutAllTime,
+ScoutRecent,
+SoldierAllTime,
+SoldierRecent,
+DemomanAllTime,
+DemomanRecent,
+MedicAllTime,
+MedicRecent;
 
 SET
 	FOREIGN_KEY_CHECKS = 1;
@@ -119,4 +129,200 @@ CREATE TABLE
 		Hits MEDIUMINT UNSIGNED NOT NULL,
 		PRIMARY KEY (WeaponStatsID),
 		CONSTRAINT `fk_class_stats` FOREIGN KEY (ClassStatsID) REFERENCES ClassStats (ClassStatsID) ON DELETE CASCADE ON UPDATE RESTRICT
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS OverallStatsAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		AverageAirshots FLOAT,
+		AverageHeadshots FLOAT
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS OverallStatsRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED NOT NULL,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		AverageAirshots FLOAT,
+		AverageHeadshots FLOAT
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS ScoutAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		TopKills SMALLINT UNSIGNED,
+		TopKillsGameID INT UNSIGNED,
+		TopDamage SMALLINT UNSIGNED,
+		TopDamageGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS ScoutRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		TopKills SMALLINT UNSIGNED,
+		TopKillsGameID INT UNSIGNED,
+		TopDamage SMALLINT UNSIGNED,
+		TopDamageGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS SoldierAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAirshots FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		TopKills SMALLINT UNSIGNED,
+		TopKillsGameID INT UNSIGNED,
+		TopDamage SMALLINT UNSIGNED,
+		TopDamageGameID INT UNSIGNED,
+		TopAirshots SMALLINT UNSIGNED,
+		TopAirshotsGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS SoldierRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAirshots FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		TopKills SMALLINT UNSIGNED,
+		TopKillsGameID INT UNSIGNED,
+		TopDamage SMALLINT UNSIGNED,
+		TopDamageGameID INT UNSIGNED,
+		TopAirshots SMALLINT UNSIGNED,
+		TopAirshotsGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS DemomanAllTime (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAirshots FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		TopKills SMALLINT UNSIGNED,
+		TopKillsGameID INT UNSIGNED,
+		TopDamage SMALLINT UNSIGNED,
+		TopDamageGameID INT UNSIGNED,
+		TopAirshots SMALLINT UNSIGNED,
+		TopAirshotsGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS DemomanRecent (
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageDPM FLOAT,
+		AverageKills FLOAT,
+		AverageAirshots FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		TopKills SMALLINT UNSIGNED,
+		TopKillsGameID INT UNSIGNED,
+		TopDamage SMALLINT UNSIGNED,
+		TopDamageGameID INT UNSIGNED,
+		TopAirshots SMALLINT UNSIGNED,
+		TopAirshotsGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)	
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS MedicAllTime(
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageKills FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		AverageUbers FLOAT,
+		AverageDrops FLOAT,
+		AverageHPM FLOAT,
+		TopHeals SMALLINT UNSIGNED,
+		TopHealsGameID INT UNSIGNED,
+		TopUbers SMALLINT UNSIGNED, 
+		TopUbersGameID INT UNSIGNED,
+		TopDrops SMALLINT UNISGNED,
+		TopDropsGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)
+	) ENGINE = InnoDB;
+
+CREATE TABLE
+	IF NOT EXISTS MedicRecent(
+		SteamID BIGINT UNSIGNED NOT NULL,
+		PlayerName VARCHAR(255) CHARACTER,
+		NumberOfGames SMALLINT UNSIGNED,
+		AverageKills FLOAT,
+		AverageAssists FLOAT,
+		AverageDeaths FLOAT,
+		AverageUbers FLOAT,
+		AverageDrops FLOAT,
+		AverageHPM FLOAT,
+		TopHeals SMALLINT UNSIGNED,
+		TopHealsGameID INT UNSIGNED,
+		TopUbers SMALLINT UNSIGNED, 
+		TopUbersGameID INT UNSIGNED,
+		TopDrops SMALLINT UNISGNED,
+		TopDropsGameID INT UNSIGNED
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			PRIMARY KEY (SteamID)
 	) ENGINE = InnoDB;
