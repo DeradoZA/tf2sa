@@ -25,8 +25,7 @@ SoldierRecent,
 DemomanAllTime,
 DemomanRecent,
 MedicAllTime,
-MedicRecent,
-PlayerHighlights;
+MedicRecent;
 
 SET
 	FOREIGN_KEY_CHECKS = 1;
