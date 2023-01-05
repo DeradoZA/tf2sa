@@ -31,9 +31,7 @@ public class GameLogValidator : AbstractValidator<GameLog>
 				(log, playersStat) =>
 				{
 					bool? exists = log?.Names?.Exists(
-						n =>
-							n?.SteamId?.ConvertToUInt64()
-							== playersStat?.Player?.SteamId?.ConvertToUInt64()
+						n => n?.SteamId == playersStat?.Player?.SteamId
 					);
 					if (exists is null)
 					{

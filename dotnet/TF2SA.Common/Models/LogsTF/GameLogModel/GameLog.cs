@@ -53,28 +53,17 @@ public class GameLog : IJsonOnDeserialized
 			})
 			.ToList();
 
-		Names = NamesDict
-			?.Select(nd =>
-			{
-				SteamID steamid = new();
-				steamid.SetFromSteam3String(nd.Key);
-				Player player =
-					new() { SteamId = steamid, PlayerName = nd.Value };
-				return player;
-			})
-			.ToList();
+		Names = NamesDict?.Select(nd => new Player(nd.Key, nd.Value)).ToList();
 
 		PlayerStats = PlayersDict
 			?.Select(pd =>
 			{
 				PlayerStats playerStats = pd.Value;
+				SteamID dictPlayerStatsId = Player.MakeSteamIdFromString(
+					pd.Key
+				);
 				playerStats.Player = Names?.SingleOrDefault(
-					n =>
-						string.Equals(
-							pd.Key,
-							n?.SteamId?.ToString(),
-							StringComparison.InvariantCultureIgnoreCase
-						)
+					n => dictPlayerStatsId == n?.SteamId
 				);
 				return playerStats;
 			})
