@@ -11,7 +11,7 @@ public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 
 	public PlayerStatsValidator()
 	{
-		RuleFor(p => p.ClassStats).NotNull().NotEmpty();
+		RuleFor(p => p.ClassStats).NotNull();
 
 		RuleFor(p => p.Team)
 			.NotNull()
