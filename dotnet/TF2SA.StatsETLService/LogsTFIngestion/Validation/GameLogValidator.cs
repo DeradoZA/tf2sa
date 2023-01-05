@@ -26,7 +26,25 @@ public class GameLogValidator : AbstractValidator<GameLog>
 					+ $"Must contain {MIN_PLAYERS}-{MAX_PLAYERS} players."
 			);
 		RuleForEach(g => g.PlayerStats)
-			.SetValidator(new PlayerStatsValidator());
+			.SetValidator(new PlayerStatsValidator())
+			.Must(
+				(log, playersStat) =>
+				{
+					bool? exists = log?.Names?.Exists(
+						n =>
+							n?.SteamId?.ConvertToUInt64()
+							== playersStat?.Player?.SteamId?.ConvertToUInt64()
+					);
+					if (exists is null)
+					{
+						return false;
+					}
+					return (bool)exists;
+				}
+			)
+			.WithMessage(
+				"No corresponding PlayerStats steamId matching Names list"
+			);
 		RuleFor(g => g.Info)
 			.NotNull()
 			.NotEmpty()
