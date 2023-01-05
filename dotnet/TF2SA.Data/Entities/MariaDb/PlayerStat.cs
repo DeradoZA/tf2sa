@@ -11,8 +11,8 @@ public partial class PlayerStat
 	public uint GameId { get; set; }
 	public ulong SteamId { get; set; }
 	public byte TeamId { get; set; }
-	public uint DamageTaken { get; set; }
-	public uint HealsReceived { get; set; }
+	public uint? DamageTaken { get; set; }
+	public uint? HealsReceived { get; set; }
 	public uint LongestKillStreak { get; set; }
 	public byte? Airshots { get; set; }
 	public byte? Ubers { get; set; }
