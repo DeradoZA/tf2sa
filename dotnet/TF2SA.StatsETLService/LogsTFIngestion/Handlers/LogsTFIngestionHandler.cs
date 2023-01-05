@@ -106,6 +106,9 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				)
 		);
 
+		// TODO update player names
+		// milestone: 7
+
 		return OptionStrict<Error>.Nothing;
 	}
 
