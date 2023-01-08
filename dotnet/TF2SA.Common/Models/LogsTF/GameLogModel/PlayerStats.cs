@@ -72,7 +72,9 @@ public class PlayerStats : IJsonOnDeserialized
 	public void OnDeserialized()
 	{
 		ClassStats?.RemoveAll(
-			cs => !Enum.TryParse(cs.Type, true, out ClassId classId)
+			cs =>
+				!Enum.TryParse(cs.Type, true, out ClassId classId)
+				|| cs.Playtime == 0
 		);
 		if (Enum.TryParse(Team, true, out TeamId teamId))
 		{

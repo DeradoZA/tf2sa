@@ -6,6 +6,7 @@ using FluentValidation.Results;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.StatsETLService.LogsTFIngestion.Validation;
 using Xunit;
+using AutoFixture.Dsl;
 
 namespace TF2SA.Tests.Unit.StatsETLService.Validation;
 
@@ -74,14 +75,24 @@ public class GameLogValidatorTests
 		Assert.True(result.IsValid);
 	}
 
-	private GameLog CreateValidGameLog(int playerCount) =>
-		fixture
+	private GameLog CreateValidGameLog(int playerCount)
+	{
+		IPostprocessComposer<Player> player = fixture
+			.Build<Player>()
+			.With(
+				p => p.SteamId,
+				Player.MakeSteamIdFromString("STEAM_0:0:60019086")
+			);
+
+		GameLog gameLog = fixture
 			.Build<GameLog>()
 			.With(x => x.Duration, 1000U)
+			.With(x => x.Names, player.CreateMany(playerCount).ToList())
 			.With(
 				x => x.PlayerStats,
 				fixture
 					.Build<PlayerStats>()
+					.With(p => p.Player, player.Create())
 					.With(p => p.Team, "Red")
 					.With(p => p.TeamId, 0)
 					.With(p => p.Heals, 0)
@@ -99,4 +110,6 @@ public class GameLogValidatorTests
 					.ToList()
 			)
 			.Create();
+		return gameLog;
+	}
 }
