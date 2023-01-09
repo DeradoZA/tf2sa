@@ -42,6 +42,17 @@ public static class SerializationStubs
 			""total_time"": 1378
 		}";
 
+	public const string ClassStatsWithEmptyWeapons =
+		@"{
+			""type"": ""scout"",
+			""kills"": 9,
+			""assists"": 2,
+			""deaths"": 21,
+			""dmg"": 4052,
+			""weapon"": {},
+			""total_time"": 1378
+		}";
+
 	public const string NormalGameLogJsonResponse =
 		@"{""version"": 3,
 	""teams"": {
