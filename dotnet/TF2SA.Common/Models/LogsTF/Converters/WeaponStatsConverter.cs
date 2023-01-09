@@ -81,7 +81,6 @@ public class WeaponStatsConverter : JsonConverter<List<WeaponStats>?>
 					weapon.Hits = hits;
 				}
 				result.Add(weapon);
-				// reader.Read();
 			}
 		}
 

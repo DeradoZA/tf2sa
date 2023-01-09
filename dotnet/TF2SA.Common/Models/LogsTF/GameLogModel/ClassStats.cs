@@ -18,9 +18,6 @@ public class ClassStats : IJsonOnDeserialized
 	[JsonPropertyName("dmg")]
 	public int? Damage { get; set; }
 
-	// [JsonPropertyName("weapon")]
-	// public Dictionary<string, dynamic>? WeaponsDict { get; set; }
-
 	[JsonPropertyName("weapon")]
 	[JsonConverter(typeof(WeaponStatsConverter))]
 	public List<WeaponStats>? WeaponStats { get; set; }
@@ -34,14 +31,5 @@ public class ClassStats : IJsonOnDeserialized
 		{
 			ClassId = (byte)classId;
 		}
-
-		//WeaponStats = WeaponsDict
-		//	?.Select(wd =>
-		//	{
-		//		WeaponStats weaponStats = wd.Value;
-		//		weaponStats.WeaponName = wd.Key;
-		//		return weaponStats;
-		//	})
-		//	.ToList();
 	}
 }
