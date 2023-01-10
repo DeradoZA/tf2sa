@@ -2,6 +2,57 @@
 
 public static class SerializationStubs
 {
+	public const string ClassStatsWithObjectWeapons =
+		@"{
+			""type"": ""scout"",
+			""kills"": 9,
+			""assists"": 2,
+			""deaths"": 21,
+			""dmg"": 4052,
+			""weapon"": {
+				""scattergun"": {
+					""kills"": 9,
+					""dmg"": 3953,
+					""avg_dmg"": 25.178343949044585,
+					""shots"": 0,
+					""hits"": 145
+				},
+				""the_winger"": {
+					""kills"": 0,
+					""dmg"": 99,
+					""avg_dmg"": 24.75,
+					""shots"": 0,
+					""hits"": 0
+				}
+			},
+			""total_time"": 1378
+		}";
+
+	public const string ClassStatsWithDictIntWeapons =
+		@"{
+			""type"": ""scout"",
+			""kills"": 9,
+			""assists"": 2,
+			""deaths"": 21,
+			""dmg"": 4052,
+			""weapon"": {
+				""scattergun"": 3,
+				""the_winger"": 2
+			},
+			""total_time"": 1378
+		}";
+
+	public const string ClassStatsWithEmptyWeapons =
+		@"{
+			""type"": ""scout"",
+			""kills"": 9,
+			""assists"": 2,
+			""deaths"": 21,
+			""dmg"": 4052,
+			""weapon"": {},
+			""total_time"": 1378
+		}";
+
 	public const string NormalGameLogJsonResponse =
 		@"{""version"": 3,
 	""teams"": {

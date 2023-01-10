@@ -17,5 +17,8 @@ public class ClassStatsValidator : AbstractValidator<ClassStats>
 		RuleFor(cs => cs.Deaths).NotNull();
 		RuleFor(cs => cs.Damage).NotNull();
 		RuleFor(cs => cs.Playtime).NotNull().GreaterThan(0);
+		RuleFor(cs => cs.WeaponStats).NotNull();
+		RuleForEach(cs => cs.WeaponStats)
+			.SetValidator(new WeaponStatsValidator());
 	}
 }

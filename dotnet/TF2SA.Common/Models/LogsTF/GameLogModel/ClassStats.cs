@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using TF2SA.Common.Models.LogsTF.Constants;
+using TF2SA.Common.Models.LogsTF.Converters;
 
 namespace TF2SA.Common.Models.LogsTF.GameLogModel;
 
@@ -18,9 +19,7 @@ public class ClassStats : IJsonOnDeserialized
 	public int? Damage { get; set; }
 
 	[JsonPropertyName("weapon")]
-	public Dictionary<string, WeaponStats>? WeaponsDict { get; set; }
-
-	[JsonIgnore]
+	[JsonConverter(typeof(WeaponStatsConverter))]
 	public List<WeaponStats>? WeaponStats { get; set; }
 
 	[JsonPropertyName("total_time")]
@@ -32,13 +31,5 @@ public class ClassStats : IJsonOnDeserialized
 		{
 			ClassId = (byte)classId;
 		}
-		WeaponStats = WeaponsDict
-			?.Select(wd =>
-			{
-				WeaponStats weaponStats = wd.Value;
-				weaponStats.WeaponName = wd.Key;
-				return weaponStats;
-			})
-			.ToList();
 	}
 }

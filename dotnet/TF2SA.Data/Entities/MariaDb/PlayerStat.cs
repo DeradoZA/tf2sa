@@ -18,7 +18,7 @@ public partial class PlayerStat
 	public byte? Ubers { get; set; }
 	public byte? Drops { get; set; }
 	public uint Medkits { get; set; }
-	public uint MedkitsHp { get; set; }
+	public uint? MedkitsHp { get; set; }
 	public byte? Backstabs { get; set; }
 	public byte? Headshots { get; set; }
 	public byte? HeadshotsHit { get; set; }

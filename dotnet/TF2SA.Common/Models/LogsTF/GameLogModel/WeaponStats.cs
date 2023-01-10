@@ -14,6 +14,9 @@ public class WeaponStats
 
 	[JsonPropertyName("avg_dmg")]
 	public double? AverageDamage { get; set; }
+
+	// TODO how to handle 0 shots with nonzero hits
+	// milestone: 7
 	public int? Shots { get; set; }
 	public int? Hits { get; set; }
 }

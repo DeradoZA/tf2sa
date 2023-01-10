@@ -88,7 +88,7 @@ public partial class TF2SADbContext : DbContext
 
 			entity.Property(e => e.HasHpreal).HasColumnName("HasHPReal");
 
-			entity.Property(e => e.InvalidStatsReason).HasMaxLength(1000);
+			entity.Property(e => e.InvalidStatsReason).HasMaxLength(10000);
 
 			entity.Property(e => e.Map).HasMaxLength(255);
 
