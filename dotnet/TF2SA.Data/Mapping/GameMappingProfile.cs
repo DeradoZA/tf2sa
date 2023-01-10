@@ -3,6 +3,7 @@ using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Data.Entities.MariaDb;
 using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 using PlayerDto = TF2SA.Common.Models.LogsTF.GameLogModel.Player;
+using TF2SA.Common.Models.LogsTF.Constants;
 
 namespace TF2SA.Data.Mapping;
 
@@ -21,11 +22,12 @@ public class GameMappingProfile : Profile
 								// milestone: 7
 								.Single(
 									t =>
-										string.Equals(
-											"red",
-											t.TeamId,
-											StringComparison.InvariantCultureIgnoreCase
-										)
+										(TeamId)
+											Enum.Parse(
+												typeof(TeamId),
+												t.TeamId!,
+												true
+											) == TeamId.Red
 								)
 								.Score
 					)
@@ -38,11 +40,12 @@ public class GameMappingProfile : Profile
 							gl!.Teams!
 								.Single(
 									t =>
-										string.Equals(
-											"blue",
-											t.TeamId,
-											StringComparison.InvariantCultureIgnoreCase
-										)
+										(TeamId)
+											Enum.Parse(
+												typeof(TeamId),
+												t.TeamId!,
+												true
+											) == TeamId.Blue
 								)
 								.Score
 					)

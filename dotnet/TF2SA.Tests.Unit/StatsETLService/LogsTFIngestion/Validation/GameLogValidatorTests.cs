@@ -7,6 +7,7 @@ using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.StatsETLService.LogsTFIngestion.Validation;
 using Xunit;
 using AutoFixture.Dsl;
+using TF2SA.Common.Models.LogsTF.Constants;
 
 namespace TF2SA.Tests.Unit.StatsETLService.Validation;
 
@@ -83,10 +84,20 @@ public class GameLogValidatorTests
 				p => p.SteamId,
 				Player.MakeSteamIdFromString("STEAM_0:0:60019086")
 			);
+		TeamStats redTeam = fixture
+			.Build<TeamStats>()
+			.With(t => t.TeamId, TeamId.Red.ToString())
+			.Create();
+		TeamStats blueTeam = fixture
+			.Build<TeamStats>()
+			.With(t => t.TeamId, TeamId.Blue.ToString())
+			.Create();
+		List<TeamStats> teamStats = new() { redTeam, blueTeam };
 
 		GameLog gameLog = fixture
 			.Build<GameLog>()
 			.With(x => x.Duration, 1000U)
+			.With(x => x.Teams, teamStats)
 			.With(x => x.Names, player.CreateMany(playerCount).ToList())
 			.With(
 				x => x.PlayerStats,

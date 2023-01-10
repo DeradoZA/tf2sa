@@ -47,11 +47,8 @@ public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 	{
 		ClassStats? medicStats = p?.ClassStats?.SingleOrDefault(
 			c =>
-				string.Equals(
-					"medic",
-					c.Type,
-					StringComparison.InvariantCultureIgnoreCase
-				)
+				(ClassId)Enum.Parse(typeof(ClassId), c.Type!, true)
+				== ClassId.medic
 		);
 		if (
 			medicStats is null
