@@ -54,14 +54,10 @@ public class GameMappingProfile : Profile
 		CreateMap<PlayerDto, PlayerStat>()
 			.ForMember(
 				ps => ps.SteamId,
-				// TODO validate that there is always a steamid to fetch
-				// milestone: StatsETL
 				opt => opt.MapFrom(p => p.SteamId!.ConvertToUInt64())
 			);
 		CreateMap<PlayerStat, PlayerEntity>();
 		CreateMap<ClassStats, ClassStat>();
-		// TODO: Validate WeaponStats
-		// milestone: StatsETL
 		CreateMap<WeaponStats, WeaponStat>();
 	}
 }
