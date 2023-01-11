@@ -22,10 +22,8 @@ public class PlayerStatsValidator : AbstractValidator<PlayerStats>
 
 		RuleForEach(p => p.ClassStats).SetValidator(new ClassStatsValidator());
 
-		RuleFor(p => p.DamageTaken).NotNull();
 		RuleFor(p => p.LongestKillStreak).NotNull();
 		RuleFor(p => p.MedKits).NotNull();
-		RuleFor(p => p.MedkitsHp).NotNull();
 
 		RuleFor(p => p.Damage)
 			.NotNull()
