@@ -18,8 +18,6 @@ public class GameMappingProfile : Profile
 					opt.MapFrom(
 						gl =>
 							gl!.Teams!
-								// TODO use enum parse to fetch team
-								// milestone: 7
 								.Single(
 									t =>
 										(TeamId)
