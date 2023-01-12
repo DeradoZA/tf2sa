@@ -25,7 +25,6 @@ public class LogIngestor : ILogIngestor
 		this.logger = logger;
 		this.logsTFService = logsTFService;
 		this.repositoryUpdater = repositoryUpdater;
-		logger.LogInformation("init LogIngestor");
 	}
 
 	public async Task<bool> IngestLog(
@@ -57,7 +56,7 @@ public class LogIngestor : ILogIngestor
 		ValidationResult validationResult = validator.Validate(log);
 		if (!validationResult.IsValid)
 		{
-			ReportLogValidationFailed(
+			await ReportLogValidationFailed(
 				logListItem,
 				ingestionErrors,
 				validationResult,
@@ -106,9 +105,10 @@ public class LogIngestor : ILogIngestor
 			logListItem.Id,
 			logResult.Left.Message
 		);
+		return;
 	}
 
-	private async void ReportLogValidationFailed(
+	private async Task ReportLogValidationFailed(
 		LogListItem logListItem,
 		List<Error> ingestionErrors,
 		ValidationResult validationResult,
@@ -137,13 +137,26 @@ public class LogIngestor : ILogIngestor
 			Environment.NewLine,
 			validationResult.Errors.Select(e => e.ErrorMessage)
 		);
+
+		if (insertInvalidLogResult.HasValue)
+		{
+			logger.LogWarning(
+				"Invalid Gamelog {logId} failed write to database. "
+					+ "Validation Errors:{newline}{errors}",
+				logListItem.Id,
+				Environment.NewLine,
+				errorString
+			);
+			return;
+		}
+
 		logger.LogWarning(
-			"Failed to validate GameLog {logId} from LogsTF API. "
-				+ "Log marked as invalid written to database. "
+			"Invalid Gamelog {logId} written to database. "
 				+ "Validation Errors:{newline}{errors}",
 			logListItem.Id,
 			Environment.NewLine,
 			errorString
 		);
+		return;
 	}
 }

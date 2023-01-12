@@ -62,6 +62,10 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 	// TODO generify InsertPlayersIfNotExists as DbSet extension method
 	// this can be added as an extension method on the DbSet
 	// milestone: StatsETL
+
+	// TODO investigate occasional Duplicate entry exception
+	// MySqlConnector.MySqlException (0x80004005): Duplicate entry '76561198107170907' for key 'PRIMARY'
+	// milestone: 7
 	public async Task<OptionStrict<Error>> InsertPlayersIfNotExists(
 		IEnumerable<Player> players,
 		CancellationToken cancellationToken

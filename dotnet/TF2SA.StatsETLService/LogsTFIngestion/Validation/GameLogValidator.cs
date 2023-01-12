@@ -10,6 +10,9 @@ public class GameLogValidator : AbstractValidator<GameLog>
 	public const int MIN_PLAYERS = 10;
 	public const int MAX_PLAYERS = 16;
 
+	// TODO ensure all validation rules are tested
+	// testing can be further refined properly to make sure we cover all scenarios
+	// milestone: 7
 	public GameLogValidator()
 	{
 		RuleFor(g => g.Teams)

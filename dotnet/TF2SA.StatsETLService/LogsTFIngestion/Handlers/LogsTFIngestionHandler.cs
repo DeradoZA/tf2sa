@@ -20,21 +20,21 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private readonly ILogger<LogsTFIngestionHandler> logger;
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly ILogsTFService logsTFService;
-	private readonly ILogIngestor logIngestor;
+	private readonly IServiceProvider serviceProvider;
 
 	public LogsTFIngestionHandler(
 		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
 		ILogger<LogsTFIngestionHandler> logger,
 		ILogsTFService logsTFService,
 		IGamesRepository<Game, uint> gamesRepository,
-		ILogIngestor logIngestor
+		IServiceProvider serviceProvider
 	)
 	{
 		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
 		this.logger = logger;
 		this.logsTFService = logsTFService;
 		this.gamesRepository = gamesRepository;
-		this.logIngestor = logIngestor;
+		this.serviceProvider = serviceProvider;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -98,12 +98,20 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				CancellationToken = cancellationToken
 			},
 			async (log, token) =>
-				await logIngestor.IngestLog(
-					log,
-					logsToProcess.IndexOf(log),
-					logsToProcess.Count,
-					token
-				)
+			{
+				using (IServiceScope scope = serviceProvider.CreateScope())
+				{
+					ILogIngestor logIngestor =
+						scope.ServiceProvider.GetRequiredService<ILogIngestor>();
+
+					await logIngestor.IngestLog(
+						log,
+						logsToProcess.IndexOf(log),
+						logsToProcess.Count,
+						token
+					);
+				}
+			}
 		);
 
 		// TODO update player names
