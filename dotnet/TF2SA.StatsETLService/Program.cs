@@ -34,5 +34,5 @@ catch (Exception exception)
 }
 finally
 {
-	NLog.LogManager.Shutdown();
+	LogManager.Shutdown();
 }
