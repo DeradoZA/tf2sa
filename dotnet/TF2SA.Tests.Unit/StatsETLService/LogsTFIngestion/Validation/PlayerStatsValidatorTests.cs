@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
 using FluentValidation.Results;
+using TF2SA.Common.Models.LogsTF.Constants;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.StatsETLService.LogsTFIngestion.Validation;
 using Xunit;
@@ -41,6 +42,15 @@ public class PlayerStatsValidatorTests
 			.Build<PlayerStats>()
 			.With(p => p.Damage, 18000)
 			.With(p => p.Heals, 0)
+			.With(
+				p => p.ClassStats,
+				fixture
+					.Build<ClassStats>()
+					.With(c => c.ClassId, (byte)1)
+					.With(c => c.Type, "scout")
+					.CreateMany()
+					.ToList()
+			)
 			.Create();
 		string expectedError =
 			"'Damage' must be less than or equal to '17500'.";

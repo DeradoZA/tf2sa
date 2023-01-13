@@ -9,58 +9,59 @@ public class LogInfo : IJsonOnDeserialized
 	public string? Map { get; set; }
 
 	[JsonPropertyName("supplemental")]
-	public bool? IsSupplemental { get; set; }
+	public bool? IsSupplemental { get; set; } = false;
 
 	[JsonPropertyName("total_length")]
 	public int? TotalLength { get; set; }
 
 	[JsonPropertyName("hasRealDamage")]
-	public bool? HasRealDamage { get; set; }
+	public bool? HasRealDamage { get; set; } = false;
 
 	[JsonPropertyName("hasWeaponDamage")]
-	public bool? HasWeaponDamage { get; set; }
+	public bool? HasWeaponDamage { get; set; } = false;
 
 	[JsonPropertyName("hasAccuracy")]
-	public bool? HasAccuracy { get; set; }
+	public bool? HasAccuracy { get; set; } = false;
 
 	[JsonPropertyName("hasHP")]
-	public bool? HasHp { get; set; }
+	public bool? HasHp { get; set; } = false;
 
 	[JsonPropertyName("hasHP_real")]
-	public bool? HasHPReal { get; set; }
+	public bool? HasHPReal { get; set; } = false;
 
 	[JsonPropertyName("hasHS")]
-	public bool? HasHeadshots { get; set; }
+	public bool? HasHeadshots { get; set; } = false;
 
 	[JsonPropertyName("hasHS_hit")]
-	public bool? HasHeadshotsHit { get; set; }
+	public bool? HasHeadshotsHit { get; set; } = false;
 
 	[JsonPropertyName("hasBS")]
-	public bool? HasBackstabs { get; set; }
+	public bool? HasBackstabs { get; set; } = false;
 
 	[JsonPropertyName("hasCP")]
-	public bool? HasCapturePointsCaptured { get; set; }
+	public bool? HasCapturePointsCaptured { get; set; } = false;
 
 	[JsonPropertyName("hasSB")]
-	public bool? HasSentriesBuilt { get; set; }
+	public bool? HasSentriesBuilt { get; set; } = false;
 
 	[JsonPropertyName("hasDT")]
-	public bool? HasDamageTaken { get; set; }
+	public bool? HasDamageTaken { get; set; } = false;
 
 	[JsonPropertyName("hasAS")]
-	public bool? HasAirshots { get; set; }
+	public bool? HasAirshots { get; set; } = false;
 
 	[JsonPropertyName("hasHR")]
-	public bool? HasHealsReceived { get; set; }
+	public bool? HasHealsReceived { get; set; } = false;
 
 	[JsonPropertyName("hasIntel")]
-	public bool? HasIntelCaptures { get; set; }
+	public bool? HasIntelCaptures { get; set; } = false;
 
 	[JsonPropertyName("AD_scoring")]
-	public bool? HasAdscoring { get; set; }
+	public bool? HasAdscoring { get; set; } = false;
 
 	[JsonPropertyName("notifications")]
 	public List<string>? NotificationsArray { get; set; }
+
 	[JsonIgnore]
 	public string? Notifications { get; set; }
 
@@ -73,10 +74,11 @@ public class LogInfo : IJsonOnDeserialized
 	[JsonPropertyName("uploader")]
 	public Uploader? Uploader { get; set; }
 
-    public void OnDeserialized()
-    {
-		if (NotificationsArray is not null){
-        Notifications = string.Join(",", NotificationsArray);
+	public void OnDeserialized()
+	{
+		if (NotificationsArray is not null)
+		{
+			Notifications = string.Join(",", NotificationsArray);
 		}
-    }
+	}
 }

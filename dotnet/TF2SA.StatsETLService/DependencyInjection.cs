@@ -20,8 +20,8 @@ public static class DependencyInjection
 		);
 		services.AddDataLayer(configuration);
 		services.AddScoped<ILogsTFIngestionHandler, LogsTFIngestionHandler>();
-		services.AddTransient<ILogIngestor, LogIngestor>();
-		services.AddTransient<
+		services.AddScoped<ILogIngestor, LogIngestor>();
+		services.AddScoped<
 			ILogIngestionRepositoryUpdater,
 			LogIngestionRepositoryUpdater
 		>();
