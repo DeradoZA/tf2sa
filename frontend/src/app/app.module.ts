@@ -5,14 +5,17 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { HomeComponent } from './components/pages/home/home.component';
+import { MatButtonModule } from '@angular/material/button';
+import { StatsComponent } from './components/pages/stats/stats.component';
 
 @NgModule({
-	declarations: [AppComponent, HomeComponent],
+	declarations: [AppComponent, HomeComponent, StatsComponent],
 	imports: [
 		BrowserModule,
 		AppRoutingModule,
 		BrowserAnimationsModule,
 		MatToolbarModule,
+		MatButtonModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],
