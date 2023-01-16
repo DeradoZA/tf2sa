@@ -2,15 +2,23 @@
 	<img src="../assets/tf2sa.png" style="max-height: 100%" />
 	<span>TF2SA</span>
 	<nav>
-		<button mat-button color="accent" [routerLink]="ROUTES.HOME">
-			HOME
-		</button>
-		<button mat-button color="accent" [routerLink]="ROUTES.STATS">
-			STATS
-		</button>
-		<button mat-button color="accent" [routerLink]="ROUTES.PLAYERS">
-			PLAYERS
-		</button>
+		<ul>
+			<li>
+				<a [routerLink]="ROUTES.HOME">
+					<button mat-button color="accent">HOME</button>
+				</a>
+			</li>
+			<li>
+				<a [routerLink]="ROUTES.STATS">
+					<button mat-button color="accent">STATS</button>
+				</a>
+			</li>
+			<li>
+				<a [routerLink]="ROUTES.PLAYERS">
+					<button mat-button color="accent">PLAYERS</button>
+				</a>
+			</li>
+		</ul>
 	</nav>
 </mat-toolbar>
 
