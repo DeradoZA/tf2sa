@@ -7,9 +7,15 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { HomeComponent } from './components/pages/home/home.component';
 import { MatButtonModule } from '@angular/material/button';
 import { StatsComponent } from './components/pages/stats/stats.component';
+import { PlayersComponent } from './components/pages/players/players.component';
 
 @NgModule({
-	declarations: [AppComponent, HomeComponent, StatsComponent],
+	declarations: [
+		AppComponent,
+		HomeComponent,
+		StatsComponent,
+		PlayersComponent,
+	],
 	imports: [
 		BrowserModule,
 		AppRoutingModule,
