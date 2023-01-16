@@ -1,6 +1,40 @@
 <mat-toolbar>
 	<img src="../assets/tf2sa.png" style="max-height: 100%" />
 	<span>TF2SA</span>
+	<nav>
+		<ul>
+			<li>
+				<a
+					mat-button
+					color="accent"
+					[routerLink]="ROUTES.HOME"
+					routerLinkActive="active"
+				>
+					HOME
+				</a>
+			</li>
+			<li>
+				<a
+					mat-button
+					color="accent"
+					[routerLink]="ROUTES.STATS"
+					routerLinkActive="active"
+				>
+					STATS
+				</a>
+			</li>
+			<li>
+				<a
+					mat-button
+					color="accent"
+					[routerLink]="ROUTES.PLAYERS"
+					routerLinkActive="active"
+				>
+					PLAYERS
+				</a>
+			</li>
+		</ul>
+	</nav>
 </mat-toolbar>
 
 <router-outlet> </router-outlet>
