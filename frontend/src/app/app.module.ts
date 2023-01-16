@@ -16,7 +16,7 @@ import { PlayerComponent } from './components/pages/player/player.component';
 		HomeComponent,
 		StatsComponent,
 		PlayersComponent,
-  PlayerComponent,
+		PlayerComponent,
 	],
 	imports: [
 		BrowserModule,
