@@ -4,18 +4,33 @@
 	<nav>
 		<ul>
 			<li>
-				<a [routerLink]="ROUTES.HOME">
-					<button mat-button color="accent">HOME</button>
+				<a
+					mat-button
+					color="accent"
+					[routerLink]="ROUTES.HOME"
+					routerLinkActive="active"
+				>
+					HOME
 				</a>
 			</li>
 			<li>
-				<a [routerLink]="ROUTES.STATS">
-					<button mat-button color="accent">STATS</button>
+				<a
+					mat-button
+					color="accent"
+					[routerLink]="ROUTES.STATS"
+					routerLinkActive="active"
+				>
+					STATS
 				</a>
 			</li>
 			<li>
-				<a [routerLink]="ROUTES.PLAYERS">
-					<button mat-button color="accent">PLAYERS</button>
+				<a
+					mat-button
+					color="accent"
+					[routerLink]="ROUTES.PLAYERS"
+					routerLinkActive="active"
+				>
+					PLAYERS
 				</a>
 			</li>
 		</ul>
