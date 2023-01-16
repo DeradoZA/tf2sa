@@ -5,7 +5,7 @@ import { PlayersComponent } from '../players/players.component';
 @Component({
 	selector: 'app-player',
 	templateUrl: './player.component.html',
-	styleUrls: ['./player.component.css'],
+	styleUrls: ['./player.component.scss'],
 })
 export class PlayerComponent implements OnInit {
 	public static readonly PATH: string = `${PlayersComponent.PATH}/:playerId`;
