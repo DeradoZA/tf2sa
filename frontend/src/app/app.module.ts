@@ -8,6 +8,7 @@ import { HomeComponent } from './components/pages/home/home.component';
 import { MatButtonModule } from '@angular/material/button';
 import { StatsComponent } from './components/pages/stats/stats.component';
 import { PlayersComponent } from './components/pages/players/players.component';
+import { PlayerComponent } from './components/pages/player/player.component';
 
 @NgModule({
 	declarations: [
@@ -15,6 +16,7 @@ import { PlayersComponent } from './components/pages/players/players.component';
 		HomeComponent,
 		StatsComponent,
 		PlayersComponent,
+  PlayerComponent,
 	],
 	imports: [
 		BrowserModule,
