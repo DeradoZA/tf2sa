@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { StatsComponent } from './components/pages/stats/stats.component';
 import { PlayersComponent } from './components/pages/players/players.component';
 import { PlayerComponent } from './components/pages/player/player.component';
+import { PlayerTableComponent } from './components/organisms/player-table/player-table.component';
 
 @NgModule({
 	declarations: [
@@ -17,6 +18,7 @@ import { PlayerComponent } from './components/pages/player/player.component';
 		StatsComponent,
 		PlayersComponent,
 		PlayerComponent,
+  PlayerTableComponent,
 	],
 	imports: [
 		BrowserModule,
