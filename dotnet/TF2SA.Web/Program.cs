@@ -1,13 +1,13 @@
-using TF2SA.Data;
 using TF2SA.StatsETLService;
 using Microsoft.AspNetCore.HttpOverrides;
+using TF2SA.Query;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddDataLayer(builder.Configuration);
 builder.Services.AddStatsETLService(builder.Configuration);
+builder.Services.AddQueries(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
