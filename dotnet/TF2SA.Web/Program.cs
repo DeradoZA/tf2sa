@@ -5,6 +5,7 @@ using TF2SA.Query;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors();
 builder.Services.AddControllers();
 builder.Services.AddStatsETLService(builder.Configuration);
 builder.Services.AddQueries(builder.Configuration);
@@ -34,6 +35,14 @@ app.UseSwaggerUI();
 //app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseCors(
+	options =>
+		options
+			.WithOrigins("http://localhost:4200", "https://localhost:4200")
+			.AllowAnyMethod()
+			.AllowAnyHeader()
+);
 
 app.UseAuthorization();
 
