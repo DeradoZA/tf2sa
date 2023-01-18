@@ -6,23 +6,21 @@ namespace TF2SA.Web.Controllers.v1.Home;
 
 [ApiController]
 [Route("[controller]")]
-public class HomeController : ControllerBase
+public class PlayersController : ControllerBase
 {
 	private readonly IMediator mediator;
-	private readonly ILogger<HomeController> logger;
+	private readonly ILogger<PlayersController> logger;
 
-	public HomeController(ILogger<HomeController> logger, IMediator mediator)
+	public PlayersController(
+		ILogger<PlayersController> logger,
+		IMediator mediator
+	)
 	{
 		this.logger = logger;
 		this.mediator = mediator;
 	}
 
-	public IActionResult Index()
-	{
-		return Ok("OK");
-	}
-
-	[HttpGet("players")]
+	[HttpGet]
 	public async Task<IActionResult> GetPlayers()
 	{
 		var result = await mediator.Send(new GetPlayersQuery());
