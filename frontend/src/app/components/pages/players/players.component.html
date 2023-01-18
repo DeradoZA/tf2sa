@@ -1,1 +1,6 @@
 <h1>Players!</h1>
+
+<div *ngFor="let player of players">
+	<h6>{{ player.playerName }}</h6>
+	<p>{{ player.steamId }}</p>
+</div>
