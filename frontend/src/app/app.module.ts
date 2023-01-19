@@ -10,6 +10,7 @@ import { StatsComponent } from './components/pages/stats/stats.component';
 import { PlayersComponent } from './components/pages/players/players.component';
 import { PlayerComponent } from './components/pages/player/player.component';
 import { PlayerTableComponent } from './components/organisms/player-table/player-table.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
 	declarations: [
@@ -18,7 +19,7 @@ import { PlayerTableComponent } from './components/organisms/player-table/player
 		StatsComponent,
 		PlayersComponent,
 		PlayerComponent,
-  PlayerTableComponent,
+		PlayerTableComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -26,6 +27,7 @@ import { PlayerTableComponent } from './components/organisms/player-table/player
 		BrowserAnimationsModule,
 		MatToolbarModule,
 		MatButtonModule,
+		HttpClientModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

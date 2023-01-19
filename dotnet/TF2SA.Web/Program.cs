@@ -1,13 +1,16 @@
-using TF2SA.Data;
 using TF2SA.StatsETLService;
 using Microsoft.AspNetCore.HttpOverrides;
+using TF2SA.Query;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddDataLayer(builder.Configuration);
+builder.Services.AddCors();
+builder.Services.AddControllers();
 builder.Services.AddStatsETLService(builder.Configuration);
+builder.Services.AddQueries(builder.Configuration);
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -23,21 +26,26 @@ app.UseForwardedHeaders(
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Home/Error");
 	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }
+app.UseSwagger();
+app.UseSwaggerUI();
 
 //app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors(
+	options =>
+		options
+			.WithOrigins("http://localhost:4200", "https://localhost:4200")
+			.AllowAnyMethod()
+			.AllowAnyHeader()
+);
+
 app.UseAuthorization();
 
-app.MapControllerRoute(
-	name: "default",
-	pattern: "{controller=Home}/{action=Index}/{id?}"
-);
+app.MapControllers();
 
 app.Run();

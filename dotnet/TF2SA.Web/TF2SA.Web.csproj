@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <ProjectReference Include="..\TF2SA.Data\TF2SA.Data.csproj" />
     <ProjectReference Include="..\TF2SA.StatsETLService\TF2SA.StatsETLService.csproj" />
     <ProjectReference Include="..\TF2SA.Http\TF2SA.Http.csproj" />
+    <ProjectReference Include="..\TF2SA.Query\TF2SA.Query.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <PropertyGroup>
