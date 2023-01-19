@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
@@ -33,8 +34,8 @@ public class GetPlayersQueryHandler
 
 		try
 		{
-			players = playersRepository
-				.GetAll()
+			players = await playersRepository
+				.GetAllQueryable()
 				.Select(
 					p =>
 						new Player
@@ -43,7 +44,7 @@ public class GetPlayersQueryHandler
 							SteamId = p.SteamId
 						}
 				)
-				.ToList();
+				.ToListAsync();
 		}
 		catch (Exception e)
 		{
