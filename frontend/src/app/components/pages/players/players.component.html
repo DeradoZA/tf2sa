@@ -1,5 +1,19 @@
 <h1>Players!</h1>
 
+<div *ngIf="errorMessage !== undefined">
+	<mat-card class="mat-card-warn">
+		<mat-card-header>
+			<mat-card-title>
+				<mat-icon color="warn">error</mat-icon>
+				Error
+			</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			{{ errorMessage }}
+		</mat-card-content>
+	</mat-card>
+</div>
+
 <div *ngFor="let player of players">
 	<h6>{{ player.playerName }}</h6>
 	<p>{{ player.steamId }}</p>

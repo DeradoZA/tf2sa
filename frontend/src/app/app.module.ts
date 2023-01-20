@@ -11,6 +11,8 @@ import { PlayersComponent } from './components/pages/players/players.component';
 import { PlayerComponent } from './components/pages/player/player.component';
 import { PlayerTableComponent } from './components/organisms/player-table/player-table.component';
 import { HttpClientModule } from '@angular/common/http';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
 	declarations: [
@@ -27,7 +29,9 @@ import { HttpClientModule } from '@angular/common/http';
 		BrowserAnimationsModule,
 		MatToolbarModule,
 		MatButtonModule,
+		MatCardModule,
 		HttpClientModule,
+		MatIconModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],
