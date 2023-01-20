@@ -13,6 +13,7 @@ import { PlayerTableComponent } from './components/organisms/player-table/player
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
 	declarations: [
@@ -32,6 +33,7 @@ import { MatIconModule } from '@angular/material/icon';
 		MatCardModule,
 		HttpClientModule,
 		MatIconModule,
+		MatProgressSpinnerModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

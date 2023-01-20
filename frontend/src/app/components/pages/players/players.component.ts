@@ -12,6 +12,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
 	public static readonly PATH: string = 'players';
 
 	constructor(private playersService: PlayersService) {}
+	isLoaded: boolean = false;
 	subscription: Subscription | undefined;
 	players: Player[] | undefined;
 	// TOOO split out error banner into separate component and apply correct themeing
@@ -20,12 +21,16 @@ export class PlayersComponent implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.subscription = this.playersService.getPlayers().subscribe({
-			next: (players) => (this.players = players),
-			error: (error) => (this.errorMessage = error),
-			complete: () => console.log('complete'),
+			next: (players) => {
+				this.players = players;
+				this.isLoaded = true;
+			},
+			error: (error) => {
+				this.errorMessage = error;
+				this.isLoaded = true;
+			},
 		});
 	}
-
 	ngOnDestroy(): void {
 		this.subscription?.unsubscribe();
 	}
