@@ -15,8 +15,6 @@ export class PlayersComponent implements OnInit, OnDestroy {
 	isLoaded: boolean = false;
 	subscription: Subscription | undefined;
 	players: Player[] | undefined;
-	// TOOO split out error banner into separate component and apply correct themeing
-	// milestone: 5
 	errorMessage: string | undefined;
 
 	ngOnInit(): void {

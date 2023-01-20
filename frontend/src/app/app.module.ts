@@ -14,6 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ErrorBannerComponent } from './components/molecules/error-banner/error-banner.component';
 
 @NgModule({
 	declarations: [
@@ -23,6 +24,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 		PlayersComponent,
 		PlayerComponent,
 		PlayerTableComponent,
+		ErrorBannerComponent,
 	],
 	imports: [
 		BrowserModule,

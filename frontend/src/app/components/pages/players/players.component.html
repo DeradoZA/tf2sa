@@ -1,17 +1,7 @@
 <h1>Players!</h1>
 
 <mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
-
-<div *ngIf="errorMessage !== undefined">
-	<mat-card class="mat-card-warn">
-		<mat-card-header>
-			<mat-card-title class="mat-card-warn"> Error </mat-card-title>
-		</mat-card-header>
-		<mat-card-content>
-			{{ errorMessage }}
-		</mat-card-content>
-	</mat-card>
-</div>
+<app-error-banner *ngIf="errorMessage != null" [errorMessage]="errorMessage" />
 
 <div *ngFor="let player of players">
 	<h6>{{ player.playerName }}</h6>
