@@ -4,7 +4,7 @@ import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Player } from 'src/app/models/player';
 
-const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/players';
+const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/players5';
 
 @Injectable({
 	providedIn: 'root',
@@ -19,9 +19,6 @@ export class PlayersService {
 	}
 
 	private handleError(error: HttpErrorResponse) {
-		return throwError(
-			() =>
-				new Error(`Error occured fetching players: ${error.statusText}`)
-		);
+		return throwError(() => new Error(error.statusText));
 	}
 }

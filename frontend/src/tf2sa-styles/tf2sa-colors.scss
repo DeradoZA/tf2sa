@@ -1,0 +1,11 @@
+@use "@angular/material" as mat;
+@include mat.core();
+
+//palettes
+$theme-accent: mat.define-palette(mat.$green-palette);
+$theme-primary: mat.define-palette(mat.$purple-palette);
+$theme-warn: mat.define-palette(mat.$red-palette);
+
+//card-errors
+$tf2sa-error-background-color: mat.get-color-from-palette($theme-warn, default);
+$tf2sa-error-color: mat.get-color-from-palette($theme-warn, default-contrast);
