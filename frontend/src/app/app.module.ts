@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ErrorBannerComponent } from './components/molecules/error-banner/error-banner.component';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
 	declarations: [
@@ -36,6 +37,7 @@ import { ErrorBannerComponent } from './components/molecules/error-banner/error-
 		HttpClientModule,
 		MatIconModule,
 		MatProgressSpinnerModule,
+		MatTableModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

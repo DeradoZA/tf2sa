@@ -3,7 +3,6 @@
 <mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
 <app-error-banner *ngIf="errorMessage != null" [errorMessage]="errorMessage" />
 
-<div *ngFor="let player of players">
-	<h6>{{ player.playerName }}</h6>
-	<p>{{ player.steamId }}</p>
+<div *ngIf="players !== undefined">
+	<app-player-table [players]="players" />
 </div>

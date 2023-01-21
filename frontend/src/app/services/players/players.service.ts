@@ -4,7 +4,7 @@ import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Player } from 'src/app/models/player';
 
-const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/players5';
+const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/players';
 
 @Injectable({
 	providedIn: 'root',
