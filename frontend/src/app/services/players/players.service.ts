@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Player } from 'src/app/models/player';
+import { GetPlayersResult } from './getPlayersResult';
 
-const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/players';
+const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/Players';
 
 @Injectable({
 	providedIn: 'root',
@@ -14,7 +14,7 @@ export class PlayersService {
 
 	getPlayers() {
 		return this.httpClient
-			.get<Player[]>(PLAYERS_BASE_URL)
+			.get<GetPlayersResult>(PLAYERS_BASE_URL)
 			.pipe(catchError(this.handleError));
 	}
 

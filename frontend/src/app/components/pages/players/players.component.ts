@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Player } from 'src/app/models/player';
+import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
 import { PlayersService } from 'src/app/services/players/players.service';
 
 @Component({
@@ -14,13 +15,14 @@ export class PlayersComponent implements OnInit, OnDestroy {
 	constructor(private playersService: PlayersService) {}
 	isLoaded: boolean = false;
 	subscription: Subscription | undefined;
-	players: Player[] | undefined;
+	playersResult: GetPlayersResult | undefined;
 	errorMessage: string | undefined;
 
 	ngOnInit(): void {
 		this.subscription = this.playersService.getPlayers().subscribe({
 			next: (players) => {
-				this.players = players;
+				console.log(players);
+				this.playersResult = players;
 				this.isLoaded = true;
 			},
 			error: (error) => {

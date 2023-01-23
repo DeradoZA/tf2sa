@@ -10,7 +10,7 @@
 		[errorMessage]="errorMessage"
 	/>
 
-	<div *ngIf="players !== undefined">
-		<app-player-table [players]="players" />
+	<div *ngIf="playersResult !== undefined">
+		<app-player-table [players]="playersResult.players" />
 	</div>
 </div>
