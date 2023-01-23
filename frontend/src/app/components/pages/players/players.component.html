@@ -1,6 +1,16 @@
-<h1>Players!</h1>
+<div class="players-content">
+	<div class="players-header">
+		<img src="../assets/community.png" />
+		<h1>Players</h1>
+	</div>
 
-<div *ngFor="let player of players">
-	<h6>{{ player.playerName }}</h6>
-	<p>{{ player.steamId }}</p>
+	<mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
+	<app-error-banner
+		*ngIf="errorMessage != null"
+		[errorMessage]="errorMessage"
+	/>
+
+	<div *ngIf="players !== undefined">
+		<app-player-table [players]="players" />
+	</div>
 </div>
