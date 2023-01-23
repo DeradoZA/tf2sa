@@ -18,6 +18,7 @@ import { ErrorBannerComponent } from './components/molecules/error-banner/error-
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
 	declarations: [
@@ -42,6 +43,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 		MatTableModule,
 		MatSidenavModule,
 		MatSortModule,
+		MatPaginatorModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

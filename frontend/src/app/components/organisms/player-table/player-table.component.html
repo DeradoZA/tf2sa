@@ -1,12 +1,15 @@
 <mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
 <app-error-banner *ngIf="errorMessage != null" [errorMessage]="errorMessage" />
 
-<div *ngIf="playersResult !== undefined" class="table-container">
+<div class="table-container">
 	<table
 		mat-table
 		[dataSource]="playersResult.players"
 		class="mat-elevation-z8 player-table"
 		matSort
+		matSortActive="name"
+		matSortDisableClear
+		matSortDirection="desc"
 	>
 		<ng-container matColumnDef="name">
 			<th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
@@ -22,3 +25,8 @@
 		<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 	</table>
 </div>
+
+<mat-paginator
+	[length]="playersResult?.totalResults"
+	pageSize="13"
+></mat-paginator>
