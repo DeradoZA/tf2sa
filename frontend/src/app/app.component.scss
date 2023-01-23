@@ -2,6 +2,14 @@ nav li {
 	display: inline;
 }
 
+mat-toolbar img {
+	max-height: 100%;
+}
+
+.header-title {
+	margin-left: 8px;
+}
+
 .app-content {
 	height: 100%;
 }
