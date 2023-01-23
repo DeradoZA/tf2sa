@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ErrorBannerComponent } from './components/molecules/error-banner/error-banner.component';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { MatSidenavModule } from '@angular/material/sidenav';
 
 @NgModule({
@@ -40,6 +41,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 		MatProgressSpinnerModule,
 		MatTableModule,
 		MatSidenavModule,
+		MatSortModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

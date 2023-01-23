@@ -1,1 +1,41 @@
-<h1>stats works!</h1>
+<mat-drawer-container class="stats-container">
+	<mat-drawer mode="side" opened>
+		<nav>
+			<ul>
+				<li>
+					<a mat-button> Overall </a>
+				</li>
+				<li>
+					<a mat-button> Scout </a>
+				</li>
+				<li>
+					<a mat-button> Soldier </a>
+				</li>
+				<li>
+					<a mat-button> Demoman </a>
+				</li>
+				<li>
+					<a mat-button> Medic </a>
+				</li>
+			</ul>
+		</nav>
+	</mat-drawer>
+	<mat-drawer-content>
+		<div class="stats-content">
+			<div class="stats-header">
+				<img src="../assets/transparent-trophy.png" />
+				<h1>Overall</h1>
+			</div>
+
+			<mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
+			<app-error-banner
+				*ngIf="errorMessage != null"
+				[errorMessage]="errorMessage"
+			/>
+
+			<div>
+				<p>Overall Stats coming soon!</p>
+			</div>
+		</div>
+	</mat-drawer-content>
+</mat-drawer-container>

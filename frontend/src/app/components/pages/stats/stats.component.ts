@@ -7,4 +7,6 @@ import { Component } from '@angular/core';
 })
 export class StatsComponent {
 	public static readonly PATH: string = 'stats';
+	readonly isLoaded: boolean = true;
+	readonly errorMessage: string = 'Not available yet';
 }
