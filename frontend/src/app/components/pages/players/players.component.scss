@@ -1,3 +1,17 @@
-.example-container {
-	height: 100%;
+.players-content {
+	margin: 16px;
+}
+
+.players-header {
+	display: grid;
+	grid-template-columns: min-content auto;
+	margin: 8px;
+}
+
+.players-header > img {
+	max-height: 60px;
+}
+
+.players-header > h1 {
+	margin: 8px;
 }

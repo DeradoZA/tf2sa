@@ -1,36 +1,16 @@
-<mat-drawer-container class="example-container">
-	<mat-drawer mode="side" opened>
-		<nav>
-			<ul>
-				<li>
-					<a mat-button> Overall </a>
-				</li>
-				<li>
-					<a mat-button> Scout </a>
-				</li>
-				<li>
-					<a mat-button> Soldier </a>
-				</li>
-				<li>
-					<a mat-button> Demoman </a>
-				</li>
-				<li>
-					<a mat-button> Medic </a>
-				</li>
-			</ul>
-		</nav>
-	</mat-drawer>
-	<mat-drawer-content>
+<div class="players-content">
+	<div class="players-header">
+		<img src="../assets/community.png" />
 		<h1>Players</h1>
+	</div>
 
-		<mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
-		<app-error-banner
-			*ngIf="errorMessage != null"
-			[errorMessage]="errorMessage"
-		/>
+	<mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
+	<app-error-banner
+		*ngIf="errorMessage != null"
+		[errorMessage]="errorMessage"
+	/>
 
-		<div *ngIf="players !== undefined">
-			<app-player-table [players]="players" />
-		</div>
-	</mat-drawer-content>
-</mat-drawer-container>
+	<div *ngIf="players !== undefined">
+		<app-player-table [players]="players" />
+	</div>
+</div>
