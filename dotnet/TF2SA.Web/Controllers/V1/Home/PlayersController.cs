@@ -22,7 +22,7 @@ public class PlayersController : ControllerBase
 
 	[HttpGet]
 	public async Task<ActionResult<GetPlayersResult>> GetPlayers(
-		[FromQuery] int count = 20,
+		[FromQuery] int count = 13,
 		[FromQuery] int offset = 0
 	)
 	{
