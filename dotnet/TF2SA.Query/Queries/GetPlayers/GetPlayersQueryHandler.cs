@@ -11,7 +11,7 @@ using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 namespace TF2SA.Query.Queries.GetPlayers;
 
 public class GetPlayersQueryHandler
-	: IRequestHandler<GetPlayersQuery, EitherStrict<Error, List<Player>>>
+	: IRequestHandler<GetPlayersQuery, EitherStrict<Error, GetPlayersResult>>
 {
 	private readonly ILogger<GetPlayersQueryHandler> logger;
 	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
@@ -25,17 +25,20 @@ public class GetPlayersQueryHandler
 		this.playersRepository = playersRepository;
 	}
 
-	public async Task<EitherStrict<Error, List<Player>>> Handle(
+	public async Task<EitherStrict<Error, GetPlayersResult>> Handle(
 		GetPlayersQuery request,
 		CancellationToken cancellationToken
 	)
 	{
-		List<Player> players = new();
+		IEnumerable<Player> players;
 
 		try
 		{
 			players = await playersRepository
 				.GetAllQueryable()
+				.OrderBy(p => p.PlayerName)
+				.Skip(request.Offset)
+				.Take(request.Count)
 				.Select(
 					p =>
 						new Player
@@ -51,6 +54,14 @@ public class GetPlayersQueryHandler
 			return new DatabaseError(e.Message);
 		}
 
-		return players;
+		return new GetPlayersResult
+		{
+			// TotalResults =
+			Players = players,
+			Offset = request.Offset,
+			Count = players.Count(),
+			SortBy = request.SortBy,
+			FilterString = request.FilterString
+		};
 	}
 }

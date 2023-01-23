@@ -1,12 +1,32 @@
 using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
-using TF2SA.Common.Models.Core;
 
 namespace TF2SA.Query.Queries.GetPlayers;
 
-public class GetPlayersQuery : IRequest<EitherStrict<Error, List<Player>>>
+public class GetPlayersQuery : IRequest<EitherStrict<Error, GetPlayersResult>>
 {
-	// currently empty, but would put query params etc
-	// anything necessary to execute the query
+	public int Count { get; set; } = 20;
+	public int Offset { get; set; } = 0;
+	public string? SortBy { get; set; } = string.Empty;
+	public string? FilterString { get; set; } = string.Empty;
+
+	public GetPlayersQuery() { }
+
+	public GetPlayersQuery(int count, int offset)
+	{
+		Count = count;
+		Offset = offset;
+	}
+
+	public GetPlayersQuery(
+		int count,
+		int offset,
+		string? sortBy,
+		string? filterString
+	) : this(count, offset)
+	{
+		SortBy = sortBy;
+		FilterString = filterString;
+	}
 }

@@ -21,13 +21,16 @@ public class PlayersController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetPlayers()
+	public async Task<ActionResult<GetPlayersResult>> GetPlayers(
+		[FromQuery] int count = 20,
+		[FromQuery] int offset = 0
+	)
 	{
-		var result = await mediator.Send(new GetPlayersQuery());
+		var result = await mediator.Send(new GetPlayersQuery(count, offset));
 
 		if (result.IsLeft)
 		{
-			return NotFound();
+			return BadRequest(result.Left.Message);
 		}
 
 		return Ok(result.Right);
