@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Monad;
+using TF2SA.Common.Errors;
 using TF2SA.Query.Queries.GetPlayers;
 
 namespace TF2SA.Web.Controllers.v1.Home;
@@ -23,10 +26,18 @@ public class PlayersController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<GetPlayersResult>> GetPlayers(
 		[FromQuery] int count = 13,
-		[FromQuery] int offset = 0
+		[FromQuery] int offset = 0,
+		[FromQuery] string? sort = "playerName",
+		[FromQuery] string? sortOrder = "asc",
+		[FromQuery] string? filterString = ""
 	)
 	{
-		var result = await mediator.Send(new GetPlayersQuery(count, offset));
+		logger.LogInformation("GET");
+		EitherStrict<Error, GetPlayersResult> result = await mediator.Send(
+			new GetPlayersQuery(count, offset, sort!, sortOrder!, filterString!)
+		);
+
+		await Task.Delay(1 * 1000);
 
 		if (result.IsLeft)
 		{

@@ -8,8 +8,9 @@ public class GetPlayersQuery : IRequest<EitherStrict<Error, GetPlayersResult>>
 {
 	public int Count { get; set; } = 20;
 	public int Offset { get; set; } = 0;
-	public string? SortBy { get; set; } = string.Empty;
-	public string? FilterString { get; set; } = string.Empty;
+	public string Sort { get; set; } = string.Empty;
+	public string SortOrder { get; set; } = string.Empty;
+	public string FilterString { get; set; } = string.Empty;
 
 	public GetPlayersQuery() { }
 
@@ -22,11 +23,13 @@ public class GetPlayersQuery : IRequest<EitherStrict<Error, GetPlayersResult>>
 	public GetPlayersQuery(
 		int count,
 		int offset,
-		string? sortBy,
-		string? filterString
+		string sortBy,
+		string sortOrder,
+		string filterString
 	) : this(count, offset)
 	{
-		SortBy = sortBy;
+		Sort = sortBy;
+		SortOrder = sortOrder;
 		FilterString = filterString;
 	}
 }

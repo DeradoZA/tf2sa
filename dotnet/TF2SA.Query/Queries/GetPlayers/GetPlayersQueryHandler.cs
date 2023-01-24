@@ -37,12 +37,18 @@ public class GetPlayersQueryHandler
 		{
 			playerCount = await playersRepository
 				.GetAllQueryable()
-				.OrderBy(p => p.PlayerName)
-				.CountAsync();
+				.ApplyFilter(request.FilterString, out string _)
+				.CountAsync(cancellationToken: cancellationToken);
 
 			players = await playersRepository
 				.GetAllQueryable()
-				.OrderBy(p => p.PlayerName)
+				.ApplyFilter(request.FilterString, out string filterStringUsed)
+				.ApplySort(
+					request.Sort,
+					request.SortOrder,
+					out string sortUsed,
+					out string sortOrderUsed
+				)
 				.Skip(request.Offset)
 				.Take(request.Count)
 				.Select(
@@ -53,21 +59,22 @@ public class GetPlayersQueryHandler
 							SteamId = p.SteamId
 						}
 				)
-				.ToListAsync();
+				.ToListAsync(cancellationToken: cancellationToken);
+
+			return new GetPlayersResult
+			{
+				TotalResults = playerCount,
+				Players = players,
+				Offset = request.Offset,
+				Count = players.Count(),
+				Sort = sortUsed,
+				SortOrder = sortOrderUsed,
+				FilterString = filterStringUsed
+			};
 		}
 		catch (Exception e)
 		{
 			return new DatabaseError(e.Message);
 		}
-
-		return new GetPlayersResult
-		{
-			TotalResults = playerCount,
-			Players = players,
-			Offset = request.Offset,
-			Count = players.Count(),
-			SortBy = "PlayerNameDESC",
-			FilterString = request.FilterString
-		};
 	}
 }
