@@ -1,9 +1,12 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { map, merge, startWith, switchMap } from 'rxjs';
+import { finalize, map, merge, startWith, switchMap } from 'rxjs';
 import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
-import { PlayersService } from 'src/app/services/players/players.service';
+import {
+	DEFAULT_PAGE_SIZE,
+	PlayersService,
+} from 'src/app/services/players/players.service';
 
 @Component({
 	selector: 'app-player-table',
@@ -16,7 +19,7 @@ export class PlayerTableComponent implements AfterViewInit {
 	isLoaded: boolean = false;
 	playersResult: GetPlayersResult = {
 		totalResults: 0,
-		count: 0,
+		count: DEFAULT_PAGE_SIZE,
 		offset: 0,
 		players: [],
 		sortBy: '',
@@ -37,15 +40,24 @@ export class PlayerTableComponent implements AfterViewInit {
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
-					return this.playersService.getPlayers();
+					return this.playersService.getPlayers(
+						DEFAULT_PAGE_SIZE,
+						this.paginator.pageIndex * this.paginator.pageSize
+					);
 				}),
 				map((data) => {
-					this.isLoaded = true;
 					return data;
 				})
 			)
-			.subscribe((data) => {
-				this.playersResult = data;
+			.subscribe({
+				next: (result) => {
+					this.playersResult = result;
+					this.isLoaded = true;
+				},
+				error: (error) => {
+					this.errorMessage = error;
+					this.isLoaded = true;
+				},
 			});
 	}
 }

@@ -27,6 +27,6 @@
 </div>
 
 <mat-paginator
-	[length]="playersResult?.totalResults"
-	pageSize="13"
+	[length]="playersResult.totalResults"
+	[pageSize]="playersResult.count"
 ></mat-paginator>
