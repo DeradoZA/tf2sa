@@ -31,9 +31,15 @@ public class GetPlayersQueryHandler
 	)
 	{
 		IEnumerable<Player> players;
+		int playerCount;
 
 		try
 		{
+			playerCount = await playersRepository
+				.GetAllQueryable()
+				.OrderBy(p => p.PlayerName)
+				.CountAsync();
+
 			players = await playersRepository
 				.GetAllQueryable()
 				.OrderBy(p => p.PlayerName)
@@ -56,11 +62,11 @@ public class GetPlayersQueryHandler
 
 		return new GetPlayersResult
 		{
-			// TotalResults =
+			TotalResults = playerCount,
 			Players = players,
 			Offset = request.Offset,
 			Count = players.Count(),
-			SortBy = request.SortBy,
+			SortBy = "PlayerNameDESC",
 			FilterString = request.FilterString
 		};
 	}
