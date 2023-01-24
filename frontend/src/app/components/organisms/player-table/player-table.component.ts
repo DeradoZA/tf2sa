@@ -2,7 +2,16 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatInput } from '@angular/material/input';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { finalize, map, merge, startWith, switchMap } from 'rxjs';
+import {
+	debounceTime,
+	distinctUntilChanged,
+	finalize,
+	map,
+	merge,
+	startWith,
+	Subject,
+	switchMap,
+} from 'rxjs';
 import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
 import {
 	DEFAULT_PAGE_SIZE,
@@ -16,6 +25,7 @@ import {
 })
 export class PlayerTableComponent implements AfterViewInit {
 	readonly displayedColumns: string[] = ['playerName', 'steamId'];
+	readonly pageSize = DEFAULT_PAGE_SIZE;
 	constructor(private playersService: PlayersService) {}
 	isLoaded: boolean = false;
 	playersResult: GetPlayersResult = {
@@ -33,6 +43,8 @@ export class PlayerTableComponent implements AfterViewInit {
 	paginator!: MatPaginator;
 	@ViewChild(MatSort)
 	sort!: MatSort;
+	public filterString: string | undefined;
+	filterStringUpdate = new Subject<string>();
 
 	ngAfterViewInit(): void {
 		this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
@@ -42,14 +54,42 @@ export class PlayerTableComponent implements AfterViewInit {
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
-					console.log(this.sort.active);
-					console.log(this.sort.direction);
 					return this.playersService.getPlayers(
 						this.paginator.pageSize,
 						this.paginator.pageIndex * this.paginator.pageSize,
 						this.sort.active,
 						this.sort.direction,
-						''
+						this.filterString ?? ''
+					);
+				}),
+				map((data) => {
+					return data;
+				})
+			)
+			.subscribe({
+				next: (result) => {
+					this.playersResult = result;
+					this.isLoaded = true;
+				},
+				error: (error) => {
+					this.errorMessage = error;
+					this.isLoaded = true;
+				},
+			});
+
+		this.filterStringUpdate
+			.pipe(
+				debounceTime(500),
+				distinctUntilChanged(),
+				switchMap(() => {
+					this.paginator.pageIndex = 0;
+					this.isLoaded = false;
+					return this.playersService.getPlayers(
+						this.paginator.pageSize,
+						this.paginator.pageIndex * this.paginator.pageSize,
+						this.sort.active,
+						this.sort.direction,
+						this.filterString ?? ''
 					);
 				}),
 				map((data) => {

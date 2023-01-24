@@ -20,6 +20,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
 	declarations: [
@@ -46,6 +47,7 @@ import { MatInputModule } from '@angular/material/input';
 		MatSortModule,
 		MatPaginatorModule,
 		MatInputModule,
+		FormsModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

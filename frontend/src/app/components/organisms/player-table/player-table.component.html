@@ -3,7 +3,15 @@
 
 <mat-form-field>
 	<mat-label>Filter</mat-label>
-	<input matInput placeholder="Ex. Mia" #inputRef />
+	<input
+		matInput
+		[(ngModel)]="filterString"
+		name="filterString"
+		id="filterString"
+		id="filterString"
+		(ngModelChange)="this.filterStringUpdate.next($event)"
+		#input
+	/>
 </mat-form-field>
 
 <div class="table-container">
@@ -33,5 +41,5 @@
 
 <mat-paginator
 	[length]="playersResult.totalResults"
-	[pageSize]="playersResult.count"
+	[pageSize]="pageSize"
 ></mat-paginator>
