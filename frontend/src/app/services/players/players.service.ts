@@ -17,10 +17,17 @@ export const DEFAULT_PAGE_SIZE = 13;
 export class PlayersService {
 	constructor(private httpClient: HttpClient) {}
 
-	getPlayers(count = DEFAULT_PAGE_SIZE, offset = 0) {
+	getPlayers(
+		count = DEFAULT_PAGE_SIZE,
+		offset = 0,
+		sort = 'name',
+		order = 'desc'
+	) {
 		let params = new HttpParams();
 		params = params.append('count', count.toString());
 		params = params.append('offset', offset.toString());
+		params = params.append('sort', offset.toString());
+		params = params.append('order', offset.toString());
 
 		return this.httpClient
 			.get<GetPlayersResult>(PLAYERS_BASE_URL, { params: params })

@@ -40,9 +40,12 @@ export class PlayerTableComponent implements AfterViewInit {
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
+					console.log(this.sort.active);
 					return this.playersService.getPlayers(
-						DEFAULT_PAGE_SIZE,
-						this.paginator.pageIndex * this.paginator.pageSize
+						this.paginator.pageSize,
+						this.paginator.pageIndex * this.paginator.pageSize,
+						this.sort.active,
+						this.sort.direction
 					);
 				}),
 				map((data) => {
