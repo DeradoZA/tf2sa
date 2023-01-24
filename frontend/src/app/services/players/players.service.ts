@@ -26,8 +26,8 @@ export class PlayersService {
 		let params = new HttpParams();
 		params = params.append('count', count.toString());
 		params = params.append('offset', offset.toString());
-		params = params.append('sort', offset.toString());
-		params = params.append('order', offset.toString());
+		params = params.append('sort', sort);
+		params = params.append('order', order);
 
 		return this.httpClient
 			.get<GetPlayersResult>(PLAYERS_BASE_URL, { params: params })
