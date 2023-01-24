@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatInput } from '@angular/material/input';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { finalize, map, merge, startWith, switchMap } from 'rxjs';
@@ -14,16 +15,17 @@ import {
 	styleUrls: ['./player-table.component.scss'],
 })
 export class PlayerTableComponent implements AfterViewInit {
-	readonly displayedColumns: string[] = ['name', 'steamId'];
+	readonly displayedColumns: string[] = ['playerName', 'steamId'];
 	constructor(private playersService: PlayersService) {}
 	isLoaded: boolean = false;
 	playersResult: GetPlayersResult = {
 		totalResults: 0,
 		count: DEFAULT_PAGE_SIZE,
 		offset: 0,
-		players: [],
-		sortBy: '',
+		sort: '',
+		sortorder: '',
 		filterString: '',
+		players: [],
 	};
 	errorMessage: string | undefined;
 
@@ -41,11 +43,13 @@ export class PlayerTableComponent implements AfterViewInit {
 				switchMap(() => {
 					this.isLoaded = false;
 					console.log(this.sort.active);
+					console.log(this.sort.direction);
 					return this.playersService.getPlayers(
 						this.paginator.pageSize,
 						this.paginator.pageIndex * this.paginator.pageSize,
 						this.sort.active,
-						this.sort.direction
+						this.sort.direction,
+						''
 					);
 				}),
 				map((data) => {

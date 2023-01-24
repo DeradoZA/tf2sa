@@ -20,14 +20,16 @@ export class PlayersService {
 	getPlayers(
 		count = DEFAULT_PAGE_SIZE,
 		offset = 0,
-		sort = 'name',
-		order = 'desc'
+		sort = 'playerName',
+		sortorder = 'asc',
+		filterString: string
 	) {
 		let params = new HttpParams();
 		params = params.append('count', count.toString());
 		params = params.append('offset', offset.toString());
 		params = params.append('sort', sort);
-		params = params.append('order', order);
+		params = params.append('sortorder', sortorder);
+		params = params.append('filterString', filterString);
 
 		return this.httpClient
 			.get<GetPlayersResult>(PLAYERS_BASE_URL, { params: params })

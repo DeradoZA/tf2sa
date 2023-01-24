@@ -19,6 +19,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
 	declarations: [
@@ -44,6 +45,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 		MatSidenavModule,
 		MatSortModule,
 		MatPaginatorModule,
+		MatInputModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

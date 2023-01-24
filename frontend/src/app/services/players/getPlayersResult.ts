@@ -4,7 +4,8 @@ export interface GetPlayersResult {
 	totalResults: number;
 	count: number;
 	offset: number;
-	players: Player[];
-	sortBy: string;
+	sort: string;
+	sortorder: string;
 	filterString: string;
+	players: Player[];
 }
