@@ -1,7 +1,9 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
 	debounceTime,
 	distinctUntilChanged,
@@ -24,9 +26,24 @@ import {
 	styleUrls: ['./player-table.component.scss'],
 })
 export class PlayerTableComponent implements AfterViewInit {
-	readonly displayedColumns: string[] = ['playerName', 'steamId'];
+	readonly displayedColumns: string[] = [
+		'playerName',
+		'steamId',
+		'steamProfile',
+	];
 	readonly pageSize = DEFAULT_PAGE_SIZE;
-	constructor(private playersService: PlayersService) {}
+	constructor(
+		private playersService: PlayersService,
+		private iconRegistry: MatIconRegistry,
+		private sanitizer: DomSanitizer
+	) {
+		this.iconRegistry.addSvgIcon(
+			'steam-icon',
+			this.sanitizer.bypassSecurityTrustResourceUrl(
+				'assets/svg-icons/icons8-steam-circled.svg'
+			)
+		);
+	}
 	isLoaded: boolean = false;
 	playersResult: GetPlayersResult = {
 		totalResults: 0,

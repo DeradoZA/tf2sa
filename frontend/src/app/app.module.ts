@@ -13,7 +13,7 @@ import { PlayerTableComponent } from './components/organisms/player-table/player
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ErrorBannerComponent } from './components/molecules/error-banner/error-banner.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
@@ -41,7 +41,7 @@ import { FormsModule } from '@angular/forms';
 		MatCardModule,
 		HttpClientModule,
 		MatIconModule,
-		MatProgressSpinnerModule,
+		MatProgressBarModule,
 		MatTableModule,
 		MatSidenavModule,
 		MatSortModule,
