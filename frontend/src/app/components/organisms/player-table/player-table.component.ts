@@ -1,13 +1,11 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
 	debounceTime,
 	distinctUntilChanged,
-	finalize,
 	map,
 	merge,
 	startWith,
@@ -41,6 +39,12 @@ export class PlayerTableComponent implements AfterViewInit {
 			'steam-icon',
 			this.sanitizer.bypassSecurityTrustResourceUrl(
 				'assets/svg-icons/icons8-steam-circled.svg'
+			)
+		);
+		this.iconRegistry.addSvgIcon(
+			'refresh-icon',
+			this.sanitizer.bypassSecurityTrustResourceUrl(
+				'assets/svg-icons/icons8-restart.svg'
 			)
 		);
 	}
