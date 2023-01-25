@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Monad;
 using TF2SA.Common.Errors;
@@ -32,7 +31,6 @@ public class PlayersController : ControllerBase
 		[FromQuery] string? filterString = ""
 	)
 	{
-		logger.LogInformation("GET");
 		EitherStrict<Error, GetPlayersResult> result = await mediator.Send(
 			new GetPlayersQuery(count, offset, sort!, sortOrder!, filterString!)
 		);
