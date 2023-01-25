@@ -22,8 +22,8 @@ Data extraction from the logs.tf API is done through a python script which input
 
 # Dad Jokes
 
-- When does a joke become a dad joke?  
-  When it becomes apparent.
+- You guys wanna know where I keep my dad jokes?  
+  In a DAD-A-BASE.
 
 - Which bear is the most condescending?  
   A PAN-DUH.
