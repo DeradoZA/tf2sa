@@ -1,7 +1,13 @@
+@import "tf2sa-colors";
+
 .player-table {
 	width: 100%;
-	border-radius: 8px;
+	//border-radius: 8px;
 	overflow: hidden !important;
+}
+
+.table-container {
+	background-color: $tf2sa-background;
 }
 
 .mat-mdc-row .mat-mdc-cell {

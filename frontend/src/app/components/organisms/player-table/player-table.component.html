@@ -1,20 +1,18 @@
 <mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
 <app-error-banner *ngIf="errorMessage != null" [errorMessage]="errorMessage" />
 
-<mat-form-field>
-	<mat-label>Filter</mat-label>
-	<input
-		matInput
-		[(ngModel)]="filterString"
-		name="filterString"
-		id="filterString"
-		id="filterString"
-		(ngModelChange)="this.filterStringUpdate.next($event)"
-		#input
-	/>
-</mat-form-field>
-
 <div class="table-container">
+	<mat-form-field>
+		<mat-label>Search</mat-label>
+		<input
+			matInput
+			[(ngModel)]="filterString"
+			name="filterString"
+			id="filterString"
+			(ngModelChange)="this.filterStringUpdate.next($event)"
+			#input
+		/>
+	</mat-form-field>
 	<table
 		mat-table
 		[dataSource]="playersResult.players"
