@@ -8,10 +8,11 @@ $theme-warn: mat.define-palette(mat.$red-palette);
 
 $theme-grey: mat.define-palette(mat.$grey-palette);
 
-//$theme-background: mat.define-palette(mat.$dark-theme-background-palette);
-
 //background
 $tf2sa-background: mat.get-color-from-palette($theme-grey, 800);
+
+//table:
+$tf2sa-table-header: mat.get-color-from-palette($theme-grey, 700);
 
 //card-errors
 $tf2sa-error-background-color: mat.get-color-from-palette($theme-warn, default);

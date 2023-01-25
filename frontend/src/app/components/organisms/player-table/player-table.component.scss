@@ -23,6 +23,10 @@
 	cursor: pointer;
 }
 
+.mat-mdc-header-row {
+	background-color: $tf2sa-table-header;
+}
+
 .mat-mdc-row:hover .mat-mdc-cell {
 	border-color: currentColor;
 }
