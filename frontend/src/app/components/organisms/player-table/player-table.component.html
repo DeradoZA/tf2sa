@@ -1,22 +1,26 @@
 <mat-spinner *ngIf="!isLoaded" color="accent"></mat-spinner>
 <app-error-banner *ngIf="errorMessage != null" [errorMessage]="errorMessage" />
 
-<div class="table-container">
-	<mat-form-field>
-		<mat-label>Search</mat-label>
-		<input
-			matInput
-			[(ngModel)]="filterString"
-			name="filterString"
-			id="filterString"
-			(ngModelChange)="this.filterStringUpdate.next($event)"
-			#input
-		/>
-	</mat-form-field>
+<div class="table-container mat-elevation-z8">
+	<div class="table-search">
+		<button mat-button (click)="this.refresh()">Refresh</button>
+		<mat-form-field>
+			<mat-label>Search</mat-label>
+			<input
+				matInput
+				[(ngModel)]="filterString"
+				placeholder="Name/SteamID64"
+				name="filterString"
+				id="filterString"
+				(ngModelChange)="this.filterStringUpdate.next($event)"
+				#input
+			/>
+		</mat-form-field>
+	</div>
 	<table
 		mat-table
 		[dataSource]="playersResult.players"
-		class="mat-elevation-z8 player-table"
+		class="player-table"
 		matSort
 		matSortActive="name"
 		matSortDisableClear
@@ -35,9 +39,8 @@
 		<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 		<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 	</table>
+	<mat-paginator
+		[length]="playersResult.totalResults"
+		[pageSize]="pageSize"
+	></mat-paginator>
 </div>
-
-<mat-paginator
-	[length]="playersResult.totalResults"
-	[pageSize]="pageSize"
-></mat-paginator>

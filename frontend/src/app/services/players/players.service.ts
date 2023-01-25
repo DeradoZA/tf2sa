@@ -9,7 +9,7 @@ import { catchError } from 'rxjs/operators';
 import { GetPlayersResult } from './getPlayersResult';
 
 const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/Players';
-export const DEFAULT_PAGE_SIZE = 13;
+export const DEFAULT_PAGE_SIZE = 10;
 
 @Injectable({
 	providedIn: 'root',

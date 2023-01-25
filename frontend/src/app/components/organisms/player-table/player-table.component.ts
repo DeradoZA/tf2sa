@@ -107,4 +107,27 @@ export class PlayerTableComponent implements AfterViewInit {
 				},
 			});
 	}
+
+	refresh() {
+		console.log('refresh');
+		this.isLoaded = false;
+		this.playersService
+			.getPlayers(
+				this.paginator.pageSize,
+				this.paginator.pageIndex * this.paginator.pageSize,
+				this.sort.active,
+				this.sort.direction,
+				this.filterString ?? ''
+			)
+			.subscribe({
+				next: (result) => {
+					this.playersResult = result;
+					this.isLoaded = true;
+				},
+				error: (error) => {
+					this.errorMessage = error;
+					this.isLoaded = true;
+				},
+			});
+	}
 }

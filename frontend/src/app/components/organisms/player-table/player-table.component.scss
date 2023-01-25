@@ -2,12 +2,20 @@
 
 .player-table {
 	width: 100%;
-	//border-radius: 8px;
-	overflow: hidden !important;
+}
+
+.table-search {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	max-height: 66px;
 }
 
 .table-container {
 	background-color: $tf2sa-background;
+	border-radius: 8px;
+	overflow: hidden !important;
+	height: 100%;
 }
 
 .mat-mdc-row .mat-mdc-cell {
