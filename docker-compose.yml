@@ -1,11 +1,36 @@
 version: "3.4"
 
+networks:
+  tf2sa-net:
+    driver: bridge
+
 services:
+  tf2sa-db:
+    container_name: tf2sa-db
+    build:
+      context: scripts/mariadb
+      dockerfile: Dockerfile.tf2sa-db
+    networks:
+      - tf2sa-net
+    environment:
+      - MARIADB_ROOT_HOST=${TF2SA_MYSQL_HOST}
+      - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
+      - MARIADB_USER=${TF2SA_MYSQL_DB}
+      - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
+
   tf2sa-backend:
+    depends_on:
+      - tf2sa-db
+    container_name: tf2sa-backend
     build:
       context: dotnet
       dockerfile: Dockerfile.tf2sa-backend
+    networks:
+      - tf2sa-net
+    environment:
+      - MARIADB_ROOT_HOST=${TF2SA_MYSQL_HOST}
+      - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
+      - MARIADB_USER=${TF2SA_MYSQL_DB}
+      - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
     ports:
       - "5000:80"
-    container_name: tf2sa-backend
-    restart: unless-stopped
