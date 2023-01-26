@@ -1,0 +1,10 @@
+version: "3.4"
+
+services:
+  tf2sa-backend:
+    build:
+      context: dotnet
+      dockerfile: Dockerfile.tf2sa-backend
+    ports:
+      - "5000:80"
+    container_name: tf2sa-backend
