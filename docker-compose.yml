@@ -8,3 +8,4 @@ services:
     ports:
       - "5000:80"
     container_name: tf2sa-backend
+    restart: unless-stopped
