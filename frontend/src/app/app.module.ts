@@ -13,11 +13,14 @@ import { PlayerTableComponent } from './components/organisms/player-table/player
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ErrorBannerComponent } from './components/molecules/error-banner/error-banner.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
 	declarations: [
@@ -38,10 +41,13 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 		MatCardModule,
 		HttpClientModule,
 		MatIconModule,
-		MatProgressSpinnerModule,
+		MatProgressBarModule,
 		MatTableModule,
 		MatSidenavModule,
 		MatSortModule,
+		MatPaginatorModule,
+		MatInputModule,
+		FormsModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

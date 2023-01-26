@@ -6,6 +6,14 @@ $theme-accent: mat.define-palette(mat.$green-palette);
 $theme-primary: mat.define-palette(mat.$purple-palette);
 $theme-warn: mat.define-palette(mat.$red-palette);
 
+$theme-grey: mat.define-palette(mat.$grey-palette);
+
+//background
+$tf2sa-background: mat.get-color-from-palette($theme-grey, 800);
+
+//table:
+$tf2sa-table-header: mat.get-color-from-palette($theme-grey, 700);
+
 //card-errors
 $tf2sa-error-background-color: mat.get-color-from-palette($theme-warn, default);
 $tf2sa-error-color: mat.get-color-from-palette($theme-warn, default-contrast);

@@ -1,13 +1,30 @@
+@import "tf2sa-colors";
+
 .player-table {
 	width: 100%;
+}
+
+.table-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.table-container {
+	background-color: $tf2sa-background;
 	border-radius: 8px;
 	overflow: hidden !important;
+	height: 100%;
 }
 
 .mat-mdc-row .mat-mdc-cell {
 	border-bottom: 1px solid transparent;
 	border-top: 1px solid transparent;
 	cursor: pointer;
+}
+
+.mat-mdc-header-row {
+	background-color: $tf2sa-table-header;
 }
 
 .mat-mdc-row:hover .mat-mdc-cell {

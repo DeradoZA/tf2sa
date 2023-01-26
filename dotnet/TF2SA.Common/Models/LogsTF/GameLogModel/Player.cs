@@ -10,6 +10,9 @@ public class Player
 		PlayerName = playerName;
 	}
 
+	// TODO steamid is set incorrectly
+	// seems the mapping to SteamID64 is incorrect.
+	// milestone: 7
 	public static SteamID MakeSteamIdFromString(string steamId)
 	{
 		SteamID id = new();
