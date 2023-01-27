@@ -35,8 +35,6 @@ public class PlayersController : ControllerBase
 			new GetPlayersQuery(count, offset, sort!, sortOrder!, filterString!)
 		);
 
-		await Task.Delay(1 * 1000);
-
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
