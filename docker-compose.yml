@@ -15,7 +15,7 @@ services:
     environment:
       - MARIADB_ROOT_HOST=${TF2SA_MYSQL_HOST}
       - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
-      - MARIADB_USER=${TF2SA_MYSQL_DB}
+      - MARIADB_USER=${TF2SA_MYSQL_USR}
       - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
 
   tf2sa-backend:
@@ -28,9 +28,9 @@ services:
     networks:
       - tf2sa-net
     environment:
-      - MARIADB_ROOT_HOST=${TF2SA_MYSQL_HOST}
-      - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
-      - MARIADB_USER=${TF2SA_MYSQL_DB}
-      - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
+      - TF2SA_MYSQL_HOST=${TF2SA_MYSQL_HOST}
+      - TF2SA_MYSQL_DB=${TF2SA_MYSQL_DB}
+      - TF2SA_MYSQL_USR=${TF2SA_MYSQL_USR}
+      - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
     ports:
       - "5000:80"
