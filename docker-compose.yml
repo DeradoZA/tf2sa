@@ -13,7 +13,6 @@ services:
     networks:
       - tf2sa-net
     environment:
-      - MARIADB_ROOT_HOST=${TF2SA_MYSQL_HOST}
       - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
       - MARIADB_USER=${TF2SA_MYSQL_USR}
       - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
@@ -28,7 +27,7 @@ services:
     networks:
       - tf2sa-net
     environment:
-      - TF2SA_MYSQL_HOST=${TF2SA_MYSQL_HOST}
+      - TF2SA_MYSQL_HOST=tf2sa-db
       - TF2SA_MYSQL_DB=${TF2SA_MYSQL_DB}
       - TF2SA_MYSQL_USR=${TF2SA_MYSQL_USR}
       - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
