@@ -7,7 +7,7 @@ using TF2SA.Query.Queries.GetPlayers;
 namespace TF2SA.Web.Controllers.v1.Home;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("v1/[controller]")]
 public class PlayersController : ControllerBase
 {
 	private readonly IMediator mediator;
