@@ -1,0 +1,45 @@
+version: "3.4"
+
+networks:
+  tf2sa-net:
+    driver: bridge
+
+services:
+  tf2sa-db:
+    container_name: tf2sa-db
+    build:
+      context: scripts/mariadb
+      dockerfile: Dockerfile.tf2sa-db
+    networks:
+      - tf2sa-net
+    environment:
+      - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
+      - MARIADB_USER=${TF2SA_MYSQL_USR}
+      - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
+
+  tf2sa-backend:
+    depends_on:
+      - tf2sa-db
+    container_name: tf2sa-backend
+    build:
+      context: dotnet
+      dockerfile: Dockerfile.tf2sa-backend
+    networks:
+      - tf2sa-net
+    environment:
+      - TF2SA_MYSQL_HOST=tf2sa-db
+      - TF2SA_MYSQL_DB=${TF2SA_MYSQL_DB}
+      - TF2SA_MYSQL_USR=${TF2SA_MYSQL_USR}
+      - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
+
+  t2sa-reverse-proxy:
+    container_name: t2sa-reverse-proxy
+    image: nginx:alpine
+    networks:
+      - tf2sa-net
+    depends_on:
+      - tf2sa-backend
+    volumes:
+      - ./scripts/iac/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"

@@ -7,7 +7,7 @@ using TF2SA.Query.Queries.GetPlayers;
 namespace TF2SA.Web.Controllers.v1.Home;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("v1/[controller]")]
 public class PlayersController : ControllerBase
 {
 	private readonly IMediator mediator;
@@ -34,8 +34,6 @@ public class PlayersController : ControllerBase
 		EitherStrict<Error, GetPlayersResult> result = await mediator.Send(
 			new GetPlayersQuery(count, offset, sort!, sortOrder!, filterString!)
 		);
-
-		await Task.Delay(1 * 1000);
 
 		if (result.IsLeft)
 		{
