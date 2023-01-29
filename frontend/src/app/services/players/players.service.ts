@@ -7,8 +7,9 @@ import {
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { GetPlayersResult } from './getPlayersResult';
+import { environment } from 'src/environments/environment';
 
-const PLAYERS_BASE_URL = 'https://localhost:5001/api/v1/Players';
+const PLAYERS_BASE_URL = `${environment.backendUrl}/Players`;
 export const DEFAULT_PAGE_SIZE = 10;
 
 @Injectable({
