@@ -1,3 +1,3 @@
 export const environment = {
-	backendUrl: 'http://tf2sa-backend:80/api/v1',
+	backendUrl: 'http://localhost:80/api/v1',
 };

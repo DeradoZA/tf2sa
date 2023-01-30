@@ -41,7 +41,16 @@ app.UseRouting();
 app.UseCors(
 	options =>
 		options
-			.WithOrigins("http://localhost:4200", "https://localhost:4200")
+			.WithOrigins(
+				"http://localhost:4200",
+				"https://localhost:4200",
+				"http://localhost",
+				"https://localhost",
+				"http://129.151.174.184",
+				"https://129.151.174.184",
+				"http://tf2sa.co.za",
+				"https://tf2sa.co.za"
+			)
 			.AllowAnyMethod()
 			.AllowAnyHeader()
 );
