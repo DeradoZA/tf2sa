@@ -1,0 +1,17 @@
+FROM node:18 AS build
+
+WORKDIR /usr/src/app
+RUN npm install -g @angular/cli
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN ls -al
+RUN npm run build
+
+FROM build as final
+WORKDIR /
+
+COPY --from=build /usr/src/app/dist/frontend ./out
+RUN ls ./out
