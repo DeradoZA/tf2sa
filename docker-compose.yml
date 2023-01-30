@@ -45,9 +45,7 @@ services:
       context: frontend
       dockerfile: Dockerfile.tf2sa-frontend
     volumes:
-      - type: volume
-        source: tf2sa-web
-        target: /usr/src/app/dist/frontend
+      - tf2sa-web:/out:rw
 
   t2sa-reverse-proxy:
     container_name: t2sa-reverse-proxy
@@ -59,8 +57,6 @@ services:
     image: nginx:latest
     volumes:
       - ./scripts/iac/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - type: volume
-        source: tf2sa-web
-        target: /usr/share/nginx/html
+      - tf2sa-web:/usr/share/nginx/html:ro
     ports:
       - "80:80"
