@@ -4,42 +4,63 @@ networks:
   tf2sa-net:
     driver: bridge
 
+volumes:
+  tf2sa-web:
+
 services:
   tf2sa-db:
     container_name: tf2sa-db
+    networks:
+      - tf2sa-net
     build:
       context: scripts/mariadb
       dockerfile: Dockerfile.tf2sa-db
-    networks:
-      - tf2sa-net
     environment:
       - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
       - MARIADB_USER=${TF2SA_MYSQL_USR}
       - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
 
   tf2sa-backend:
+    container_name: tf2sa-backend
     depends_on:
       - tf2sa-db
-    container_name: tf2sa-backend
+    networks:
+      - tf2sa-net
     build:
       context: dotnet
       dockerfile: Dockerfile.tf2sa-backend
-    networks:
-      - tf2sa-net
     environment:
       - TF2SA_MYSQL_HOST=tf2sa-db
       - TF2SA_MYSQL_DB=${TF2SA_MYSQL_DB}
       - TF2SA_MYSQL_USR=${TF2SA_MYSQL_USR}
       - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
 
-  t2sa-reverse-proxy:
-    container_name: t2sa-reverse-proxy
-    image: nginx:alpine
-    networks:
-      - tf2sa-net
+  tf2sa-frontend:
+    container_name: tf2sa-frontend
     depends_on:
       - tf2sa-backend
+    networks:
+      - tf2sa-net
+    build:
+      context: frontend
+      dockerfile: Dockerfile.tf2sa-frontend
+    volumes:
+      - type: volume
+        source: tf2sa-web
+        target: /usr/src/app/dist/frontend
+
+  t2sa-reverse-proxy:
+    container_name: t2sa-reverse-proxy
+    depends_on:
+      - tf2sa-backend
+      - tf2sa-frontend
+    networks:
+      - tf2sa-net
+    image: nginx:latest
     volumes:
       - ./scripts/iac/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - type: volume
+        source: tf2sa-web
+        target: /usr/share/nginx/html
     ports:
       - "80:80"

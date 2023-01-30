@@ -1,0 +1,11 @@
+FROM node:18
+
+WORKDIR /usr/src/app
+RUN npm install -g @angular/cli
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN ls -al
+RUN npm run build
