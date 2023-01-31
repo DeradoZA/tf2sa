@@ -9,6 +9,7 @@ volumes:
 
 services:
   tf2sa-db:
+    image: adamcoetzee/tf2sa-db
     container_name: tf2sa-db
     networks:
       - tf2sa-net
@@ -21,6 +22,7 @@ services:
       - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
 
   tf2sa-backend:
+    image: adamcoetzee/tf2sa-backend
     container_name: tf2sa-backend
     depends_on:
       - tf2sa-db
@@ -36,6 +38,7 @@ services:
       - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
 
   tf2sa-frontend:
+    image: adamcoetzee/tf2sa-frontend
     container_name: tf2sa-frontend
     depends_on:
       - tf2sa-backend
