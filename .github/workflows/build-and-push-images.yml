@@ -1,0 +1,34 @@
+name: Build and Publish
+
+on:
+  push:
+
+env:
+  DOCKER_REGISTRY: docker.io
+  IMAGE_NAME: my-image
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker images
+        run: |
+          docker-compose build
+
+      #- name: Publish Docker images
+      #  uses: docker/login-action@v1
+      #  with:
+      #    registry: ${DOCKER_REGISTRY}
+      #    username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      #    password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      #- name: Push Docker images
+      #  run: |
+      #    for image in $(docker images -q "${DOCKER_REGISTRY}/${IMAGE_NAME}"); do
+      #      docker tag $image "${DOCKER_REGISTRY}/${IMAGE_NAME}:${{ env.GITHUB_SHA }}"
+      #      docker push "${DOCKER_REGISTRY}/${IMAGE_NAME}:${{ env.GITHUB_SHA }}"
+      #    done
