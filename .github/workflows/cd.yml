@@ -1,7 +1,9 @@
-name: Build and Publish
+name: continuous integration
 
 on:
   push:
+    branches:
+      - main
 
 env:
   DOCKER_REGISTRY: docker.io
@@ -12,14 +14,37 @@ env:
   TF2SA_STEAM_API_KEY: ${{ secrets.TF2SA_STEAM_API_KEY }}
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Build Docker images
+      - name: setup .net 6 sdk
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: install dependencies
+        run: dotnet restore dotnet/
+
+      - name: build
+        run: dotnet build dotnet/ --no-restore /warnaserror
+
+      - name: run unit tests
+        run: dotnet test dotnet/TF2SA.Tests.Unit/TF2SA.Tests.Unit.csproj -p:CollectCoverage=True -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=lcov
+
+      - name: publish coverage report to coveralls.io
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: dotnet/TF2SA.Tests.Unit/TestResults/coverage.info
+
+      - name: TODO to Issue
+        uses: alstr/todo-to-issue-action@v4
+
+      - name: build docker images
         run: |
           docker-compose build
 
