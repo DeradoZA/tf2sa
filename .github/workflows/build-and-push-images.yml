@@ -5,6 +5,11 @@ on:
 
 env:
   DOCKER_REGISTRY: docker.io
+  TF2SA_MYSQL_HOST: ${{ secrets.TF2SA_MYSQL_HOST }}
+  TF2SA_MYSQL_USR: ${{ secrets.TF2SA_MYSQL_USR }}
+  TF2SA_MYSQL_PWD: ${{ secrets.TF2SA_MYSQL_PWD }}
+  TF2SA_MYSQL_DB: ${{ secrets.TF2SA_MYSQL_DB }}
+  TF2SA_STEAM_API_KEY: ${{ secrets.TF2SA_STEAM_API_KEY }}
 
 jobs:
   build-and-publish:
