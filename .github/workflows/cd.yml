@@ -64,6 +64,7 @@ jobs:
         with:
           command: |
             cd tf2sa
+            git pull origin main
             sudo docker-compose pull
             sudo docker-compose down -v
             sudo docker-compose up -d
