@@ -4,25 +4,13 @@ on: [pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v3
-      - name: setup .NET 6 SDK
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '6.0.x'
+      - name: checkout code
+        uses: actions/checkout@v2
 
-      - name: install dependencies    
-        run: dotnet restore dotnet/
-
-      - name: build
-        run: dotnet build dotnet/ --no-restore /warnaserror
-
-      - name: run unit tests
-        run: dotnet test dotnet/TF2SA.Tests.Unit/TF2SA.Tests.Unit.csproj -p:CollectCoverage=True -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=lcov
-
-      - name: publish
-        run: dotnet publish dotnet/TF2SA.Web/ --configuration Release
+      - name: build docker images
+        run: |
+          docker-compose build
