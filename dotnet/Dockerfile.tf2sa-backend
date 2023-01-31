@@ -5,6 +5,8 @@ COPY . ./
 
 # BUILD
 RUN dotnet restore
+RUN dotnet build --no-restore /warnaserror
+RUN dotnet test TF2SA.Tests.Unit
 RUN dotnet publish TF2SA.Web/TF2SA.Web.csproj -c Release -o out
 
 # BUILD RUNTIME
