@@ -3,6 +3,7 @@ name: continuous deployment
 on:
   push:
     branches:
+      - main
 
 env:
   DOCKER_REGISTRY: docker.io
@@ -20,28 +21,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      #- name: setup .net 6 sdk
-      #  uses: actions/setup-dotnet@v2
-      #  with:
-      #    dotnet-version: "6.0.x"
+      - name: setup .net 6 sdk
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "6.0.x"
 
-      #- name: install dependencies
-      #  run: dotnet restore dotnet/
+      - name: install dependencies
+        run: dotnet restore dotnet/
 
-      #- name: build
-      #  run: dotnet build dotnet/ --no-restore /warnaserror
+      - name: build
+        run: dotnet build dotnet/ --no-restore /warnaserror
 
-      #- name: run unit tests
-      #  run: dotnet test dotnet/TF2SA.Tests.Unit/TF2SA.Tests.Unit.csproj -p:CollectCoverage=True -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=lcov
+      - name: run unit tests
+        run: dotnet test dotnet/TF2SA.Tests.Unit/TF2SA.Tests.Unit.csproj -p:CollectCoverage=True -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=lcov
 
-      #- name: publish coverage report to coveralls.io
-      #  uses: coverallsapp/github-action@master
-      #  with:
-      #    github-token: ${{ secrets.GITHUB_TOKEN }}
-      #    path-to-lcov: dotnet/TF2SA.Tests.Unit/TestResults/coverage.info
+      - name: publish coverage report to coveralls.io
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: dotnet/TF2SA.Tests.Unit/TestResults/coverage.info
 
-      #- name: TODO to Issue
-      #  uses: alstr/todo-to-issue-action@v4
+      - name: TODO to Issue
+        uses: alstr/todo-to-issue-action@v4
 
       - name: build docker images
         run: |
@@ -58,15 +59,15 @@ jobs:
         run: |
           docker-compose push
 
-#      - name: run deployment script
-#        uses: fifsky/ssh-action@master
-#        with:
-#          command: |
-#            cd tf2sa
-#            git pull origin main
-#            sudo docker-compose pull
-#            sudo docker-compose down -v
-#            sudo docker-compose up -d
-#          host: ${{ secrets.SSH_ORACLE_HOST }}
-#          user: ubuntu
-#          key: ${{ secrets.SSH_ORACLE_PRIVATE}}
+      - name: run deployment script
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            cd tf2sa
+            git pull origin main
+            sudo docker-compose pull
+            sudo docker-compose down -v
+            sudo docker-compose up -d
+          host: ${{ secrets.SSH_ORACLE_HOST }}
+          user: ubuntu
+          key: ${{ secrets.SSH_ORACLE_PRIVATE}}
