@@ -1,0 +1,16 @@
+name: continuous integration
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+
+      - name: build docker images
+        run: |
+          docker-compose build
