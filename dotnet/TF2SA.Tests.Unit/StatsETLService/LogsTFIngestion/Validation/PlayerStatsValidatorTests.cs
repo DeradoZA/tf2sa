@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
 using FluentValidation.Results;
-using TF2SA.Common.Models.LogsTF.Constants;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.StatsETLService.LogsTFIngestion.Validation;
 using Xunit;

@@ -1,29 +1,34 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Query.Queries.GetPlayers;
+using TF2SA.Web.Controllers.V1.Players.Models;
 
-namespace TF2SA.Web.Controllers.v1.Home;
+namespace TF2SA.Web.Controllers.V1.Players;
 
 [ApiController]
 [Route("v1/[controller]")]
 public class PlayersController : ControllerBase
 {
 	private readonly IMediator mediator;
+	private readonly IMapper mapper;
 	private readonly ILogger<PlayersController> logger;
 
 	public PlayersController(
 		ILogger<PlayersController> logger,
-		IMediator mediator
+		IMediator mediator,
+		IMapper mapper
 	)
 	{
 		this.logger = logger;
 		this.mediator = mediator;
+		this.mapper = mapper;
 	}
 
 	[HttpGet]
-	public async Task<ActionResult<GetPlayersResult>> GetPlayers(
+	public async Task<ActionResult<GetPlayersHttpResult>> GetPlayers(
 		[FromQuery] int count = 13,
 		[FromQuery] int offset = 0,
 		[FromQuery] string? sort = "playerName",
@@ -39,7 +44,20 @@ public class PlayersController : ControllerBase
 		{
 			return BadRequest(result.Left.Message);
 		}
+		GetPlayersHttpResult playersHttpResult =
+			mapper.Map<GetPlayersHttpResult>(result.Right);
 
-		return Ok(result.Right);
+		logger.LogInformation(
+			"players:{nl} {players}",
+			Environment.NewLine,
+			string.Join(
+				Environment.NewLine,
+				playersHttpResult.Players!.Select(
+					p => p.SteamId.ToString() + "\t" + p.PlayerName
+				)
+			)
+		);
+
+		return Ok(playersHttpResult);
 	}
 }

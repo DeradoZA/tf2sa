@@ -1,6 +1,7 @@
 using TF2SA.StatsETLService;
 using Microsoft.AspNetCore.HttpOverrides;
 using TF2SA.Query;
+using TF2SA.Web.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddStatsETLService(builder.Configuration);
 builder.Services.AddQueries(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(HttpMappingProfile));
 
 var app = builder.Build();
 
