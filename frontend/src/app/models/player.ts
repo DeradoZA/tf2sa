@@ -1,4 +1,4 @@
 export interface Player {
-	steamId: number;
+	steamId: string;
 	playerName: string;
 }
