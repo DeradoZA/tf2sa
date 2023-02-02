@@ -11,6 +11,7 @@ services:
   tf2sa-db:
     image: adamcoetzee/tf2sa-db
     container_name: tf2sa-db
+    restart: unless-stopped
     networks:
       - tf2sa-net
     build:
@@ -24,6 +25,7 @@ services:
   tf2sa-backend:
     image: adamcoetzee/tf2sa-backend
     container_name: tf2sa-backend
+    restart: unless-stopped
     depends_on:
       - tf2sa-db
     networks:
@@ -52,6 +54,7 @@ services:
 
   t2sa-reverse-proxy:
     container_name: t2sa-reverse-proxy
+    restart: unless-stopped
     depends_on:
       - tf2sa-backend
       - tf2sa-frontend
@@ -66,9 +69,11 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
 
   certbot:
     image: certbot/certbot:latest
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
       - /home/ubuntu/certbot/www/:/var/www/certbot/:rw
       - /home/ubuntu/certbot/conf/:/etc/letsencrypt/:rw
