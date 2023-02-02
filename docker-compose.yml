@@ -11,6 +11,7 @@ services:
   tf2sa-db:
     image: adamcoetzee/tf2sa-db
     container_name: tf2sa-db
+    restart: unless-stopped
     networks:
       - tf2sa-net
     build:
@@ -24,6 +25,7 @@ services:
   tf2sa-backend:
     image: adamcoetzee/tf2sa-backend
     container_name: tf2sa-backend
+    restart: unless-stopped
     depends_on:
       - tf2sa-db
     networks:
@@ -52,6 +54,7 @@ services:
 
   t2sa-reverse-proxy:
     container_name: t2sa-reverse-proxy
+    restart: unless-stopped
     depends_on:
       - tf2sa-backend
       - tf2sa-frontend
