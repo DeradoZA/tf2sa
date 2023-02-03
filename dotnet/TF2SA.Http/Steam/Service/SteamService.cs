@@ -1,3 +1,4 @@
+using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Monad;
@@ -32,19 +33,60 @@ public class SteamService : ISteamService
 	}
 
 	public Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayers(
-		ulong[] steamids
+		ulong[] steamids,
+		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
 	private Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayersSet(
+		ulong[] steamids,
+		CancellationToken cancellationToken
+	)
+	{
+		string url =
+			$"{steamConfig.BaseUrl}/ISteamUser/GetPlayerSummaries/v0002/";
+
+		EitherStrict<Error, string?> queryStringResult =
+			BuildSteamPlayersQueryString(steamids);
+		if (queryStringResult.IsLeft)
+		{
+			return queryStringResult.Left;
+		}
+		string? queryString = queryStringResult.Right;
+	}
+
+	private EitherStrict<Error, string?> BuildSteamPlayersQueryString(
 		ulong[] steamids
 	)
 	{
+		if (string.IsNullOrEmpty(steamConfig.ApiKey))
+		{
+			return new SteamError("API Key required for query string");
+		}
+
+		if (steamids.Length == 0)
+		{
+			return new SteamError("No steamids supplied.");
+		}
+
 		if (steamids.Length > 100)
 		{
-			return new SteamError("Can only process 100");
+			return new SteamError("Can only process 100 steamids at a time.");
 		}
+
+		var query = HttpUtility.ParseQueryString(string.Empty);
+		string ids = string.Join(",", steamids);
+
+		query["key"] = steamConfig.ApiKey;
+		query["steamids"] = ids;
+
+		if (query is null)
+		{
+			return new SteamError("failed to build query string");
+		}
+
+		return query.ToString();
 	}
 }

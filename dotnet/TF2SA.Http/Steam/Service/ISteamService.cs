@@ -7,6 +7,7 @@ namespace TF2SA.Http.Steam.Service;
 public interface ISteamService
 {
 	public Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayers(
-		ulong[] steamids
+		ulong[] steamids,
+		CancellationToken cancellationToken
 	);
 }
