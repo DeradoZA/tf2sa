@@ -17,4 +17,7 @@ public interface ILogIngestionRepositoryUpdater
 		uint logId,
 		CancellationToken cancellationToken
 	);
+	Task<OptionStrict<Error>> UpdatePlayers(
+		CancellationToken cancellationToken
+	);
 }

@@ -178,4 +178,11 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 
 		return game;
 	}
+
+	public Task<OptionStrict<Error>> UpdatePlayers(
+		CancellationToken cancellationToken
+	)
+	{
+		throw new NotImplementedException();
+	}
 }
