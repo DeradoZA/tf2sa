@@ -117,6 +117,15 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			}
 		);
 
+		OptionStrict<Error> updatePlayersResult =
+			await logIngestionRepositoryUpdater.UpdatePlayers(
+				cancellationToken
+			);
+		if (updatePlayersResult.HasValue)
+		{
+			return updatePlayersResult.Value;
+		}
+
 		return OptionStrict<Error>.Nothing;
 	}
 
