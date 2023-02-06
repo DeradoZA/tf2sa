@@ -45,7 +45,7 @@ public class SteamService : ISteamService
 			return new SteamError("No players provided to fetch.");
 		}
 
-		List<ulong[]> playerBatches = GroupPlayerBatches(steamids);
+		List<ulong[]> playerBatches = GroupPlayerBatchesForRequest(steamids);
 
 		List<SteamPlayer> fetchedPlayers = new();
 		List<Error> errors = new();
@@ -78,7 +78,7 @@ public class SteamService : ISteamService
 		return fetchedPlayers;
 	}
 
-	private static List<ulong[]> GroupPlayerBatches(ulong[] steamids)
+	private static List<ulong[]> GroupPlayerBatchesForRequest(ulong[] steamids)
 	{
 		List<ulong[]> playerBatches = new();
 		int batchesToMake = (int)
