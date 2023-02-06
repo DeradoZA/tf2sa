@@ -6,7 +6,9 @@ using TF2SA.Common.Errors;
 using TF2SA.Http.Base.Client;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.Steam.Config;
-using TF2SA.Http.Steam.Config.Models.PlayerSummaries;
+using TF2SA.Http.Steam.Models.PlayerSummaries;
+using System.Collections.Specialized;
+using TF2SA.Common.Configuration;
 
 namespace TF2SA.Http.Steam.Service;
 
@@ -15,6 +17,7 @@ public class SteamService : ISteamService
 	private readonly SteamConfig steamConfig;
 	private readonly ILogger<SteamService> logger;
 	private readonly IHttpClient httpClient;
+	private const int MAX_PLAYERS_PER_REQUEST = 100;
 
 	public SteamService(
 		IOptions<SteamConfig> steamConfig,
@@ -32,15 +35,66 @@ public class SteamService : ISteamService
 		);
 	}
 
-	public Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayers(
+	public async Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayers(
 		ulong[] steamids,
 		CancellationToken cancellationToken
 	)
 	{
-		throw new NotImplementedException();
+		if (steamids.Length < 1)
+		{
+			return new SteamError("No players provided to fetch.");
+		}
+
+		List<ulong[]> playerBatches = GroupPlayerBatches(steamids);
+
+		List<SteamPlayer> fetchedPlayers = new();
+		List<Error> errors = new();
+		await Parallel.ForEachAsync(
+			playerBatches,
+			new ParallelOptions()
+			{
+				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
+				CancellationToken = cancellationToken
+			},
+			async (playerBatch, token) =>
+			{
+				EitherStrict<Error, List<SteamPlayer>> playersBatchResult =
+					await GetPlayersSet(playerBatch, token);
+				if (playersBatchResult.IsLeft)
+				{
+					errors.Add(playersBatchResult.Left);
+					return;
+				}
+
+				fetchedPlayers.AddRange(playersBatchResult.Right);
+			}
+		);
+
+		if (errors.Any())
+		{
+			return errors[0];
+		}
+
+		return fetchedPlayers;
 	}
 
-	private Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayersSet(
+	private static List<ulong[]> GroupPlayerBatches(ulong[] steamids)
+	{
+		List<ulong[]> playerBatches = new();
+		int batchesToMake = (int)
+			Math.Ceiling(steamids.Count() / (double)MAX_PLAYERS_PER_REQUEST);
+		for (int b = 0; b <= batchesToMake; b++)
+		{
+			ulong[] batch = steamids
+				.Skip(MAX_PLAYERS_PER_REQUEST * b)
+				.Take(MAX_PLAYERS_PER_REQUEST)
+				.ToArray();
+			playerBatches.Add(batch);
+		}
+		return playerBatches;
+	}
+
+	private async Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayersSet(
 		ulong[] steamids,
 		CancellationToken cancellationToken
 	)
@@ -48,16 +102,31 @@ public class SteamService : ISteamService
 		string url =
 			$"{steamConfig.BaseUrl}/ISteamUser/GetPlayerSummaries/v0002/";
 
-		EitherStrict<Error, string?> queryStringResult =
+		EitherStrict<Error, string> queryStringResult =
 			BuildSteamPlayersQueryString(steamids);
 		if (queryStringResult.IsLeft)
 		{
 			return queryStringResult.Left;
 		}
-		string? queryString = queryStringResult.Right;
+		string queryString = queryStringResult.Right;
+		url += $"?{queryString}";
+
+		EitherStrict<HttpError, SteamPlayersResponse> playerResponse =
+			await httpClient.Get<SteamPlayersResponse>(url, cancellationToken);
+		if (playerResponse.IsLeft)
+		{
+			return playerResponse.Left;
+		}
+
+		List<SteamPlayer>? players = playerResponse.Right.Response?.Players;
+		if (players is null)
+		{
+			return new SteamError("No players returned in response");
+		}
+		return players;
 	}
 
-	private EitherStrict<Error, string?> BuildSteamPlayersQueryString(
+	private EitherStrict<Error, string> BuildSteamPlayersQueryString(
 		ulong[] steamids
 	)
 	{
@@ -76,17 +145,18 @@ public class SteamService : ISteamService
 			return new SteamError("Can only process 100 steamids at a time.");
 		}
 
-		var query = HttpUtility.ParseQueryString(string.Empty);
+		NameValueCollection query = HttpUtility.ParseQueryString(string.Empty);
 		string ids = string.Join(",", steamids);
 
 		query["key"] = steamConfig.ApiKey;
 		query["steamids"] = ids;
 
-		if (query is null)
+		string? queryString = query.ToString();
+		if (queryString is null)
 		{
-			return new SteamError("failed to build query string");
+			return new SteamError("Null query string created");
 		}
 
-		return query.ToString();
+		return queryString;
 	}
 }
