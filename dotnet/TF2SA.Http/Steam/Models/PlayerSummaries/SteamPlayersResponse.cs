@@ -5,5 +5,5 @@ namespace TF2SA.Http.Steam.Models.PlayerSummaries;
 public class SteamPlayersResponse
 {
 	[JsonPropertyName("response")]
-	public Response? Response;
+	public SteamResult? Response;
 }

@@ -1,6 +1,6 @@
 using Monad;
 using TF2SA.Common.Errors;
-using TF2SA.Http.Steam.Config.Models.PlayerSummaries;
+using TF2SA.Http.Steam.Models.PlayerSummaries;
 
 namespace TF2SA.Http.Steam.Service;
 
