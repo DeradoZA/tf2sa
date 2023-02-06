@@ -124,7 +124,21 @@ public partial class TF2SADbContext : DbContext
 				.ValueGeneratedNever()
 				.HasColumnName("SteamID");
 
+			entity.Property(e => e.Avatar).HasMaxLength(1000);
+
+			entity.Property(e => e.AvatarFull).HasMaxLength(1000);
+
+			entity.Property(e => e.AvatarHash).HasMaxLength(255);
+
+			entity.Property(e => e.AvatarMedium).HasMaxLength(1000);
+
+			entity.Property(e => e.LocalCountryCode).HasMaxLength(10);
+
 			entity.Property(e => e.PlayerName).HasMaxLength(255);
+
+			entity.Property(e => e.ProfileUrl).HasMaxLength(1000);
+
+			entity.Property(e => e.RealName).HasMaxLength(255);
 		});
 
 		modelBuilder.Entity<PlayerStat>(entity =>
