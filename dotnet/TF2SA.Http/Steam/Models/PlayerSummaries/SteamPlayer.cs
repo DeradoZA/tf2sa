@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TF2SA.Http.Steam.Config.Models.PlayerSummaries;
+namespace TF2SA.Http.Steam.Models.PlayerSummaries;
 
 public class SteamPlayer
 {
