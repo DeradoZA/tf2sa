@@ -71,7 +71,16 @@ CREATE TABLE
 CREATE TABLE
 	IF NOT EXISTS Players (
 		SteamID BIGINT UNSIGNED NOT NULL,
+		LocalCountryCode VARCHAR(10) NULL,
+		ProfileUrl VARCHAR(1000) NULL,
+		Avatar VARCHAR(1000) NULL,
+		AvatarMedium VARCHAR(1000) NULL,
+		AvatarFull VARCHAR(1000) NULL,
+		AvatarHash VARCHAR(255) NULL,
 		PlayerName VARCHAR(255) CHARACTER
+		SET
+			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			RealName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
 			PRIMARY KEY (SteamID)
