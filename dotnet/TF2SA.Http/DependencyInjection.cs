@@ -21,10 +21,10 @@ public static class DependencyInjection
 		);
 		services.Configure<SteamConfig>(config =>
 		{
+			configuration.Bind(SteamConfig.SteamConfigSection, config);
 			config.ApiKey = configuration.GetValue<string>(
 				"TF2SA_STEAM_API_KEY"
 			);
-			configuration.Bind(SteamConfig.SteamConfigSection, config);
 		});
 		services.AddHttpClient();
 		services.AddTransient<IHttpClient, TF2SAHttpClient>();
