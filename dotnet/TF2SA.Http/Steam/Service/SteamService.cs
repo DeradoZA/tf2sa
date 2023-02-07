@@ -28,11 +28,6 @@ public class SteamService : ISteamService
 		this.steamConfig = steamConfig.Value;
 		this.logger = logger;
 		this.httpClient = httpClient;
-		logger.LogInformation(
-			"init key: {apiKey}, url: {baseUrl}",
-			this.steamConfig.ApiKey,
-			this.steamConfig.BaseUrl
-		);
 	}
 
 	public async Task<EitherStrict<Error, List<SteamPlayer>>> GetPlayers(
