@@ -111,8 +111,11 @@ public class SteamService : ISteamService
 		string queryString = queryStringResult.Right;
 		url += $"?{queryString}";
 
-		EitherStrict<HttpError, SteamPlayersResponse> playerResponse =
-			await httpClient.Get<SteamPlayersResponse>(url, cancellationToken);
+		EitherStrict<HttpError, SteamPlayerResponseRoot> playerResponse =
+			await httpClient.Get<SteamPlayerResponseRoot>(
+				url,
+				cancellationToken
+			);
 		if (playerResponse.IsLeft)
 		{
 			return playerResponse.Left;
