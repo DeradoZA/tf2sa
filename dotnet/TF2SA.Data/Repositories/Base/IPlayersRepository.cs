@@ -11,4 +11,8 @@ public interface IPlayersRepository<TPlayer, TPlayerId>
 		IEnumerable<TPlayer> players,
 		CancellationToken cancellationToken
 	);
+	public Task<OptionStrict<Error>> UpdatePlayers(
+		IEnumerable<TPlayer> players,
+		CancellationToken cancellationToken
+	);
 }

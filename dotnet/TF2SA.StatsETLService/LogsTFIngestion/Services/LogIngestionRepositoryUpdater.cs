@@ -1,10 +1,14 @@
 using AutoMapper;
 using Monad;
 using TF2SA.Common.Errors;
+using TF2SA.Data.Errors;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using Player = TF2SA.Data.Entities.MariaDb.Player;
+using TF2SA.StatsETLService.LogsTFIngestion.Errors;
+using TF2SA.Http.Steam.Service;
+using TF2SA.Http.Steam.Models.PlayerSummaries;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 
@@ -14,18 +18,21 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 	private readonly IPlayersRepository<Player, ulong> playersRepository;
 	private readonly ILogger<LogIngestionRepositoryUpdater> logger;
 	private readonly IMapper mapper;
+	private readonly ISteamService steamService;
 
 	public LogIngestionRepositoryUpdater(
 		IGamesRepository<Game, uint> gamesRepository,
 		ILogger<LogIngestionRepositoryUpdater> logger,
 		IMapper mapper,
-		IPlayersRepository<Player, ulong> playersRepository
+		IPlayersRepository<Player, ulong> playersRepository,
+		ISteamService steamService
 	)
 	{
 		this.gamesRepository = gamesRepository;
 		this.logger = logger;
 		this.mapper = mapper;
 		this.playersRepository = playersRepository;
+		this.steamService = steamService;
 	}
 
 	public async Task<OptionStrict<Error>> InsertInvalidLog(
@@ -179,10 +186,41 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		return game;
 	}
 
-	public Task<OptionStrict<Error>> UpdatePlayers(
+	public async Task<OptionStrict<Error>> UpdatePlayers(
 		CancellationToken cancellationToken
 	)
 	{
-		throw new NotImplementedException();
+		ulong[] playerIdsToUpdate;
+		try
+		{
+			playerIdsToUpdate = playersRepository
+				.GetAll()
+				.Select(p => p.SteamId)
+				.ToArray();
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError($"Failed to fetch players: {e.Message}");
+		}
+
+		if (playerIdsToUpdate.Length < 1)
+		{
+			return new IngestionError("No players to update.");
+		}
+
+		EitherStrict<Error, List<SteamPlayer>> steamPlayersResult =
+			await steamService.GetPlayers(playerIdsToUpdate, cancellationToken);
+		if (steamPlayersResult.IsLeft)
+		{
+			return steamPlayersResult.Left;
+		}
+		List<SteamPlayer> steamPlayers = steamPlayersResult.Right;
+
+		// map steamPlayers to PlayerEntities
+		List<Player> updatedPlayers = mapper.Map<List<Player>>(steamPlayers);
+
+		//var updateResult = playersRepository.UpdatePlayers()
+
+		return OptionStrict<Error>.Nothing;
 	}
 }
