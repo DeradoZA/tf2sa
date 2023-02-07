@@ -214,12 +214,20 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		{
 			return steamPlayersResult.Left;
 		}
-		List<SteamPlayer> steamPlayers = steamPlayersResult.Right;
 
-		// map steamPlayers to PlayerEntities
-		List<Player> updatedPlayers = mapper.Map<List<Player>>(steamPlayers);
+		List<Player> updatedPlayers = mapper.Map<List<Player>>(
+			steamPlayersResult.Right
+		);
 
-		//var updateResult = playersRepository.UpdatePlayers()
+		OptionStrict<Error> updateResult =
+			await playersRepository.UpdatePlayers(
+				updatedPlayers,
+				cancellationToken
+			);
+		if (updateResult.HasValue)
+		{
+			return updateResult.Value;
+		}
 
 		return OptionStrict<Error>.Nothing;
 	}
