@@ -82,8 +82,8 @@ public class SteamService : ISteamService
 	{
 		List<ulong[]> playerBatches = new();
 		int batchesToMake = (int)
-			Math.Ceiling(steamids.Count() / (double)MAX_PLAYERS_PER_REQUEST);
-		for (int b = 0; b <= batchesToMake; b++)
+			Math.Ceiling(steamids.Length / (double)MAX_PLAYERS_PER_REQUEST);
+		for (int b = 0; b < batchesToMake; b++)
 		{
 			ulong[] batch = steamids
 				.Skip(MAX_PLAYERS_PER_REQUEST * b)
