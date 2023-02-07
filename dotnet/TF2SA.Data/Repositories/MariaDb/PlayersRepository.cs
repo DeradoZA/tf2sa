@@ -102,4 +102,12 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 	{
 		throw new NotImplementedException();
 	}
+
+	public Task<OptionStrict<Error>> UpdatePlayers(
+		IEnumerable<Player> players,
+		CancellationToken cancellationToken
+	)
+	{
+		throw new NotImplementedException();
+	}
 }
