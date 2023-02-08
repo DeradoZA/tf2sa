@@ -138,9 +138,11 @@ public class SteamService : ISteamService
 			return new SteamError("No steamids supplied.");
 		}
 
-		if (steamids.Length > 100)
+		if (steamids.Length > MAX_PLAYERS_PER_REQUEST)
 		{
-			return new SteamError("Can only process 100 steamids at a time.");
+			return new SteamError(
+				$"Can only process {MAX_PLAYERS_PER_REQUEST} steamids at a time."
+			);
 		}
 
 		NameValueCollection query = HttpUtility.ParseQueryString(string.Empty);
