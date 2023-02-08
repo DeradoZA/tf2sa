@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TF2SA.Common\TF2SA.Common.csproj" />
+    <ProjectReference Include="..\TF2SA.Http\TF2SA.Http.csproj" />
   </ItemGroup>
 
 </Project>

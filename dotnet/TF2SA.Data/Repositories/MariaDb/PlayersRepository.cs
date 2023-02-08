@@ -102,4 +102,36 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 	{
 		throw new NotImplementedException();
 	}
+
+	public async Task<OptionStrict<Error>> UpdatePlayers(
+		IEnumerable<Player> updatedPlayers,
+		CancellationToken cancellationToken
+	)
+	{
+		try
+		{
+			DbSet<Player> trackedPlayers = dbContext.Players;
+			foreach (var player in trackedPlayers)
+			{
+				Player? updatedPlayer = updatedPlayers
+					.Where(p => p.SteamId == player.SteamId)
+					.FirstOrDefault();
+				player.Avatar = updatedPlayer?.Avatar;
+				player.AvatarFull = updatedPlayer?.AvatarFull;
+				player.AvatarHash = updatedPlayer?.Avatar;
+				player.AvatarMedium = updatedPlayer?.AvatarMedium;
+				player.LocalCountryCode = updatedPlayer?.LocalCountryCode;
+				player.PlayerName = updatedPlayer?.PlayerName;
+				player.RealName = updatedPlayer?.RealName;
+				player.ProfileUrl = updatedPlayer?.ProfileUrl;
+			}
+			dbContext.Players.UpdateRange(trackedPlayers);
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError($"Error updating players: {e.Message}");
+		}
+		return OptionStrict<Error>.Nothing;
+	}
 }

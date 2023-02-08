@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,14 +16,17 @@ public class GetPlayersQueryHandler
 {
 	private readonly ILogger<GetPlayersQueryHandler> logger;
 	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
+	private readonly IMapper mapper;
 
 	public GetPlayersQueryHandler(
 		ILogger<GetPlayersQueryHandler> logger,
-		IPlayersRepository<PlayerEntity, ulong> playersRepository
+		IPlayersRepository<PlayerEntity, ulong> playersRepository,
+		IMapper mapper
 	)
 	{
 		this.logger = logger;
 		this.playersRepository = playersRepository;
+		this.mapper = mapper;
 	}
 
 	public async Task<EitherStrict<Error, GetPlayersResult>> Handle(
@@ -40,7 +44,7 @@ public class GetPlayersQueryHandler
 				.ApplyFilter(request.FilterString, out string _)
 				.CountAsync(cancellationToken: cancellationToken);
 
-			players = await playersRepository
+			List<PlayerEntity> playersEntities = await playersRepository
 				.GetAllQueryable()
 				.ApplyFilter(request.FilterString, out string filterStringUsed)
 				.ApplySort(
@@ -51,15 +55,9 @@ public class GetPlayersQueryHandler
 				)
 				.Skip(request.Offset)
 				.Take(request.Count)
-				.Select(
-					p =>
-						new Player
-						{
-							PlayerName = p.PlayerName,
-							SteamId = p.SteamId
-						}
-				)
 				.ToListAsync(cancellationToken: cancellationToken);
+
+			players = mapper.Map<List<Player>>(playersEntities);
 
 			return new GetPlayersResult
 			{

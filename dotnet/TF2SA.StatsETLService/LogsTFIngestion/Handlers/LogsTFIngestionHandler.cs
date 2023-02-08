@@ -21,13 +21,15 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly ILogsTFService logsTFService;
 	private readonly IServiceProvider serviceProvider;
+	private readonly ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater;
 
 	public LogsTFIngestionHandler(
 		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
 		ILogger<LogsTFIngestionHandler> logger,
 		ILogsTFService logsTFService,
 		IGamesRepository<Game, uint> gamesRepository,
-		IServiceProvider serviceProvider
+		IServiceProvider serviceProvider,
+		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater
 	)
 	{
 		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
@@ -35,6 +37,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		this.logsTFService = logsTFService;
 		this.gamesRepository = gamesRepository;
 		this.serviceProvider = serviceProvider;
+		this.logIngestionRepositoryUpdater = logIngestionRepositoryUpdater;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -114,8 +117,14 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			}
 		);
 
-		// TODO update player names
-		// milestone: 7
+		OptionStrict<Error> updatePlayersResult =
+			await logIngestionRepositoryUpdater.UpdatePlayers(
+				cancellationToken
+			);
+		if (updatePlayersResult.HasValue)
+		{
+			return updatePlayersResult.Value;
+		}
 
 		return OptionStrict<Error>.Nothing;
 	}

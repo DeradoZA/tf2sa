@@ -47,17 +47,6 @@ public class PlayersController : ControllerBase
 		GetPlayersHttpResult playersHttpResult =
 			mapper.Map<GetPlayersHttpResult>(result.Right);
 
-		logger.LogInformation(
-			"players:{nl} {players}",
-			Environment.NewLine,
-			string.Join(
-				Environment.NewLine,
-				playersHttpResult.Players!.Select(
-					p => p.SteamId.ToString() + "\t" + p.PlayerName
-				)
-			)
-		);
-
 		return Ok(playersHttpResult);
 	}
 }

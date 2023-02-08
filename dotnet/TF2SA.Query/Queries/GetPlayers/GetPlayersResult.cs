@@ -1,5 +1,6 @@
-namespace TF2SA.Query.Queries.GetPlayers;
 using TF2SA.Common.Models.Core;
+
+namespace TF2SA.Query.Queries.GetPlayers;
 
 public class GetPlayersResult
 {
