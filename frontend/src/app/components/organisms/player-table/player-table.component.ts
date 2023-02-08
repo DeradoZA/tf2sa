@@ -25,6 +25,7 @@ import {
 })
 export class PlayerTableComponent implements AfterViewInit {
 	readonly displayedColumns: string[] = [
+		'profilePicture',
 		'playerName',
 		'steamId',
 		'steamProfile',
