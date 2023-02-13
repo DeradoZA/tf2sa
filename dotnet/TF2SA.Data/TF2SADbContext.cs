@@ -14,6 +14,7 @@ public partial class TF2SADbContext : DbContext
 	public virtual DbSet<Game> Games { get; set; } = null!;
 	public virtual DbSet<Player> Players { get; set; } = null!;
 	public virtual DbSet<PlayerStat> PlayerStats { get; set; } = null!;
+	public virtual DbSet<ScoutRecent> ScoutRecents { get; set; } = null!;
 	public virtual DbSet<WeaponStat> WeaponStats { get; set; } = null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -237,6 +238,45 @@ public partial class TF2SADbContext : DbContext
 				.WithMany(p => p.PlayerStats)
 				.HasForeignKey(d => d.SteamId)
 				.HasConstraintName("fk_player_id");
+		});
+
+		modelBuilder.Entity<ScoutRecent>(entity =>
+		{
+			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
+
+			entity.ToTable("ScoutRecent");
+
+			entity
+				.Property(e => e.SteamId)
+				.HasColumnType("bigint(20) unsigned")
+				.ValueGeneratedNever()
+				.HasColumnName("SteamID");
+
+			entity.Property(e => e.AverageDpm).HasColumnName("AverageDPM");
+
+			entity
+				.Property(e => e.NumberOfGames)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity.Property(e => e.PlayerName).HasMaxLength(255);
+
+			entity
+				.Property(e => e.TopDamage)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity
+				.Property(e => e.TopDamageGameId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("TopDamageGameID");
+
+			entity
+				.Property(e => e.TopKills)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity
+				.Property(e => e.TopKillsGameId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("TopKillsGameID");
 		});
 
 		modelBuilder.Entity<WeaponStat>(entity =>
