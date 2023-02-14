@@ -102,18 +102,16 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			},
 			async (log, token) =>
 			{
-				using (IServiceScope scope = serviceProvider.CreateScope())
-				{
-					ILogIngestor logIngestor =
-						scope.ServiceProvider.GetRequiredService<ILogIngestor>();
+				using IServiceScope scope = serviceProvider.CreateScope();
+				ILogIngestor logIngestor =
+					scope.ServiceProvider.GetRequiredService<ILogIngestor>();
 
-					await logIngestor.IngestLog(
-						log,
-						logsToProcess.IndexOf(log),
-						logsToProcess.Count,
-						token
-					);
-				}
+				await logIngestor.IngestLog(
+					log,
+					logsToProcess.IndexOf(log),
+					logsToProcess.Count,
+					token
+				);
 			}
 		);
 
@@ -124,6 +122,24 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		if (updatePlayersResult.HasValue)
 		{
 			return updatePlayersResult.Value;
+		}
+
+		if (logsToProcess.Count >= 0)
+		{
+			OptionStrict<Error> updateStatisticsResult =
+				await logIngestionRepositoryUpdater.UpdateAggregatedStatistics(
+					cancellationToken
+				);
+			if (updatePlayersResult.HasValue)
+			{
+				return updatePlayersResult.Value;
+			}
+		}
+		else
+		{
+			logger.LogInformation(
+				"No new logs, not updating aggregated statistics"
+			);
 		}
 
 		return OptionStrict<Error>.Nothing;

@@ -20,4 +20,7 @@ public interface ILogIngestionRepositoryUpdater
 	Task<OptionStrict<Error>> UpdatePlayers(
 		CancellationToken cancellationToken
 	);
+	Task<OptionStrict<Error>> UpdateAggregatedStatistics(
+		CancellationToken cancellationToken
+	);
 }

@@ -28,9 +28,7 @@ public class StatsAggregationRepository : IStatsAggregationRepository
 	{
 		try
 		{
-			List<ScoutRecent> result = await GetAllScoutRecentQueryable()
-				.ToListAsync();
-			return result;
+			return await GetAllScoutRecentQueryable().ToListAsync();
 		}
 		catch (Exception e)
 		{

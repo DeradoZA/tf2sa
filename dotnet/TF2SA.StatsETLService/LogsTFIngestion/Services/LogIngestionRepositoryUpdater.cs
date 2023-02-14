@@ -16,6 +16,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 {
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playersRepository;
+	private readonly IStatsAggregationRepository statsAggregationRepository;
 	private readonly ILogger<LogIngestionRepositoryUpdater> logger;
 	private readonly IMapper mapper;
 	private readonly ISteamService steamService;
@@ -25,7 +26,8 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		ILogger<LogIngestionRepositoryUpdater> logger,
 		IMapper mapper,
 		IPlayersRepository<Player, ulong> playersRepository,
-		ISteamService steamService
+		ISteamService steamService,
+		IStatsAggregationRepository statsAggregationRepository
 	)
 	{
 		this.gamesRepository = gamesRepository;
@@ -33,6 +35,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		this.mapper = mapper;
 		this.playersRepository = playersRepository;
 		this.steamService = steamService;
+		this.statsAggregationRepository = statsAggregationRepository;
 	}
 
 	public async Task<OptionStrict<Error>> InsertInvalidLog(
@@ -227,6 +230,24 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		if (updateResult.HasValue)
 		{
 			return updateResult.Value;
+		}
+
+		return OptionStrict<Error>.Nothing;
+	}
+
+	public async Task<OptionStrict<Error>> UpdateAggregatedStatistics(
+		CancellationToken cancellationToken
+	)
+	{
+		logger.LogInformation("Updating Aggregated statistics.");
+
+		OptionStrict<Error> updateScoutRecent =
+			await statsAggregationRepository.UpdateScoutRecentStats(
+				cancellationToken
+			);
+		if (updateScoutRecent.HasValue)
+		{
+			return updateScoutRecent.Value;
 		}
 
 		return OptionStrict<Error>.Nothing;
