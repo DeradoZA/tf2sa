@@ -1,9 +1,9 @@
 using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 using System.Linq.Expressions;
 
-namespace TF2SA.Query.Queries.GetPlayers;
+namespace TF2SA.Data.Extensions;
 
-public static class TF2SALinqExtensions
+public static class PlayerLinqExtensions
 {
 	private static readonly Dictionary<
 		string,
