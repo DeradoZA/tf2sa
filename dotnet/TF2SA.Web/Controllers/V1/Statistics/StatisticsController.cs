@@ -1,12 +1,15 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Monad;
+using TF2SA.Common.Errors;
+using TF2SA.Query.Queries.GetScoutRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Models.GetScoutRecent;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("v1/[controller]")]
 public class StatisticsController : ControllerBase
 {
 	private readonly IMediator mediator;
@@ -24,7 +27,8 @@ public class StatisticsController : ControllerBase
 		this.logger = logger;
 	}
 
-	[HttpGet()]
+	[HttpGet]
+	[Route("ScoutRecent")]
 	public async Task<ActionResult<GetScoutRecentHttpResult>> GetScoutRecent(
 		[FromQuery] int count = 13,
 		[FromQuery] int offset = 0,
@@ -33,7 +37,19 @@ public class StatisticsController : ControllerBase
 		[FromQuery] string? filterString = ""
 	)
 	{
-		await Task.Delay(1000);
-		return Ok(new GetScoutRecentHttpResult());
+		logger.LogInformation("ScoutRecent");
+		EitherStrict<Error, GetScoutRecentResult> result = await mediator.Send(
+			new GetScoutRecentQuery(count, offset, sort!, sortOrder!)
+		);
+
+		if (result.IsLeft)
+		{
+			return BadRequest(result.Left.Message);
+		}
+
+		GetScoutRecentHttpResult httpResult =
+			mapper.Map<GetScoutRecentHttpResult>(result.Right);
+
+		return Ok(httpResult);
 	}
 }

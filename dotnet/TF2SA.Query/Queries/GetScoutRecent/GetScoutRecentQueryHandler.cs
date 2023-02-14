@@ -46,6 +46,7 @@ public class GetScoutRecentQueryHandler
 			List<ScoutRecent> scoutRecentEntities =
 				await statsAggregationRepository
 					.GetAllScoutRecentQueryable()
+					.OrderByDescending(s => s.AverageDpm)
 					.Skip(request.Offset)
 					.Take(request.Count)
 					.ToListAsync(cancellationToken: cancellationToken);
