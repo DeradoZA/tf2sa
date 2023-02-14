@@ -1,11 +1,13 @@
-namespace TF2SA.Web.Controllers.V1.Statistics.Models.GetScoutRecent;
+using TF2SA.Common.Models.Core;
 
-public class GetScoutRecentHttpResult
+namespace TF2SA.Query.Queries.GetScoutRecent;
+
+public class GetScoutRecentResult
 {
 	public int TotalResults { get; set; }
 	public int Count { get; set; }
 	public int Offset { get; set; }
 	public string Sort { get; set; } = string.Empty;
 	public string SortOrder { get; set; } = string.Empty;
-	public IEnumerable<ScoutRecentHttpResult>? Players { get; set; }
+	public IEnumerable<ScoutRecentDomain>? Players { get; set; }
 }

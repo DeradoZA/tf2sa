@@ -6,6 +6,7 @@ using PlayerDto = TF2SA.Common.Models.LogsTF.GameLogModel.Player;
 using PlayerDomain = TF2SA.Common.Models.Core.Player;
 using TF2SA.Common.Models.LogsTF.Constants;
 using TF2SA.Http.Steam.Models.PlayerSummaries;
+using TF2SA.Common.Models.Core;
 
 namespace TF2SA.Data.Mapping;
 
@@ -63,5 +64,6 @@ public class GameMappingProfile : Profile
 		CreateMap<WeaponStats, WeaponStat>();
 		CreateMap<SteamPlayer, PlayerEntity>();
 		CreateMap<PlayerEntity, PlayerDomain>();
+		CreateMap<ScoutRecent, ScoutRecentDomain>();
 	}
 }

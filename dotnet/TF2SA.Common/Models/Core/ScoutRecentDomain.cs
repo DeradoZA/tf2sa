@@ -1,8 +1,8 @@
-namespace TF2SA.Web.Controllers.V1.Statistics.Models.GetScoutRecent;
+namespace TF2SA.Common.Models.Core;
 
-public class ScoutRecentHttpResult
+public class ScoutRecentDomain
 {
-	public string SteamId { get; set; } = string.Empty;
+	public ulong SteamId { get; set; }
 	public string? PlayerName { get; set; }
 	public ushort? NumberOfGames { get; set; }
 	public float? AverageDpm { get; set; }
