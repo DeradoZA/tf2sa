@@ -8,7 +8,6 @@ import { PlayersComponent } from '../players/players.component';
 	styleUrls: ['./player.component.scss'],
 })
 export class PlayerComponent implements OnInit {
-	public static readonly PATH: string = `${PlayersComponent.PATH}/:playerId`;
 	playerId: number | undefined;
 
 	constructor(private route: ActivatedRoute) {}

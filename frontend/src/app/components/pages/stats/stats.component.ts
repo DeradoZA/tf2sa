@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ROUTES } from 'src/app/routes';
 
 @Component({
 	selector: 'app-stats',
@@ -6,7 +7,6 @@ import { Component } from '@angular/core';
 	styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent {
-	public static readonly PATH: string = 'stats';
 	readonly isLoaded: boolean = true;
 	readonly errorMessage: string = 'Not available yet';
 }

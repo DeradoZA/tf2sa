@@ -21,6 +21,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { ScoutStatsComponent } from './components/pages/stats/scout-stats/scout-stats.component';
 
 @NgModule({
 	declarations: [
@@ -31,6 +32,7 @@ import { FormsModule } from '@angular/forms';
 		PlayerComponent,
 		PlayerTableComponent,
 		ErrorBannerComponent,
+		ScoutStatsComponent,
 	],
 	imports: [
 		BrowserModule,
