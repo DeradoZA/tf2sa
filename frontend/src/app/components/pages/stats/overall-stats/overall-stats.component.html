@@ -1,0 +1,20 @@
+<div class="stats-content">
+	<div class="stats-header">
+		<img src="../assets/transparent-trophy.png" />
+		<h1>Overall</h1>
+	</div>
+
+	<mat-progress-bar
+		*ngIf="!isLoaded"
+		mode="indeterminate"
+		color="accent"
+	></mat-progress-bar>
+	<app-error-banner
+		*ngIf="errorMessage != null"
+		[errorMessage]="errorMessage"
+	/>
+
+	<div>
+		<p>Overall Stats coming soon!</p>
+	</div>
+</div>

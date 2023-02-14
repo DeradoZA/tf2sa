@@ -7,6 +7,5 @@ import { ROUTES } from 'src/app/routes';
 	styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent {
-	readonly isLoaded: boolean = true;
-	readonly errorMessage: string = 'Not available yet';
+	readonly ROUTES = ROUTES;
 }
