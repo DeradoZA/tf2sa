@@ -68,11 +68,30 @@ export class PlayerTableComponent implements AfterViewInit {
 	public filterString: string | undefined;
 	filterStringUpdate = new Subject<string>();
 
-	ngAfterViewInit(): void {
-		this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+	handleFetchSuccess = (result: GetPlayersResult) => {
+		this.playersResult = result;
+		this.errorMessage = undefined;
+		this.isLoaded = true;
+	};
 
-		merge(this.sort.sortChange, this.paginator.page)
+	handleFetchFailure = (error: any) => {
+		this.errorMessage = error;
+		this.isLoaded = true;
+	};
+
+	ngAfterViewInit(): void {
+		merge(this.sort.sortChange, this.filterStringUpdate).subscribe(
+			() => (this.paginator.pageIndex = 0)
+		);
+
+		merge(
+			this.sort.sortChange,
+			this.paginator.page,
+			this.filterStringUpdate
+		)
 			.pipe(
+				debounceTime(400),
+				distinctUntilChanged(),
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
@@ -89,44 +108,8 @@ export class PlayerTableComponent implements AfterViewInit {
 				})
 			)
 			.subscribe({
-				next: (result) => {
-					this.playersResult = result;
-					this.isLoaded = true;
-				},
-				error: (error) => {
-					this.errorMessage = error;
-					this.isLoaded = true;
-				},
-			});
-
-		this.filterStringUpdate
-			.pipe(
-				debounceTime(500),
-				distinctUntilChanged(),
-				switchMap(() => {
-					this.paginator.pageIndex = 0;
-					this.isLoaded = false;
-					return this.playersService.getPlayers(
-						this.paginator.pageSize,
-						this.paginator.pageIndex * this.paginator.pageSize,
-						this.sort.active,
-						this.sort.direction,
-						this.filterString ?? ''
-					);
-				}),
-				map((data) => {
-					return data;
-				})
-			)
-			.subscribe({
-				next: (result) => {
-					this.playersResult = result;
-					this.isLoaded = true;
-				},
-				error: (error) => {
-					this.errorMessage = error;
-					this.isLoaded = true;
-				},
+				next: this.handleFetchSuccess,
+				error: this.handleFetchFailure,
 			});
 	}
 
@@ -141,14 +124,8 @@ export class PlayerTableComponent implements AfterViewInit {
 				this.filterString ?? ''
 			)
 			.subscribe({
-				next: (result) => {
-					this.playersResult = result;
-					this.isLoaded = true;
-				},
-				error: (error) => {
-					this.errorMessage = error;
-					this.isLoaded = true;
-				},
+				next: this.handleFetchSuccess,
+				error: this.handleFetchFailure,
 			});
 	}
 }
