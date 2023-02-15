@@ -26,6 +26,7 @@ import { OverallStatsComponent } from './components/pages/stats/overall-stats/ov
 import { SoldierStatsComponent } from './components/pages/stats/soldier-stats/soldier-stats.component';
 import { DemomanStatsComponent } from './components/pages/stats/demoman-stats/demoman-stats.component';
 import { MedicStatsComponent } from './components/pages/stats/medic-stats/medic-stats.component';
+import { StatsHeaderComponent } from './components/molecules/stats-header/stats-header.component';
 
 @NgModule({
 	declarations: [
@@ -41,6 +42,7 @@ import { MedicStatsComponent } from './components/pages/stats/medic-stats/medic-
 		SoldierStatsComponent,
 		DemomanStatsComponent,
 		MedicStatsComponent,
+		StatsHeaderComponent,
 	],
 	imports: [
 		BrowserModule,
