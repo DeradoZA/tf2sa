@@ -12,11 +12,9 @@ import {
 	Subject,
 	switchMap,
 } from 'rxjs';
+import { DEFAULT_PAGE_SIZE } from 'src/app/services/httpConstants';
 import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
-import {
-	DEFAULT_PAGE_SIZE,
-	PlayersService,
-} from 'src/app/services/players/players.service';
+import { PlayersService } from 'src/app/services/players/players.service';
 
 @Component({
 	selector: 'app-player-table',
