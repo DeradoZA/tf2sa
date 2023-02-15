@@ -13,8 +13,6 @@ import {
 	map,
 } from 'rxjs';
 import { DEFAULT_PAGE_SIZE } from 'src/app/services/httpConstants';
-import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
-import { PlayersService } from 'src/app/services/players/players.service';
 import { GetScoutStatsResult } from 'src/app/services/stats/getScoutStats';
 import { StatsService } from 'src/app/services/stats/stats.service';
 
@@ -27,7 +25,13 @@ export class ScoutStatsComponent {
 	readonly displayedColumns: string[] = [
 		'profilePicture',
 		'playerName',
-		'steamId',
+		'numberOfGames',
+		'averageDpm',
+		'averageKills',
+		'averageAssists',
+		'averageDeaths',
+		'topKills',
+		'topDamage',
 		'steamProfile',
 	];
 	readonly pageSize = DEFAULT_PAGE_SIZE;
