@@ -77,12 +77,13 @@ export class PlayerTableComponent implements AfterViewInit {
 		merge(
 			this.sort.sortChange,
 			this.paginator.page,
-			this.filterStringUpdate,
+			this.filterStringUpdate.pipe(
+				debounceTime(600),
+				distinctUntilChanged()
+			),
 			this.refreshPress
 		)
 			.pipe(
-				debounceTime(400),
-				distinctUntilChanged(),
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
