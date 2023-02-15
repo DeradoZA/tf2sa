@@ -131,7 +131,6 @@ export class PlayerTableComponent implements AfterViewInit {
 	}
 
 	refresh() {
-		console.log('refresh');
 		this.isLoaded = false;
 		this.playersService
 			.getPlayers(
