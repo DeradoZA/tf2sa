@@ -8,7 +8,11 @@
 
 <div class="table-container mat-elevation-z8">
 	<div class="table-top">
-		<button mat-button (click)="this.refresh()" style="margin-left: 8px">
+		<button
+			mat-button
+			(click)="this.refreshPress.next($event)"
+			style="margin-left: 8px"
+		>
 			<mat-icon svgIcon="refresh-icon" color="accent"></mat-icon>Refresh
 		</button>
 		<mat-form-field style="margin-bottom: -1em">

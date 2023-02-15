@@ -38,6 +38,7 @@ services:
       - TF2SA_MYSQL_DB=${TF2SA_MYSQL_DB}
       - TF2SA_MYSQL_USR=${TF2SA_MYSQL_USR}
       - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
+      - TF2SA_STEAM_API_KEY=${TF2SA_STEAM_API_KEY}
 
   tf2sa-frontend:
     image: adamcoetzee/tf2sa-frontend

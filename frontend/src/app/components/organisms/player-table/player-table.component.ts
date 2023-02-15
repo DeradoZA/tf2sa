@@ -12,11 +12,9 @@ import {
 	Subject,
 	switchMap,
 } from 'rxjs';
+import { DEFAULT_PAGE_SIZE } from 'src/app/services/httpConstants';
 import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
-import {
-	DEFAULT_PAGE_SIZE,
-	PlayersService,
-} from 'src/app/services/players/players.service';
+import { PlayersService } from 'src/app/services/players/players.service';
 
 @Component({
 	selector: 'app-player-table',
@@ -67,11 +65,22 @@ export class PlayerTableComponent implements AfterViewInit {
 	sort!: MatSort;
 	public filterString: string | undefined;
 	filterStringUpdate = new Subject<string>();
+	refreshPress = new Subject();
 
 	ngAfterViewInit(): void {
-		this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+		merge(this.sort.sortChange, this.filterStringUpdate).subscribe(
+			() => (this.paginator.pageIndex = 0)
+		);
 
-		merge(this.sort.sortChange, this.paginator.page)
+		merge(
+			this.sort.sortChange,
+			this.paginator.page,
+			this.filterStringUpdate.pipe(
+				debounceTime(600),
+				distinctUntilChanged()
+			),
+			this.refreshPress
+		)
 			.pipe(
 				startWith({}),
 				switchMap(() => {
@@ -91,59 +100,7 @@ export class PlayerTableComponent implements AfterViewInit {
 			.subscribe({
 				next: (result) => {
 					this.playersResult = result;
-					this.isLoaded = true;
-				},
-				error: (error) => {
-					this.errorMessage = error;
-					this.isLoaded = true;
-				},
-			});
-
-		this.filterStringUpdate
-			.pipe(
-				debounceTime(500),
-				distinctUntilChanged(),
-				switchMap(() => {
-					this.paginator.pageIndex = 0;
-					this.isLoaded = false;
-					return this.playersService.getPlayers(
-						this.paginator.pageSize,
-						this.paginator.pageIndex * this.paginator.pageSize,
-						this.sort.active,
-						this.sort.direction,
-						this.filterString ?? ''
-					);
-				}),
-				map((data) => {
-					return data;
-				})
-			)
-			.subscribe({
-				next: (result) => {
-					this.playersResult = result;
-					this.isLoaded = true;
-				},
-				error: (error) => {
-					this.errorMessage = error;
-					this.isLoaded = true;
-				},
-			});
-	}
-
-	refresh() {
-		console.log('refresh');
-		this.isLoaded = false;
-		this.playersService
-			.getPlayers(
-				this.paginator.pageSize,
-				this.paginator.pageIndex * this.paginator.pageSize,
-				this.sort.active,
-				this.sort.direction,
-				this.filterString ?? ''
-			)
-			.subscribe({
-				next: (result) => {
-					this.playersResult = result;
+					this.errorMessage = undefined;
 					this.isLoaded = true;
 				},
 				error: (error) => {

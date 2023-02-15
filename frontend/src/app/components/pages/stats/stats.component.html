@@ -3,43 +3,32 @@
 		<nav>
 			<ul>
 				<li>
-					<a mat-button> Overall </a>
+					<a mat-button [routerLink]="ROUTES.STATS_OVERALL">
+						Overall
+					</a>
 				</li>
 				<li>
-					<a mat-button> Scout </a>
+					<a mat-button [routerLink]="ROUTES.STATS_SCOUT"> Scout </a>
 				</li>
 				<li>
-					<a mat-button> Soldier </a>
+					<a mat-button [routerLink]="ROUTES.STATS_SOLDIER">
+						Soldier
+					</a>
 				</li>
 				<li>
-					<a mat-button> Demoman </a>
+					<a mat-button [routerLink]="ROUTES.STATS_DEMOMAN">
+						Demoman
+					</a>
 				</li>
 				<li>
-					<a mat-button> Medic </a>
+					<a mat-button [routerLink]="ROUTES.STATS_MEDIC"> Medic </a>
 				</li>
 			</ul>
 		</nav>
 	</mat-drawer>
 	<mat-drawer-content>
 		<div class="stats-content">
-			<div class="stats-header">
-				<img src="../assets/transparent-trophy.png" />
-				<h1>Overall</h1>
-			</div>
-
-			<mat-progress-bar
-				*ngIf="!isLoaded"
-				mode="indeterminate"
-				color="accent"
-			></mat-progress-bar>
-			<app-error-banner
-				*ngIf="errorMessage != null"
-				[errorMessage]="errorMessage"
-			/>
-
-			<div>
-				<p>Overall Stats coming soon!</p>
-			</div>
+			<router-outlet></router-outlet>
 		</div>
 	</mat-drawer-content>
 </mat-drawer-container>

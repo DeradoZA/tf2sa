@@ -12,4 +12,5 @@ dotnet ef dbcontext scaffold \
     --table Games \
     --table PlayerStats \
     --table Players \
-    --table WeaponStats
+    --table WeaponStats \
+    --table ScoutRecent

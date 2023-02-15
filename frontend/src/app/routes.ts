@@ -1,11 +1,11 @@
-import { HomeComponent } from './components/pages/home/home.component';
-import { PlayerComponent } from './components/pages/player/player.component';
-import { PlayersComponent } from './components/pages/players/players.component';
-import { StatsComponent } from './components/pages/stats/stats.component';
-
 export const ROUTES = {
-	HOME: HomeComponent.PATH,
-	STATS: StatsComponent.PATH,
-	PLAYERS: PlayersComponent.PATH,
-	PLAYER: PlayerComponent.PATH,
+	HOME: 'home',
+	STATS: 'stats',
+	STATS_OVERALL: 'overall',
+	STATS_SCOUT: 'scout',
+	STATS_SOLDIER: 'soldier',
+	STATS_DEMOMAN: 'demoman',
+	STATS_MEDIC: 'medic',
+	PLAYERS: 'players',
+	PLAYER: 'players/:playerId',
 };

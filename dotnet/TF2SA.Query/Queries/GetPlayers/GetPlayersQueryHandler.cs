@@ -6,6 +6,7 @@ using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Errors;
+using TF2SA.Data.Extensions;
 using TF2SA.Data.Repositories.Base;
 using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 
