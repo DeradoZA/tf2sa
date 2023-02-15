@@ -198,6 +198,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageDPM FLOAT,
 			AverageKills FLOAT,
@@ -216,6 +217,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageDPM FLOAT,
 			AverageKills FLOAT,
@@ -237,6 +239,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageDPM FLOAT,
 			AverageKills FLOAT,
@@ -258,6 +261,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageDPM FLOAT,
 			AverageKills FLOAT,
@@ -279,6 +283,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageDPM FLOAT,
 			AverageKills FLOAT,
@@ -300,6 +305,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageKills FLOAT,
 			AverageAssists FLOAT,
@@ -322,6 +328,7 @@ CREATE TABLE
 		PlayerName VARCHAR(255) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_unicode_ci,
+			Avatar VARCHAR(1000) NULL,
 			NumberOfGames SMALLINT UNSIGNED,
 			AverageKills FLOAT,
 			AverageAssists FLOAT,

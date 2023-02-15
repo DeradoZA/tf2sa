@@ -9,6 +9,7 @@ DELETE FROM ScoutRecent;
 INSERT INTO ScoutRecent (
 	SteamID,
 	PlayerName,
+	Avatar,
 	NumberOfGames,
 	AverageDPM,
 	AverageKills,
@@ -48,6 +49,7 @@ WITH ScoutGames AS (
 		ps.CapturePointsCaptured AS CapturePointsCaptured,
 		ps.IntelCaptures AS IntelCaptures,
 		p.PlayerName AS PlayerName,
+		p.Avatar AS Avatar,
 		g.Date AS Date
 	FROM
 		ClassStats cs
@@ -119,6 +121,7 @@ MaxScoutDamageGames AS (
 SELECT 
 	sg.SteamID AS SteamID,
 	sg.PlayerName AS PlayerName,
+	sg.Avatar AS Avatar,
 	COUNT(sg.ClassStatsID) AS NumberOfGames,
 	ROUND(AVG(sg.Damage/sg.Playtime*60),1) AS AverageDPM,
  	ROUND(AVG(sg.Kills),1) AS AverageKills,
