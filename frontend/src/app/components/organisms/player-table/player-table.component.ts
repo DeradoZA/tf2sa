@@ -67,17 +67,7 @@ export class PlayerTableComponent implements AfterViewInit {
 	sort!: MatSort;
 	public filterString: string | undefined;
 	filterStringUpdate = new Subject<string>();
-
-	handleFetchSuccess = (result: GetPlayersResult) => {
-		this.playersResult = result;
-		this.errorMessage = undefined;
-		this.isLoaded = true;
-	};
-
-	handleFetchFailure = (error: any) => {
-		this.errorMessage = error;
-		this.isLoaded = true;
-	};
+	refreshPress = new Subject();
 
 	ngAfterViewInit(): void {
 		merge(this.sort.sortChange, this.filterStringUpdate).subscribe(
@@ -87,7 +77,8 @@ export class PlayerTableComponent implements AfterViewInit {
 		merge(
 			this.sort.sortChange,
 			this.paginator.page,
-			this.filterStringUpdate
+			this.filterStringUpdate,
+			this.refreshPress
 		)
 			.pipe(
 				debounceTime(400),
@@ -108,24 +99,15 @@ export class PlayerTableComponent implements AfterViewInit {
 				})
 			)
 			.subscribe({
-				next: this.handleFetchSuccess,
-				error: this.handleFetchFailure,
-			});
-	}
-
-	refresh() {
-		this.isLoaded = false;
-		this.playersService
-			.getPlayers(
-				this.paginator.pageSize,
-				this.paginator.pageIndex * this.paginator.pageSize,
-				this.sort.active,
-				this.sort.direction,
-				this.filterString ?? ''
-			)
-			.subscribe({
-				next: this.handleFetchSuccess,
-				error: this.handleFetchFailure,
+				next: (result) => {
+					this.playersResult = result;
+					this.errorMessage = undefined;
+					this.isLoaded = true;
+				},
+				error: (error) => {
+					this.errorMessage = error;
+					this.isLoaded = true;
+				},
 			});
 	}
 }
