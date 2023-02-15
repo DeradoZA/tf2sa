@@ -4,6 +4,7 @@ public partial class ScoutRecent
 {
 	public ulong SteamId { get; set; }
 	public string? PlayerName { get; set; }
+	public string? Avatar { get; set; }
 	public ushort? NumberOfGames { get; set; }
 	public float? AverageDpm { get; set; }
 	public float? AverageKills { get; set; }

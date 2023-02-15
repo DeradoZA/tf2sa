@@ -252,6 +252,8 @@ public partial class TF2SADbContext : DbContext
 				.ValueGeneratedNever()
 				.HasColumnName("SteamID");
 
+			entity.Property(e => e.Avatar).HasMaxLength(1000);
+
 			entity.Property(e => e.AverageDpm).HasColumnName("AverageDPM");
 
 			entity
