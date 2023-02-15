@@ -15,6 +15,8 @@ import {
 import { DEFAULT_PAGE_SIZE } from 'src/app/services/httpConstants';
 import { GetPlayersResult } from 'src/app/services/players/getPlayersResult';
 import { PlayersService } from 'src/app/services/players/players.service';
+import { GetScoutStatsResult } from 'src/app/services/stats/getScoutStats';
+import { StatsService } from 'src/app/services/stats/stats.service';
 
 @Component({
 	selector: 'app-scout-stats',
@@ -30,7 +32,7 @@ export class ScoutStatsComponent {
 	];
 	readonly pageSize = DEFAULT_PAGE_SIZE;
 	constructor(
-		private playersService: PlayersService,
+		private statsService: StatsService,
 		private iconRegistry: MatIconRegistry,
 		private sanitizer: DomSanitizer
 	) {
@@ -48,13 +50,12 @@ export class ScoutStatsComponent {
 		);
 	}
 	isLoaded: boolean = false;
-	playersResult: GetPlayersResult = {
+	playersResult: GetScoutStatsResult = {
 		totalResults: 0,
 		count: DEFAULT_PAGE_SIZE,
 		offset: 0,
 		sort: '',
-		sortorder: '',
-		filterString: '',
+		sortOrder: '',
 		players: [],
 	};
 	errorMessage: string | undefined;
@@ -85,7 +86,7 @@ export class ScoutStatsComponent {
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
-					return this.playersService.getPlayers(
+					return this.statsService.getScoutRecentStats(
 						this.paginator.pageSize,
 						this.paginator.pageIndex * this.paginator.pageSize,
 						this.sort.active,
