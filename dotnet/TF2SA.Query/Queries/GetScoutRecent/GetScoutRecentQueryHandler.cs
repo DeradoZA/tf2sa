@@ -7,7 +7,7 @@ using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
+using TF2SA.Data.Repositories.MariaDb.Generic;
 
 namespace TF2SA.Query.Queries.GetScoutRecent;
 
@@ -19,17 +19,17 @@ public class GetScoutRecentQueryHandler
 {
 	private readonly IMapper mapper;
 	private readonly ILogger<GetScoutRecentQueryHandler> logger;
-	private readonly IStatsAggregationRepository statsAggregationRepository;
+	private readonly IStatsRepository<ScoutRecent> repository;
 
 	public GetScoutRecentQueryHandler(
 		IMapper mapper,
 		ILogger<GetScoutRecentQueryHandler> logger,
-		IStatsAggregationRepository statsAggregationRepository
+		IStatsRepository<ScoutRecent> repository
 	)
 	{
 		this.mapper = mapper;
 		this.logger = logger;
-		this.statsAggregationRepository = statsAggregationRepository;
+		this.repository = repository;
 	}
 
 	public async Task<EitherStrict<Error, GetScoutRecentResult>> Handle(
@@ -39,17 +39,16 @@ public class GetScoutRecentQueryHandler
 	{
 		try
 		{
-			int count = await statsAggregationRepository
-				.GetAllScoutRecentQueryable()
+			int count = await repository
+				.GetAllQueryable()
 				.CountAsync(cancellationToken: cancellationToken);
 
-			List<ScoutRecent> scoutRecentEntities =
-				await statsAggregationRepository
-					.GetAllScoutRecentQueryable()
-					.OrderByDescending(s => s.AverageDpm)
-					.Skip(request.Offset)
-					.Take(request.Count)
-					.ToListAsync(cancellationToken: cancellationToken);
+			List<ScoutRecent> scoutRecentEntities = await repository
+				.GetAllQueryable()
+				.OrderByDescending(s => s.AverageDpm)
+				.Skip(request.Offset)
+				.Take(request.Count)
+				.ToListAsync(cancellationToken: cancellationToken);
 
 			IEnumerable<ScoutRecentDomain> scouts = mapper.Map<
 				List<ScoutRecentDomain>
