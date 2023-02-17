@@ -42,20 +42,29 @@ public class GetScoutRecentQueryHandler
 			IQueryable<ScoutRecent> scoutRecentAllQueryable =
 				repository.GetAllQueryable();
 
-			int count = await scoutRecentAllQueryable.CountAsync(
+			IQueryable<ScoutRecent> filteredQueryable = repository.ApplyFilter(
+				scoutRecentAllQueryable,
+				request.FilterField,
+				request.FilterValue,
+				out string filterFieldUsed,
+				out string FilterValueUsed
+			);
+
+			int count = await filteredQueryable.CountAsync(
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<ScoutRecent> sortedScoutRecentAllQueryable =
+			IOrderedQueryable<ScoutRecent> filteredSortedQueryable =
 				repository.ApplySort(
-					scoutRecentAllQueryable,
+					filteredQueryable,
 					request.Sort,
 					request.SortOrder,
 					out string sortFieldUsed,
 					out string sortOrderUsed
 				);
+
 			List<ScoutRecent> scoutRecentEntities =
-				await sortedScoutRecentAllQueryable
+				await filteredSortedQueryable
 					.Skip(request.Offset)
 					.Take(request.Count)
 					.ToListAsync(cancellationToken: cancellationToken);
@@ -71,6 +80,8 @@ public class GetScoutRecentQueryHandler
 				Offset = request.Offset,
 				Sort = sortFieldUsed,
 				SortOrder = sortOrderUsed,
+				FilterField = filterFieldUsed,
+				FilterValue = FilterValueUsed,
 				Players = scouts,
 			};
 		}

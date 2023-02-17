@@ -16,6 +16,13 @@ public interface IStatsRepository<TEntity> where TEntity : class
 		out string sortFieldUsed,
 		out string sortOrderUsed
 	);
+	IQueryable<TEntity> ApplyFilter(
+		IQueryable<TEntity> queryable,
+		string filterField,
+		string filterValue,
+		out string filterFieldUsed,
+		out string filterValueUsed
+	);
 	Task<OptionStrict<Error>> CallUpdateStoredProc(
 		CancellationToken cancellationToken
 	);

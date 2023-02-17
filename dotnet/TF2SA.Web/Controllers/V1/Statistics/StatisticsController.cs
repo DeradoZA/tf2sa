@@ -32,14 +32,21 @@ public class StatisticsController : ControllerBase
 	public async Task<ActionResult<GetScoutRecentHttpResult>> GetScoutRecent(
 		[FromQuery] int count = 13,
 		[FromQuery] int offset = 0,
-		[FromQuery] string? sort = "playerName",
-		[FromQuery] string? sortOrder = "asc",
-		[FromQuery] string? filterString = ""
+		[FromQuery] string? sort = "averageDpm",
+		[FromQuery] string? sortOrder = "desc",
+		[FromQuery] string? filterField = "",
+		[FromQuery] string? filterValue = ""
 	)
 	{
-		logger.LogInformation("ScoutRecent");
 		EitherStrict<Error, GetScoutRecentResult> result = await mediator.Send(
-			new GetScoutRecentQuery(count, offset, sort!, sortOrder!)
+			new GetScoutRecentQuery(
+				count,
+				offset,
+				sort!,
+				sortOrder!,
+				filterField!,
+				filterValue!
+			)
 		);
 
 		if (result.IsLeft)

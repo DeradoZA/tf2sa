@@ -9,5 +9,7 @@ public class GetScoutRecentResult
 	public int Offset { get; set; }
 	public string Sort { get; set; } = string.Empty;
 	public string SortOrder { get; set; } = string.Empty;
+	public string FilterField { get; set; } = string.Empty;
+	public string FilterValue { get; set; } = string.Empty;
 	public IEnumerable<ScoutRecentDomain>? Players { get; set; }
 }

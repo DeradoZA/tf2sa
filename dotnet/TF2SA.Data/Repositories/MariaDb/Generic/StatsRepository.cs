@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -131,5 +132,69 @@ public abstract class StatsRepository<TEntity> : IStatsRepository<TEntity>
 			DefaultSortOrder.ToString()
 		);
 		return DefaultSortOrder;
+	}
+
+	public IQueryable<TEntity> ApplyFilter(
+		IQueryable<TEntity> queryable,
+		string filterField,
+		string filterValue,
+		out string filterFieldUsed,
+		out string filterValueUsed
+	)
+	{
+		if (string.IsNullOrWhiteSpace(filterValue))
+		{
+			logger.LogWarning(
+				"Empty filter value passed, no filtering will be applied"
+			);
+			filterFieldUsed = string.Empty;
+			filterValueUsed = string.Empty;
+			return queryable;
+		}
+
+		if (
+			!PropertyKeySelectors.TryGetValue(
+				filterField,
+				out Expression<Func<TEntity, object>>? filterSelector
+			)
+		)
+		{
+			filterFieldUsed = filterField;
+			filterValueUsed = filterValue;
+			logger.LogWarning(
+				"Failed to parse filter field {}, no filtering will be applied.",
+				filterField
+			);
+			return queryable;
+		}
+
+		if (filterSelector.Body.Type == typeof(string))
+		{
+			queryable = queryable.Where(
+				(Expression<Func<TEntity, bool>>)
+					Expression.Lambda(
+						Expression.Call(
+							filterSelector.Body,
+							typeof(string).GetMethod(
+								"Contains",
+								new[] { typeof(string) }
+							)!,
+							Expression.Constant(filterValue, typeof(string))
+						),
+						filterSelector.Parameters
+					)
+			);
+			filterFieldUsed = filterField;
+			filterValueUsed = filterValue;
+			return queryable;
+		}
+
+		logger.LogWarning(
+			"Current Filtering only works for string types.",
+			filterField
+		);
+		filterFieldUsed = string.Empty;
+		filterValueUsed = string.Empty;
+		return queryable;
 	}
 }
