@@ -39,16 +39,26 @@ public class GetScoutRecentQueryHandler
 	{
 		try
 		{
-			int count = await repository
-				.GetAllQueryable()
-				.CountAsync(cancellationToken: cancellationToken);
+			IQueryable<ScoutRecent> scoutRecentAllQueryable =
+				repository.GetAllQueryable();
 
-			List<ScoutRecent> scoutRecentEntities = await repository
-				.GetAllQueryable()
-				.OrderByDescending(s => s.AverageDpm)
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
+			int count = await scoutRecentAllQueryable.CountAsync(
+				cancellationToken: cancellationToken
+			);
+
+			IOrderedQueryable<ScoutRecent> sortedScoutRecentAllQueryable =
+				repository.ApplySort(
+					scoutRecentAllQueryable,
+					request.Sort,
+					request.SortOrder,
+					out string sortFieldUsed,
+					out string sortOrderUsed
+				);
+			List<ScoutRecent> scoutRecentEntities =
+				await sortedScoutRecentAllQueryable
+					.Skip(request.Offset)
+					.Take(request.Count)
+					.ToListAsync(cancellationToken: cancellationToken);
 
 			IEnumerable<ScoutRecentDomain> scouts = mapper.Map<
 				List<ScoutRecentDomain>
@@ -59,8 +69,8 @@ public class GetScoutRecentQueryHandler
 				TotalResults = count,
 				Count = scouts.Count(),
 				Offset = request.Offset,
-				Sort = request.Sort,
-				SortOrder = request.SortOrder,
+				Sort = sortFieldUsed,
+				SortOrder = sortOrderUsed,
 				Players = scouts,
 			};
 		}
