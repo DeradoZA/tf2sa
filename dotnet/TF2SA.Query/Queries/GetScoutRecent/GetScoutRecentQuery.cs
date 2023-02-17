@@ -5,7 +5,8 @@ using TF2SA.Common.Errors;
 namespace TF2SA.Query.Queries.GetScoutRecent;
 
 public class GetScoutRecentQuery
-	: IRequest<EitherStrict<Error, GetScoutRecentResult>>
+	: FetchPlayersQueryRequest,
+		IRequest<EitherStrict<Error, GetScoutRecentResult>>
 {
 	public GetScoutRecentQuery(
 		int count,
@@ -14,20 +15,5 @@ public class GetScoutRecentQuery
 		string sortOrder,
 		string filterField,
 		string filterValue
-	)
-	{
-		Count = count;
-		Offset = offset;
-		Sort = sort;
-		SortOrder = sortOrder;
-		FilterField = filterField;
-		FilterValue = filterValue;
-	}
-
-	public int Count { get; set; } = 20;
-	public int Offset { get; set; } = 0;
-	public string Sort { get; set; } = string.Empty;
-	public string SortOrder { get; set; } = string.Empty;
-	public string FilterField { get; set; } = string.Empty;
-	public string FilterValue { get; set; } = string.Empty;
+	) : base(count, offset, sort, sortOrder, filterField, filterValue) { }
 }

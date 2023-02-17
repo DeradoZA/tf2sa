@@ -47,10 +47,10 @@ public class GetScoutRecentQueryHandler
 				request.FilterField,
 				request.FilterValue,
 				out string filterFieldUsed,
-				out string FilterValueUsed
+				out string filterValueUsed
 			);
 
-			int count = await filteredQueryable.CountAsync(
+			int totalCount = await filteredQueryable.CountAsync(
 				cancellationToken: cancellationToken
 			);
 
@@ -73,17 +73,16 @@ public class GetScoutRecentQueryHandler
 				List<ScoutRecentDomain>
 			>(scoutRecentEntities);
 
-			return new GetScoutRecentResult
-			{
-				TotalResults = count,
-				Count = scouts.Count(),
-				Offset = request.Offset,
-				Sort = sortFieldUsed,
-				SortOrder = sortOrderUsed,
-				FilterField = filterFieldUsed,
-				FilterValue = FilterValueUsed,
-				Players = scouts,
-			};
+			return new GetScoutRecentResult(
+				totalCount,
+				scouts.Count(),
+				request.Offset,
+				sortFieldUsed,
+				sortOrderUsed,
+				filterFieldUsed,
+				filterValueUsed,
+				scouts
+			);
 		}
 		catch (Exception e)
 		{
