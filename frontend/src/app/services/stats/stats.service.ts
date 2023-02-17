@@ -21,16 +21,18 @@ export class StatsService {
 	getScoutRecentStats(
 		count = DEFAULT_PAGE_SIZE,
 		offset = 0,
-		sort = 'playerName',
-		sortorder = 'asc',
-		filterString: string
+		sort = 'averageDpm',
+		sortorder = 'desc',
+		filterField = 'playerName',
+		filterValue = ''
 	) {
 		let params = new HttpParams();
 		params = params.append('count', count.toString());
 		params = params.append('offset', offset.toString());
 		params = params.append('sort', sort);
 		params = params.append('sortorder', sortorder);
-		params = params.append('filterString', filterString);
+		params = params.append('filterField', filterField);
+		params = params.append('filterValue', filterValue);
 
 		return this.httpClient
 			.get<GetScoutStatsResult>(`${STATS_BASE_URL}/ScoutRecent`, {

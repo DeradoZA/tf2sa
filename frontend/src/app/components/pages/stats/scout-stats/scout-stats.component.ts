@@ -61,6 +61,8 @@ export class ScoutStatsComponent {
 		sort: '',
 		sortOrder: '',
 		players: [],
+		filterField: '',
+		filterValue: '',
 	};
 	errorMessage: string | undefined;
 
@@ -95,6 +97,7 @@ export class ScoutStatsComponent {
 						this.paginator.pageIndex * this.paginator.pageSize,
 						this.sort.active,
 						this.sort.direction,
+						'playerName',
 						this.filterString ?? ''
 					);
 				}),
