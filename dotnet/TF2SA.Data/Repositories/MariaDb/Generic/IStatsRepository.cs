@@ -9,6 +9,13 @@ public interface IStatsRepository<TEntity> where TEntity : class
 		CancellationToken cancellationToken
 	);
 	IQueryable<TEntity> GetAllQueryable();
+	IOrderedQueryable<TEntity> ApplySort(
+		IQueryable<TEntity> queryable,
+		string sortField,
+		string sortOrder,
+		out string sortFieldUsed,
+		out string sortOrderUsed
+	);
 	Task<OptionStrict<Error>> CallUpdateStoredProc(
 		CancellationToken cancellationToken
 	);

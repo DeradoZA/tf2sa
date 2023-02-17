@@ -1,8 +1,10 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Data.Errors;
+using static TF2SA.Data.Extensions.TF2SALinqExtensions;
 
 namespace TF2SA.Data.Repositories.MariaDb.Generic;
 
@@ -13,6 +15,17 @@ public abstract class StatsRepository<TEntity> : IStatsRepository<TEntity>
 	private readonly DbSet<TEntity> dbSet;
 	private readonly ILogger logger;
 	public abstract string UpdateProcQuery { get; }
+
+	public abstract Dictionary<
+		string,
+		Expression<Func<TEntity, object>>
+	> PropertyKeySelectors { get; }
+
+	public abstract Tuple<
+		string,
+		Expression<Func<TEntity, object>>
+	> DefaultSortField { get; }
+	public abstract SortOrder DefaultSortOrder { get; }
 
 	public StatsRepository(TF2SADbContext dbContext, ILogger logger)
 	{
@@ -66,5 +79,57 @@ public abstract class StatsRepository<TEntity> : IStatsRepository<TEntity>
 			);
 		}
 		return OptionStrict<Error>.Nothing;
+	}
+
+	public IOrderedQueryable<TEntity> ApplySort(
+		IQueryable<TEntity> queryable,
+		string sortField,
+		string sortOrder,
+		out string sortFieldUsed,
+		out string sortOrderUsed
+	)
+	{
+		if (
+			PropertyKeySelectors.TryGetValue(
+				sortField,
+				out Expression<Func<TEntity, object>>? sortSelector
+			)
+		)
+		{
+			sortFieldUsed = sortField;
+		}
+		else
+		{
+			logger.LogWarning(
+				"Failed to apply provided sortField {providedSortField}. "
+					+ "Defaulting to {defaultSortField}",
+				sortField,
+				DefaultSortField.Item1
+			);
+			sortFieldUsed = DefaultSortField.Item1;
+			sortSelector = DefaultSortField.Item2;
+		}
+
+		SortOrder appliedSortOrder = GetSortOrder(sortOrder);
+		sortOrderUsed = appliedSortOrder.ToString();
+
+		if (appliedSortOrder == SortOrder.asc)
+		{
+			return queryable.OrderBy(sortSelector);
+		}
+		return queryable.OrderByDescending(sortSelector);
+	}
+
+	private SortOrder GetSortOrder(string sortOrder)
+	{
+		if (Enum.TryParse(sortOrder, out SortOrder sort))
+		{
+			return sort;
+		}
+		logger.LogWarning(
+			"Failed to parse sort order, defaulting to {sortOrder}",
+			DefaultSortOrder.ToString()
+		);
+		return DefaultSortOrder;
 	}
 }
