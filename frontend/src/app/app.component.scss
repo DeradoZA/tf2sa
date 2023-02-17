@@ -10,6 +10,14 @@ mat-toolbar img {
 	margin-left: 8px;
 }
 
-.app-content {
+.app-container {
+	display: flex;
+	flex-direction: column;
 	height: 100%;
+}
+
+.app-content {
+	flex-grow: 1;
+	max-height: calc(100% - 64px); /* subtract the height of the toolbar */
+	overflow-y: auto;
 }

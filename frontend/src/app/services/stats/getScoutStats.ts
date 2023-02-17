@@ -1,11 +1,6 @@
-export interface GetScoutStatsResult {
-	totalResults: number;
-	count: number;
-	offset: number;
-	sort: string;
-	sortOrder: string;
-	players: ScoutStat[];
-}
+import { PlayersFetchResult } from '../models/playersFetchResult';
+
+export interface GetScoutStatsResult extends PlayersFetchResult<ScoutStat> {}
 
 export interface ScoutStat {
 	steamId: string;

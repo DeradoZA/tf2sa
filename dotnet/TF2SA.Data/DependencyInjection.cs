@@ -6,6 +6,7 @@ using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
+using TF2SA.Data.Repositories.MariaDb.Generic;
 using TF2SA.Data.Services.Base;
 using TF2SA.Data.Services.Mariadb;
 
@@ -49,6 +50,11 @@ public static class DependencyInjection
 		services.AddScoped<
 			IStatsAggregationRepository,
 			StatsAggregationRepository
+		>();
+
+		services.AddScoped<
+			IStatsRepository<ScoutRecent>,
+			ScoutRecentStatsRepository
 		>();
 
 		services.AddAutoMapper(typeof(GameMappingProfile));

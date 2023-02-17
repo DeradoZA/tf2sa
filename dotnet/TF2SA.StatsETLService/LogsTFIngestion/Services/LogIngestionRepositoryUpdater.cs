@@ -9,6 +9,7 @@ using Player = TF2SA.Data.Entities.MariaDb.Player;
 using TF2SA.StatsETLService.LogsTFIngestion.Errors;
 using TF2SA.Http.Steam.Service;
 using TF2SA.Http.Steam.Models.PlayerSummaries;
+using TF2SA.Data.Repositories.MariaDb.Generic;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 
@@ -16,7 +17,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 {
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playersRepository;
-	private readonly IStatsAggregationRepository statsAggregationRepository;
+	private readonly IStatsRepository<ScoutRecent> scoutStatsRepository;
 	private readonly ILogger<LogIngestionRepositoryUpdater> logger;
 	private readonly IMapper mapper;
 	private readonly ISteamService steamService;
@@ -27,7 +28,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		IMapper mapper,
 		IPlayersRepository<Player, ulong> playersRepository,
 		ISteamService steamService,
-		IStatsAggregationRepository statsAggregationRepository
+		IStatsRepository<ScoutRecent> scoutStatsRepository
 	)
 	{
 		this.gamesRepository = gamesRepository;
@@ -35,7 +36,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		this.mapper = mapper;
 		this.playersRepository = playersRepository;
 		this.steamService = steamService;
-		this.statsAggregationRepository = statsAggregationRepository;
+		this.scoutStatsRepository = scoutStatsRepository;
 	}
 
 	public async Task<OptionStrict<Error>> InsertInvalidLog(
@@ -242,9 +243,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		logger.LogInformation("Updating Aggregated statistics.");
 
 		OptionStrict<Error> updateScoutRecent =
-			await statsAggregationRepository.UpdateScoutRecentStats(
-				cancellationToken
-			);
+			await scoutStatsRepository.CallUpdateStoredProc(cancellationToken);
 		if (updateScoutRecent.HasValue)
 		{
 			return updateScoutRecent.Value;

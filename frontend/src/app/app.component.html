@@ -1,42 +1,43 @@
-<mat-toolbar>
-	<img src="../assets/tf2sa_trans.png" />
-	<span class="header-title">TF2SA</span>
-	<nav>
-		<ul>
-			<li>
-				<a
-					mat-button
-					color="accent"
-					[routerLink]="ROUTES.HOME"
-					routerLinkActive="active"
-				>
-					HOME
-				</a>
-			</li>
-			<li>
-				<a
-					mat-button
-					color="accent"
-					[routerLink]="ROUTES.STATS"
-					routerLinkActive="active"
-				>
-					STATS
-				</a>
-			</li>
-			<li>
-				<a
-					mat-button
-					color="accent"
-					[routerLink]="ROUTES.PLAYERS"
-					routerLinkActive="active"
-				>
-					PLAYERS
-				</a>
-			</li>
-		</ul>
-	</nav>
-</mat-toolbar>
-
-<div class="app-content">
-	<router-outlet> </router-outlet>
+<div class="app-container">
+	<mat-toolbar>
+		<img src="../assets/tf2sa_trans.png" />
+		<span class="header-title">TF2SA</span>
+		<nav>
+			<ul>
+				<li>
+					<a
+						mat-button
+						color="accent"
+						[routerLink]="ROUTES.HOME"
+						routerLinkActive="active"
+					>
+						HOME
+					</a>
+				</li>
+				<li>
+					<a
+						mat-button
+						color="accent"
+						[routerLink]="ROUTES.STATS"
+						routerLinkActive="active"
+					>
+						STATS
+					</a>
+				</li>
+				<li>
+					<a
+						mat-button
+						color="accent"
+						[routerLink]="ROUTES.PLAYERS"
+						routerLinkActive="active"
+					>
+						PLAYERS
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</mat-toolbar>
+	<div class="app-content">
+		<router-outlet> </router-outlet>
+	</div>
 </div>

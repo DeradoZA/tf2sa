@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace TF2SA.Data.Extensions;
 
-public static class PlayerLinqExtensions
+public static class TF2SALinqExtensions
 {
 	private static readonly Dictionary<
 		string,
