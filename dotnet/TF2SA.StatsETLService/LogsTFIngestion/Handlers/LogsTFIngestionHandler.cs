@@ -94,7 +94,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		List<LogListItem> logsToProcess = logsToProcessResult.Right;
 
 		await Parallel.ForEachAsync(
-			logsToProcess.Take(500),
+			logsToProcess.Take(100),
 			new ParallelOptions()
 			{
 				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,

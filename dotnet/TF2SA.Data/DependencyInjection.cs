@@ -47,10 +47,6 @@ public static class DependencyInjection
 		>();
 		services.AddScoped<IGamesRepository<Game, uint>, GamesRepository>();
 		services.AddScoped<IStatsService<ulong>, StatsService>();
-		services.AddScoped<
-			IStatsAggregationRepository,
-			StatsAggregationRepository
-		>();
 
 		services.AddScoped<
 			IStatsRepository<ScoutRecent>,
