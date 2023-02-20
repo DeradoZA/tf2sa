@@ -22,6 +22,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private readonly ILogsTFService logsTFService;
 	private readonly IServiceProvider serviceProvider;
 	private readonly ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater;
+	private readonly IStatisticsUpdater statisticsUpdater;
 
 	public LogsTFIngestionHandler(
 		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
@@ -29,7 +30,8 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		ILogsTFService logsTFService,
 		IGamesRepository<Game, uint> gamesRepository,
 		IServiceProvider serviceProvider,
-		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater
+		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater,
+		IStatisticsUpdater statisticsUpdater
 	)
 	{
 		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
@@ -38,6 +40,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		this.gamesRepository = gamesRepository;
 		this.serviceProvider = serviceProvider;
 		this.logIngestionRepositoryUpdater = logIngestionRepositoryUpdater;
+		this.statisticsUpdater = statisticsUpdater;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -127,7 +130,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		if (logsToProcess.Count >= 0)
 		{
 			OptionStrict<Error> updateStatisticsResult =
-				await logIngestionRepositoryUpdater.UpdateAggregatedStatistics(
+				await statisticsUpdater.UpdateAggregatedStatistics(
 					cancellationToken
 				);
 			if (updatePlayersResult.HasValue)
