@@ -11,10 +11,17 @@ INSERT INTO ScoutRecent (
 	PlayerName,
 	Avatar,
 	NumberOfGames,
+	Wins,
+	Draws,
+	Losses,
 	AverageDPM,
 	AverageKills,
 	AverageAssists,
 	AverageDeaths,
+	AverageDamageTakenPM,
+	AverageHealsReceivedPM,
+	AverageMedKitsHP,
+	AverageCapturePointsCaptured,
 	TopKills,
 	TopKillsGameID,
 	TopDamage,
@@ -33,6 +40,26 @@ WITH ScoutGames AS (
 		ps.GameID AS GameID,
 		ps.SteamID AS SteamID,
 		ps.TeamID AS TeamID,
+		(
+			CASE 
+				WHEN (ps.TeamID = 0 AND g.BlueScore > g.RedScore) THEN 1 -- blue team win
+				WHEN (ps.TeamID = 1 AND g.BlueScore < g.RedScore) THEN 1 -- red team win
+				ELSE 0
+			END
+		) AS Win,
+		(
+			CASE 
+				WHEN (ps.TeamID = 0 AND g.BlueScore < g.RedScore) THEN 1 -- blue team loss
+				WHEN (ps.TeamID = 1 AND g.BlueScore > g.RedScore) THEN 1 -- red team loss
+				ELSE 0
+			END
+		) AS Loss,
+		(
+			CASE 
+				WHEN (g.BlueScore = g.RedScore) THEN 1 -- draw
+				ELSE 0
+			END
+		) AS Draw,
 		ps.DamageTaken AS DamageTaken,
 		ps.HealsReceived AS HealsReceived,
 		ps.LongestKillStreak AS LongestKillStreak,
@@ -40,7 +67,7 @@ WITH ScoutGames AS (
 		ps.Ubers AS Ubers,
 		ps.Drops AS Drops,
 		ps.Medkits AS Medkits,
-		ps.MedkitsHP AS MedkisHP,
+		ps.MedkitsHP AS MedkitsHP,
 		ps.Backstabs AS Backstabs,
 		ps.Headshots AS Headshots,
 		ps.HeadshotsHit AS HeadshotsHit,
@@ -123,10 +150,17 @@ SELECT
 	sg.PlayerName AS PlayerName,
 	sg.Avatar AS Avatar,
 	COUNT(sg.ClassStatsID) AS NumberOfGames,
+	SUM(sg.Win) AS Wins,
+	SUM(sg.Draw) AS Draws,
+	SUM(sg.Loss) AS Losses,
 	ROUND(AVG(sg.Damage/sg.Playtime*60),1) AS AverageDPM,
  	ROUND(AVG(sg.Kills),1) AS AverageKills,
  	ROUND(AVG(sg.Kills),1) AS AverageAssists,
  	ROUND(AVG(sg.Deaths),1) AS AverageDeaths,
+ 	ROUND(AVG(sg.DamageTaken/sg.Playtime*60),1) AS AverageDamageTakenPM,
+ 	ROUND(AVG(sg.HealsReceived/sg.Playtime*60),1) AS AverageHealsReceivedPM,
+ 	ROUND(AVG(sg.MedkitsHP),1) AS AverageMedKitsHP,
+	ROUND(AVG(sg.CapturePointsCaptured),1) AS AverageCapturePointsCaptured,
 	kg.MaxKills AS TopKills,
 	kg.MaxKillsGameID AS TopKillsGameID,
 	dg.MaxDamage AS TopDamage,
