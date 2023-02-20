@@ -42,6 +42,10 @@ public class SteamService : ISteamService
 
 		List<ulong[]> playerBatches = GroupPlayerBatchesForRequest(steamids);
 
+		// TODO use thread-safe collections when adding in parallel loops
+		// We are getting an apparent race-condition exception:
+		// Source array was not long enough. Check the source index, length, and the array's lower bounds. (Parameter 'sourceArray')
+		// milestone: 7
 		List<SteamPlayer> fetchedPlayers = new();
 		List<Error> errors = new();
 		await Parallel.ForEachAsync(
