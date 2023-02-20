@@ -65,5 +65,6 @@ public class GameMappingProfile : Profile
 		CreateMap<SteamPlayer, PlayerEntity>();
 		CreateMap<PlayerEntity, PlayerDomain>();
 		CreateMap<ScoutRecent, ScoutStatDomain>();
+		CreateMap<ScoutAllTime, ScoutStatDomain>();
 	}
 }
