@@ -14,6 +14,7 @@ public partial class TF2SADbContext : DbContext
 	public virtual DbSet<Game> Games { get; set; } = null!;
 	public virtual DbSet<Player> Players { get; set; } = null!;
 	public virtual DbSet<PlayerStat> PlayerStats { get; set; } = null!;
+	public virtual DbSet<ScoutAllTime> ScoutAllTimes { get; set; } = null!;
 	public virtual DbSet<ScoutRecent> ScoutRecents { get; set; } = null!;
 	public virtual DbSet<WeaponStat> WeaponStats { get; set; } = null!;
 
@@ -240,11 +241,11 @@ public partial class TF2SADbContext : DbContext
 				.HasConstraintName("fk_player_id");
 		});
 
-		modelBuilder.Entity<ScoutRecent>(entity =>
+		modelBuilder.Entity<ScoutAllTime>(entity =>
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("ScoutRecent");
+			entity.ToTable("ScoutAllTime");
 
 			entity
 				.Property(e => e.SteamId)
@@ -254,7 +255,23 @@ public partial class TF2SADbContext : DbContext
 
 			entity.Property(e => e.Avatar).HasMaxLength(1000);
 
+			entity
+				.Property(e => e.AverageDamageTakenPm)
+				.HasColumnName("AverageDamageTakenPM");
+
 			entity.Property(e => e.AverageDpm).HasColumnName("AverageDPM");
+
+			entity
+				.Property(e => e.AverageHealsReceivedPm)
+				.HasColumnName("AverageHealsReceivedPM");
+
+			entity
+				.Property(e => e.AverageMedKitsHp)
+				.HasColumnName("AverageMedKitsHP");
+
+			entity.Property(e => e.Draws).HasColumnType("int(10) unsigned");
+
+			entity.Property(e => e.Losses).HasColumnType("int(10) unsigned");
 
 			entity
 				.Property(e => e.NumberOfGames)
@@ -279,6 +296,67 @@ public partial class TF2SADbContext : DbContext
 				.Property(e => e.TopKillsGameId)
 				.HasColumnType("int(10) unsigned")
 				.HasColumnName("TopKillsGameID");
+
+			entity.Property(e => e.Wins).HasColumnType("int(10) unsigned");
+		});
+
+		modelBuilder.Entity<ScoutRecent>(entity =>
+		{
+			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
+
+			entity.ToTable("ScoutRecent");
+
+			entity
+				.Property(e => e.SteamId)
+				.HasColumnType("bigint(20) unsigned")
+				.ValueGeneratedNever()
+				.HasColumnName("SteamID");
+
+			entity.Property(e => e.Avatar).HasMaxLength(1000);
+
+			entity
+				.Property(e => e.AverageDamageTakenPm)
+				.HasColumnName("AverageDamageTakenPM");
+
+			entity.Property(e => e.AverageDpm).HasColumnName("AverageDPM");
+
+			entity
+				.Property(e => e.AverageHealsReceivedPm)
+				.HasColumnName("AverageHealsReceivedPM");
+
+			entity
+				.Property(e => e.AverageMedKitsHp)
+				.HasColumnName("AverageMedKitsHP");
+
+			entity.Property(e => e.Draws).HasColumnType("int(10) unsigned");
+
+			entity.Property(e => e.Losses).HasColumnType("int(10) unsigned");
+
+			entity
+				.Property(e => e.NumberOfGames)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity.Property(e => e.PlayerName).HasMaxLength(255);
+
+			entity
+				.Property(e => e.TopDamage)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity
+				.Property(e => e.TopDamageGameId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("TopDamageGameID");
+
+			entity
+				.Property(e => e.TopKills)
+				.HasColumnType("smallint(5) unsigned");
+
+			entity
+				.Property(e => e.TopKillsGameId)
+				.HasColumnType("int(10) unsigned")
+				.HasColumnName("TopKillsGameID");
+
+			entity.Property(e => e.Wins).HasColumnType("int(10) unsigned");
 		});
 
 		modelBuilder.Entity<WeaponStat>(entity =>

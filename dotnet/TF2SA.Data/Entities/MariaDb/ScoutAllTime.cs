@@ -1,6 +1,6 @@
 ﻿namespace TF2SA.Data.Entities.MariaDb;
 
-public partial class ScoutRecent
+public partial class ScoutAllTime
 {
 	public ulong SteamId { get; set; }
 	public string? PlayerName { get; set; }
