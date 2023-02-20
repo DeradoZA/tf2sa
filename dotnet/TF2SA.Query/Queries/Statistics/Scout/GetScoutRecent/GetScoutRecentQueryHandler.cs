@@ -9,12 +9,12 @@ using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.MariaDb.Generic;
 
-namespace TF2SA.Query.Queries.GetScoutRecent;
+namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
 
 public class GetScoutRecentQueryHandler
 	: IRequestHandler<
 		GetScoutRecentQuery,
-		EitherStrict<Error, GetScoutRecentResult>
+		EitherStrict<Error, GetScoutStatsResult>
 	>
 {
 	private readonly IMapper mapper;
@@ -32,7 +32,7 @@ public class GetScoutRecentQueryHandler
 		this.repository = repository;
 	}
 
-	public async Task<EitherStrict<Error, GetScoutRecentResult>> Handle(
+	public async Task<EitherStrict<Error, GetScoutStatsResult>> Handle(
 		GetScoutRecentQuery request,
 		CancellationToken cancellationToken
 	)
@@ -69,11 +69,11 @@ public class GetScoutRecentQueryHandler
 					.Take(request.Count)
 					.ToListAsync(cancellationToken: cancellationToken);
 
-			IEnumerable<ScoutRecentDomain> scouts = mapper.Map<
-				List<ScoutRecentDomain>
+			IEnumerable<ScoutStatDomain> scouts = mapper.Map<
+				List<ScoutStatDomain>
 			>(scoutRecentEntities);
 
-			return new GetScoutRecentResult(
+			return new GetScoutStatsResult(
 				totalCount,
 				scouts.Count(),
 				request.Offset,

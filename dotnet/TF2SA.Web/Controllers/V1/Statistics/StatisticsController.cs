@@ -3,8 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Monad;
 using TF2SA.Common.Errors;
-using TF2SA.Query.Queries.GetScoutRecent;
-using TF2SA.Web.Controllers.V1.Statistics.Models.GetScoutRecent;
+using TF2SA.Query.Queries.Statistics.Scout;
+using TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
+using TF2SA.Web.Controllers.V1.Statistics.Models.ScoutStats;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -29,7 +30,7 @@ public class StatisticsController : ControllerBase
 
 	[HttpGet]
 	[Route("ScoutRecent")]
-	public async Task<ActionResult<GetScoutRecentHttpResult>> GetScoutRecent(
+	public async Task<ActionResult<GetScoutStatsHttpResult>> GetScoutRecent(
 		[FromQuery] int count = 13,
 		[FromQuery] int offset = 0,
 		[FromQuery] string? sort = "averageDpm",
@@ -38,7 +39,7 @@ public class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetScoutRecentResult> result = await mediator.Send(
+		EitherStrict<Error, GetScoutStatsResult> result = await mediator.Send(
 			new GetScoutRecentQuery(
 				count,
 				offset,
@@ -54,8 +55,8 @@ public class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetScoutRecentHttpResult httpResult =
-			mapper.Map<GetScoutRecentHttpResult>(result.Right);
+		GetScoutStatsHttpResult httpResult =
+			mapper.Map<GetScoutStatsHttpResult>(result.Right);
 
 		return Ok(httpResult);
 	}

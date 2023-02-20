@@ -2,11 +2,11 @@ using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
-namespace TF2SA.Query.Queries.GetScoutRecent;
+namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
 
 public class GetScoutRecentQuery
 	: FetchPlayersQueryRequest,
-		IRequest<EitherStrict<Error, GetScoutRecentResult>>
+		IRequest<EitherStrict<Error, GetScoutStatsResult>>
 {
 	public GetScoutRecentQuery(
 		int count,
