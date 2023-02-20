@@ -52,6 +52,10 @@ public static class DependencyInjection
 			IStatsRepository<ScoutRecent>,
 			ScoutRecentStatsRepository
 		>();
+		services.AddScoped<
+			IStatsRepository<ScoutAllTime>,
+			ScoutAllTimeStatsRepository
+		>();
 
 		services.AddAutoMapper(typeof(GameMappingProfile));
 	}
