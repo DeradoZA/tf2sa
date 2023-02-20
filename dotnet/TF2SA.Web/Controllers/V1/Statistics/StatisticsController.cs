@@ -5,7 +5,7 @@ using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Query.Queries.Statistics.Scout;
 using TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
-using TF2SA.Web.Controllers.V1.Statistics.Models.ScoutStats;
+using TF2SA.Web.Controllers.V1.Statistics.Scout;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
