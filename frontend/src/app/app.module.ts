@@ -27,7 +27,7 @@ import { SoldierStatsComponent } from './components/pages/stats/soldier-stats/so
 import { DemomanStatsComponent } from './components/pages/stats/demoman-stats/demoman-stats.component';
 import { MedicStatsComponent } from './components/pages/stats/medic-stats/medic-stats.component';
 import { StatsHeaderComponent } from './components/molecules/stats-header/stats-header.component';
-
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 @NgModule({
 	declarations: [
 		AppComponent,
@@ -60,6 +60,7 @@ import { StatsHeaderComponent } from './components/molecules/stats-header/stats-
 		MatPaginatorModule,
 		MatInputModule,
 		FormsModule,
+		MatButtonToggleModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

@@ -1,4 +1,4 @@
-namespace TF2SA.Web.Controllers.V1.Statistics.Models.GetScoutRecent;
+namespace TF2SA.Web.Controllers.V1.Statistics;
 
 public class PlayersFetchResultHttp<TPlayer> where TPlayer : class
 {

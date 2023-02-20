@@ -1,13 +1,13 @@
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Data.Errors;
+using TF2SA.Data.Repositories.Base;
 using static TF2SA.Data.Extensions.TF2SALinqExtensions;
 
-namespace TF2SA.Data.Repositories.MariaDb.Generic;
+namespace TF2SA.Data.Repositories.MariaDb.Statistics;
 
 public abstract class StatsRepository<TEntity> : IStatsRepository<TEntity>
 	where TEntity : class

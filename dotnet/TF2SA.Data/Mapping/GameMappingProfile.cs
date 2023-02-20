@@ -64,6 +64,7 @@ public class GameMappingProfile : Profile
 		CreateMap<WeaponStats, WeaponStat>();
 		CreateMap<SteamPlayer, PlayerEntity>();
 		CreateMap<PlayerEntity, PlayerDomain>();
-		CreateMap<ScoutRecent, ScoutRecentDomain>();
+		CreateMap<ScoutRecent, ScoutStatDomain>();
+		CreateMap<ScoutAllTime, ScoutStatDomain>();
 	}
 }

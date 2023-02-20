@@ -1,12 +1,12 @@
-DROP PROCEDURE IF EXISTS UpdateScoutRecentStats;
+DROP PROCEDURE IF EXISTS UpdateScoutAllTimeStats;
 
 DELIMITER $$
 $$
-CREATE PROCEDURE UpdateScoutRecentStats()
+CREATE PROCEDURE UpdateScoutAllTimeStats()
 BEGIN
-    
-DELETE FROM ScoutRecent;
-INSERT INTO ScoutRecent (
+
+DELETE FROM ScoutAllTime;
+INSERT INTO ScoutAllTime (
 	SteamID,
 	PlayerName,
 	Avatar,
@@ -84,8 +84,7 @@ WITH ScoutGames AS (
 		JOIN Players p ON p.SteamID = ps.SteamID
 		JOIN Games g ON g.GameID = ps.GameID
 	WHERE
-		cs.ClassID = 1 AND 
-		g.`Date` > UNIX_TIMESTAMP() - 365*24*60*60
+		cs.ClassID = 1
 ),
 MaxScoutKillGames AS (
 	SELECT
@@ -170,7 +169,7 @@ FROM
 	LEFT JOIN MaxScoutKillGames kg on kg.SteamID = sg.SteamID
 	LEFT JOIN MaxScoutDamageGames dg on dg.SteamID = sg.SteamID
 GROUP BY sg.SteamID
-HAVING NumberOfGames >= 5
+HAVING NumberOfGames >= 20
 ORDER BY AverageDPM DESC;
 
 END$$

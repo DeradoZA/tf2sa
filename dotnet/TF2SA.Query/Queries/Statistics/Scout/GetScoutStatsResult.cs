@@ -1,10 +1,10 @@
 using TF2SA.Common.Models.Core;
 
-namespace TF2SA.Query.Queries.GetScoutRecent;
+namespace TF2SA.Query.Queries.Statistics.Scout;
 
-public class GetScoutRecentResult : FetchPlayersQueryResponse<ScoutRecentDomain>
+public class GetScoutStatsResult : FetchPlayersQueryResponse<ScoutStatDomain>
 {
-	public GetScoutRecentResult(
+	public GetScoutStatsResult(
 		int totalResults,
 		int count,
 		int offset,
@@ -12,7 +12,7 @@ public class GetScoutRecentResult : FetchPlayersQueryResponse<ScoutRecentDomain>
 		string sortOrder,
 		string filterField,
 		string filterValue,
-		IEnumerable<ScoutRecentDomain>? players
+		IEnumerable<ScoutStatDomain>? players
 	)
 		: base(
 			totalResults,

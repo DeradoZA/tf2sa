@@ -9,7 +9,6 @@ using Player = TF2SA.Data.Entities.MariaDb.Player;
 using TF2SA.StatsETLService.LogsTFIngestion.Errors;
 using TF2SA.Http.Steam.Service;
 using TF2SA.Http.Steam.Models.PlayerSummaries;
-using TF2SA.Data.Repositories.MariaDb.Generic;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 
@@ -17,7 +16,6 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 {
 	private readonly IGamesRepository<Game, uint> gamesRepository;
 	private readonly IPlayersRepository<Player, ulong> playersRepository;
-	private readonly IStatsRepository<ScoutRecent> scoutStatsRepository;
 	private readonly ILogger<LogIngestionRepositoryUpdater> logger;
 	private readonly IMapper mapper;
 	private readonly ISteamService steamService;
@@ -27,8 +25,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		ILogger<LogIngestionRepositoryUpdater> logger,
 		IMapper mapper,
 		IPlayersRepository<Player, ulong> playersRepository,
-		ISteamService steamService,
-		IStatsRepository<ScoutRecent> scoutStatsRepository
+		ISteamService steamService
 	)
 	{
 		this.gamesRepository = gamesRepository;
@@ -36,7 +33,6 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		this.mapper = mapper;
 		this.playersRepository = playersRepository;
 		this.steamService = steamService;
-		this.scoutStatsRepository = scoutStatsRepository;
 	}
 
 	public async Task<OptionStrict<Error>> InsertInvalidLog(
@@ -231,22 +227,6 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		if (updateResult.HasValue)
 		{
 			return updateResult.Value;
-		}
-
-		return OptionStrict<Error>.Nothing;
-	}
-
-	public async Task<OptionStrict<Error>> UpdateAggregatedStatistics(
-		CancellationToken cancellationToken
-	)
-	{
-		logger.LogInformation("Updating Aggregated statistics.");
-
-		OptionStrict<Error> updateScoutRecent =
-			await scoutStatsRepository.CallUpdateStoredProc(cancellationToken);
-		if (updateScoutRecent.HasValue)
-		{
-			return updateScoutRecent.Value;
 		}
 
 		return OptionStrict<Error>.Nothing;

@@ -7,24 +7,24 @@ using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.MariaDb.Generic;
+using TF2SA.Data.Repositories.Base;
 
-namespace TF2SA.Query.Queries.GetScoutRecent;
+namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutAllTime;
 
-public class GetScoutRecentQueryHandler
+public class GetScoutAllTimeQueryHandler
 	: IRequestHandler<
-		GetScoutRecentQuery,
-		EitherStrict<Error, GetScoutRecentResult>
+		GetScoutAllTimeQuery,
+		EitherStrict<Error, GetScoutStatsResult>
 	>
 {
 	private readonly IMapper mapper;
-	private readonly ILogger<GetScoutRecentQueryHandler> logger;
-	private readonly IStatsRepository<ScoutRecent> repository;
+	private readonly ILogger<GetScoutAllTimeQueryHandler> logger;
+	private readonly IStatsRepository<ScoutAllTime> repository;
 
-	public GetScoutRecentQueryHandler(
+	public GetScoutAllTimeQueryHandler(
 		IMapper mapper,
-		ILogger<GetScoutRecentQueryHandler> logger,
-		IStatsRepository<ScoutRecent> repository
+		ILogger<GetScoutAllTimeQueryHandler> logger,
+		IStatsRepository<ScoutAllTime> repository
 	)
 	{
 		this.mapper = mapper;
@@ -32,17 +32,17 @@ public class GetScoutRecentQueryHandler
 		this.repository = repository;
 	}
 
-	public async Task<EitherStrict<Error, GetScoutRecentResult>> Handle(
-		GetScoutRecentQuery request,
+	public async Task<EitherStrict<Error, GetScoutStatsResult>> Handle(
+		GetScoutAllTimeQuery request,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			IQueryable<ScoutRecent> scoutRecentAllQueryable =
+			IQueryable<ScoutAllTime> scoutRecentAllQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<ScoutRecent> filteredQueryable = repository.ApplyFilter(
+			IQueryable<ScoutAllTime> filteredQueryable = repository.ApplyFilter(
 				scoutRecentAllQueryable,
 				request.FilterField,
 				request.FilterValue,
@@ -54,7 +54,7 @@ public class GetScoutRecentQueryHandler
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<ScoutRecent> filteredSortedQueryable =
+			IOrderedQueryable<ScoutAllTime> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -63,17 +63,16 @@ public class GetScoutRecentQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<ScoutRecent> scoutRecentEntities =
-				await filteredSortedQueryable
-					.Skip(request.Offset)
-					.Take(request.Count)
-					.ToListAsync(cancellationToken: cancellationToken);
+			List<ScoutAllTime> scoutStatEntites = await filteredSortedQueryable
+				.Skip(request.Offset)
+				.Take(request.Count)
+				.ToListAsync(cancellationToken: cancellationToken);
 
-			IEnumerable<ScoutRecentDomain> scouts = mapper.Map<
-				List<ScoutRecentDomain>
-			>(scoutRecentEntities);
+			IEnumerable<ScoutStatDomain> scouts = mapper.Map<
+				List<ScoutStatDomain>
+			>(scoutStatEntites);
 
-			return new GetScoutRecentResult(
+			return new GetScoutStatsResult(
 				totalCount,
 				scouts.Count(),
 				request.Offset,
