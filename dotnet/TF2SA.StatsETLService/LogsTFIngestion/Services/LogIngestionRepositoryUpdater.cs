@@ -9,7 +9,6 @@ using Player = TF2SA.Data.Entities.MariaDb.Player;
 using TF2SA.StatsETLService.LogsTFIngestion.Errors;
 using TF2SA.Http.Steam.Service;
 using TF2SA.Http.Steam.Models.PlayerSummaries;
-using TF2SA.Data.Repositories.MariaDb.Generic;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 

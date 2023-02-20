@@ -1,7 +1,7 @@
 using Monad;
 using TF2SA.Common.Errors;
 
-namespace TF2SA.Data.Repositories.MariaDb.Generic;
+namespace TF2SA.Data.Repositories.Base;
 
 public interface IStatsRepository<TEntity> where TEntity : class
 {

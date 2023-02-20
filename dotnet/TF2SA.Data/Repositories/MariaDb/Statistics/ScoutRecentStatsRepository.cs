@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using TF2SA.Data.Entities.MariaDb;
 using static TF2SA.Data.Extensions.TF2SALinqExtensions;
 
-namespace TF2SA.Data.Repositories.MariaDb.Generic;
+namespace TF2SA.Data.Repositories.MariaDb.Statistics;
 
 public class ScoutRecentStatsRepository : StatsRepository<ScoutRecent>
 {

@@ -7,7 +7,7 @@ using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.MariaDb.Generic;
+using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
 

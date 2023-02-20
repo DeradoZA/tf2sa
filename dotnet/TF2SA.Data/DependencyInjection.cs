@@ -6,7 +6,7 @@ using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
-using TF2SA.Data.Repositories.MariaDb.Generic;
+using TF2SA.Data.Repositories.MariaDb.Statistics;
 using TF2SA.Data.Services.Base;
 using TF2SA.Data.Services.Mariadb;
 
