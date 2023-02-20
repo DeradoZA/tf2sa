@@ -28,6 +28,8 @@ public class StatisticsController : ControllerBase
 		this.logger = logger;
 	}
 
+	// TODO split into partial classes
+	// milestone: 8
 	[HttpGet]
 	[Route("ScoutRecent")]
 	public async Task<ActionResult<GetScoutStatsHttpResult>> GetScoutRecent(
