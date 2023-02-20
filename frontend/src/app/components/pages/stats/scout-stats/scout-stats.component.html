@@ -17,6 +17,16 @@
 		>
 			<mat-icon svgIcon="refresh-icon" color="accent"></mat-icon>Refresh
 		</button>
+		<mat-button-toggle-group
+			name="fontStyle"
+			aria-label="Font Style"
+			value="recent"
+			[(value)]="statPeriod"
+			(change)="this.statPeriodChange.next($event)"
+		>
+			<mat-button-toggle value="recent">Recent</mat-button-toggle>
+			<mat-button-toggle value="alltime">All-Time</mat-button-toggle>
+		</mat-button-toggle-group>
 		<mat-form-field style="margin-bottom: -1em">
 			<mat-label>Search</mat-label>
 			<input

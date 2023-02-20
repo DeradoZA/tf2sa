@@ -79,6 +79,8 @@ export class ScoutStatsComponent {
 	sort!: MatSort;
 	public filterString: string | undefined;
 	filterStringUpdate = new Subject<string>();
+	statPeriodChange = new Subject();
+	statPeriod = 'recent';
 	refreshPress = new Subject();
 
 	ngAfterViewInit(): void {
@@ -89,6 +91,7 @@ export class ScoutStatsComponent {
 		merge(
 			this.sort.sortChange,
 			this.paginator.page,
+			this.statPeriodChange.pipe(debounceTime(50)),
 			this.filterStringUpdate.pipe(
 				debounceTime(600),
 				distinctUntilChanged()
@@ -99,13 +102,14 @@ export class ScoutStatsComponent {
 				startWith({}),
 				switchMap(() => {
 					this.isLoaded = false;
-					return this.statsService.getScoutRecentStats(
+					return this.statsService.getScoutStats(
 						this.paginator.pageSize,
 						this.paginator.pageIndex * this.paginator.pageSize,
 						this.sort.active,
 						this.sort.direction,
 						'playerName',
-						this.filterString ?? ''
+						this.filterString ?? '',
+						this.statPeriod
 					);
 				}),
 				map((data) => {

@@ -18,13 +18,14 @@ const STATS_BASE_URL = `${environment.backendUrl}/Statistics`;
 export class StatsService {
 	constructor(private httpClient: HttpClient) {}
 
-	getScoutRecentStats(
+	getScoutStats(
 		count = DEFAULT_PAGE_SIZE,
 		offset = 0,
 		sort = 'averageDpm',
 		sortorder = 'desc',
 		filterField = 'playerName',
-		filterValue = ''
+		filterValue = '',
+		period = 'recent'
 	) {
 		let params = new HttpParams();
 		params = params.append('count', count.toString());
@@ -34,6 +35,13 @@ export class StatsService {
 		params = params.append('filterField', filterField);
 		params = params.append('filterValue', filterValue);
 
+		if (period === 'alltime') {
+			return this.httpClient
+				.get<GetScoutStatsResult>(`${STATS_BASE_URL}/ScoutAllTime`, {
+					params: params,
+				})
+				.pipe(catchError(this.handleError));
+		}
 		return this.httpClient
 			.get<GetScoutStatsResult>(`${STATS_BASE_URL}/ScoutRecent`, {
 				params: params,
