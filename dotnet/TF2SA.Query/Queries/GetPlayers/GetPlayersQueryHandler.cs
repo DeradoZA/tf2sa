@@ -15,17 +15,14 @@ namespace TF2SA.Query.Queries.GetPlayers;
 public class GetPlayersQueryHandler
 	: IRequestHandler<GetPlayersQuery, EitherStrict<Error, GetPlayersResult>>
 {
-	private readonly ILogger<GetPlayersQueryHandler> logger;
 	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
 	private readonly IMapper mapper;
 
 	public GetPlayersQueryHandler(
-		ILogger<GetPlayersQueryHandler> logger,
 		IPlayersRepository<PlayerEntity, ulong> playersRepository,
 		IMapper mapper
 	)
 	{
-		this.logger = logger;
 		this.playersRepository = playersRepository;
 		this.mapper = mapper;
 	}

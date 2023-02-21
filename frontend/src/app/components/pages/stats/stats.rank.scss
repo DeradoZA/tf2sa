@@ -1,0 +1,45 @@
+@import "tf2sa-colors";
+
+.player-table {
+	width: 100%;
+}
+
+.profile-rank {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.table-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+a {
+	color: white;
+}
+
+.table-container {
+	background-color: $tf2sa-background;
+	border-radius: 8px;
+	overflow: hidden !important;
+	height: 100%;
+}
+
+.mat-mdc-row .mat-mdc-cell {
+	border-bottom: 1px solid transparent;
+	border-top: 1px solid transparent;
+}
+
+.mat-mdc-header-row {
+	background-color: $tf2sa-table-header;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+	background-color: $tf2sa-table-header;
+}
+
+.demo-row-is-clicked {
+	font-weight: bold;
+}

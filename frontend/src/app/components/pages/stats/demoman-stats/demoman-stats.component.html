@@ -1,1 +1,233 @@
 <app-stats-header title="Demoman" imagePath="./assets/demoman.png" />
+
+<mat-progress-bar
+	*ngIf="!isLoaded"
+	mode="indeterminate"
+	color="accent"
+	style="margin-top: 4px; margin-bottom: 4px"
+></mat-progress-bar>
+<app-error-banner *ngIf="errorMessage != null" [errorMessage]="errorMessage" />
+
+<div class="table-container mat-elevation-z8">
+	<div class="table-top">
+		<button
+			mat-button
+			(click)="this.refreshPress.next($event)"
+			style="margin-left: 8px"
+		>
+			<mat-icon svgIcon="refresh-icon" color="accent"></mat-icon>Refresh
+		</button>
+		<mat-button-toggle-group
+			name="fontStyle"
+			aria-label="Font Style"
+			value="recent"
+			[(value)]="statPeriod"
+			(change)="this.statPeriodChange.next($event)"
+		>
+			<mat-button-toggle value="recent">Recent</mat-button-toggle>
+			<mat-button-toggle value="alltime">All-Time</mat-button-toggle>
+		</mat-button-toggle-group>
+		<mat-form-field style="margin-bottom: -1em">
+			<mat-label>Search</mat-label>
+			<input
+				matInput
+				[(ngModel)]="filterString"
+				placeholder="Name/SteamID64"
+				name="filterString"
+				id="filterString"
+				(ngModelChange)="this.filterStringUpdate.next($event)"
+				#input
+			/>
+		</mat-form-field>
+	</div>
+	<table
+		mat-table
+		[dataSource]="playersResult.players"
+		class="player-table"
+		matSort
+		matSortActive="averageDpm"
+		matSortDisableClear
+		matSortDirection="desc"
+	>
+		<ng-container matColumnDef="profilePicture">
+			<th mat-header-cell *matHeaderCellDef>#</th>
+			<td
+				mat-cell
+				style="width: 100px"
+				*matCellDef="let element; let i = index"
+			>
+				<div class="profile-rank">
+					<p style="padding-top: 14px">
+						{{ playersResult.offset + (i + 1) }}
+					</p>
+
+					<a
+						href="https://steamcommunity.com/profiles/{{
+							element.steamId
+						}}"
+					>
+						<img
+							src="{{ element.avatar }}"
+							style="border-radius: 20%"
+						/>
+					</a>
+				</div>
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="playerName">
+			<th
+				mat-header-cell
+				*matHeaderCellDef
+				mat-sort-header
+				style="width: 150px"
+			>
+				Name
+			</th>
+			<td mat-cell style="width: 150px" *matCellDef="let element">
+				{{ element.playerName }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="numberOfGames">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>Games</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.numberOfGames }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="wins">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>W</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.wins }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="draws">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>D</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.draws }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="losses">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>L</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.losses }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageKills">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>Kills</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageKills }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageAssists">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>Assists</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageAssists }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageDeaths">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>Deaths</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageDeaths }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageAirshots">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>Airshots</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageAirshots }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageDamageTakenPm">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>DT/M</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageDamageTakenPm }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageHealsReceivedPm">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>HR/M</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageHealsReceivedPm }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageMedKitsHp">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>
+				Med Kit HP
+			</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageMedKitsHp }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageCapturePointsCaptured">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>CP</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.averageCapturePointsCaptured }}
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="averageDpm">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>DPM</th>
+			<td mat-cell *matCellDef="let element">{{ element.averageDpm }}</td>
+		</ng-container>
+
+		<ng-container matColumnDef="topKills">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>Top Kills</th>
+			<td mat-cell *matCellDef="let element">
+				<a href="https://logs.tf/{{ element.topKillsGameId }}">
+					{{ element.topKills }}
+				</a>
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="topDamage">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>
+				Top Damage
+			</th>
+			<td mat-cell *matCellDef="let element">
+				<a href="https://logs.tf/{{ element.topDamageGameId }}">
+					{{ element.topDamage }}
+				</a>
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="topAirshots">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>
+				Top Airshots
+			</th>
+			<td mat-cell *matCellDef="let element">
+				<a href="https://logs.tf/{{ element.topAirshotsGameId }}">
+					{{ element.topAirshots }}
+				</a>
+			</td>
+		</ng-container>
+
+		<ng-container matColumnDef="steamProfile">
+			<th mat-header-cell style="width: 50px" *matHeaderCellDef></th>
+			<td mat-cell style="width: 50px" *matCellDef="let element">
+				<a
+					href="https://steamcommunity.com/profiles/{{
+						element.steamId
+					}}"
+					><mat-icon svgIcon="steam-icon" color="accent"></mat-icon
+				></a>
+			</td>
+		</ng-container>
+
+		<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+		<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+	</table>
+	<mat-paginator
+		[length]="playersResult.totalResults"
+		[pageSize]="pageSize"
+	></mat-paginator>
+</div>

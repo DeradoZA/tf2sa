@@ -19,7 +19,7 @@ import { StatsService } from 'src/app/services/stats/stats.service';
 @Component({
 	selector: 'app-scout-stats',
 	templateUrl: './scout-stats.component.html',
-	styleUrls: ['./scout-stats.component.scss'],
+	styleUrls: ['../stats.rank.scss'],
 })
 export class ScoutStatsComponent {
 	readonly displayedColumns: string[] = [

@@ -18,17 +18,14 @@ public class GetScoutRecentQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly ILogger<GetScoutRecentQueryHandler> logger;
 	private readonly IStatsRepository<ScoutRecent> repository;
 
 	public GetScoutRecentQueryHandler(
 		IMapper mapper,
-		ILogger<GetScoutRecentQueryHandler> logger,
 		IStatsRepository<ScoutRecent> repository
 	)
 	{
 		this.mapper = mapper;
-		this.logger = logger;
 		this.repository = repository;
 	}
 

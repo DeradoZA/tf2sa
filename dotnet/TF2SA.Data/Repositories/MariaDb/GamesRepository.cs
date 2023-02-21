@@ -10,15 +10,10 @@ namespace TF2SA.Data.Repositories.MariaDb;
 public class GamesRepository : IGamesRepository<Game, uint>
 {
 	private readonly TF2SADbContext dbContext;
-	private readonly ILogger<GamesRepository> logger;
 
-	public GamesRepository(
-		TF2SADbContext dbContext,
-		ILogger<GamesRepository> logger
-	)
+	public GamesRepository(TF2SADbContext dbContext)
 	{
 		this.dbContext = dbContext;
-		this.logger = logger;
 	}
 
 	public Task<EitherStrict<Error, Game>> Delete(

@@ -61,6 +61,10 @@ public abstract class StatsRepository<TEntity> : IStatsRepository<TEntity>
 		CancellationToken cancellationToken
 	)
 	{
+		logger.LogInformation(
+			"Updating Statistics tables for {type}",
+			typeof(TEntity)
+		);
 		try
 		{
 			int updateResult = await dbContext.Database.ExecuteSqlRawAsync(

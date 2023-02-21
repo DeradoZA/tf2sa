@@ -15,16 +15,10 @@ public partial class StatisticsController : ControllerBase
 {
 	private readonly IMediator mediator;
 	private readonly IMapper mapper;
-	private readonly ILogger<StatisticsController> logger;
 
-	public StatisticsController(
-		IMediator mediator,
-		IMapper mapper,
-		ILogger<StatisticsController> logger
-	)
+	public StatisticsController(IMediator mediator, IMapper mapper)
 	{
 		this.mediator = mediator;
 		this.mapper = mapper;
-		this.logger = logger;
 	}
 }
