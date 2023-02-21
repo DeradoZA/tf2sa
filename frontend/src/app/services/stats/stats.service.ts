@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { DEFAULT_PAGE_SIZE } from '../httpConstants';
 import { GetScoutStatsResult } from './getScoutStats';
 import { GetSoldierStatsResult } from './getSoldierStats';
+import { GetDemomanStatsResult } from './getDemomanStats';
 
 const STATS_BASE_URL = `${environment.backendUrl}/Statistics`;
 
@@ -79,6 +80,40 @@ export class StatsService {
 		}
 		return this.httpClient
 			.get<GetSoldierStatsResult>(`${STATS_BASE_URL}/SoldierRecent`, {
+				params: params,
+			})
+			.pipe(catchError(this.handleError));
+	}
+
+	getDemomanStats(
+		count = DEFAULT_PAGE_SIZE,
+		offset = 0,
+		sort = 'averageDpm',
+		sortorder = 'desc',
+		filterField = 'playerName',
+		filterValue = '',
+		period = 'recent'
+	) {
+		let params = new HttpParams();
+		params = params.append('count', count.toString());
+		params = params.append('offset', offset.toString());
+		params = params.append('sort', sort);
+		params = params.append('sortorder', sortorder);
+		params = params.append('filterField', filterField);
+		params = params.append('filterValue', filterValue);
+
+		if (period === 'alltime') {
+			return this.httpClient
+				.get<GetDemomanStatsResult>(
+					`${STATS_BASE_URL}/DemomanAllTime`,
+					{
+						params: params,
+					}
+				)
+				.pipe(catchError(this.handleError));
+		}
+		return this.httpClient
+			.get<GetDemomanStatsResult>(`${STATS_BASE_URL}/DemomanRecent`, {
 				params: params,
 			})
 			.pipe(catchError(this.handleError));
