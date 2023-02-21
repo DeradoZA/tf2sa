@@ -66,5 +66,9 @@ public class GameMappingProfile : Profile
 		CreateMap<PlayerEntity, PlayerDomain>();
 		CreateMap<ScoutRecent, ScoutStatDomain>();
 		CreateMap<ScoutAllTime, ScoutStatDomain>();
+		CreateMap<SoldierRecent, SoldierStatDomain>();
+		CreateMap<SoldierAllTime, SoldierStatDomain>();
+		CreateMap<DemomanRecent, DemomanStatDomain>();
+		CreateMap<DemomanAllTime, DemomanStatDomain>();
 	}
 }
