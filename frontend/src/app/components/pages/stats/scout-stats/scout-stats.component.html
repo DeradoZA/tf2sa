@@ -50,9 +50,28 @@
 		matSortDirection="desc"
 	>
 		<ng-container matColumnDef="profilePicture">
-			<th mat-header-cell *matHeaderCellDef style="width: 35px"></th>
-			<td mat-cell style="width: 35px" *matCellDef="let element">
-				<img src="{{ element.avatar }}" style="border-radius: 20%" />
+			<th mat-header-cell *matHeaderCellDef>#</th>
+			<td
+				mat-cell
+				style="width: 100px"
+				*matCellDef="let element; let i = index"
+			>
+				<div class="profile-rank">
+					<p style="padding-top: 14px">
+						{{ playersResult.offset + (i + 1) }}
+					</p>
+
+					<a
+						href="https://steamcommunity.com/profiles/{{
+							element.steamId
+						}}"
+					>
+						<img
+							src="{{ element.avatar }}"
+							style="border-radius: 20%"
+						/>
+					</a>
+				</div>
 			</td>
 		</ng-container>
 
