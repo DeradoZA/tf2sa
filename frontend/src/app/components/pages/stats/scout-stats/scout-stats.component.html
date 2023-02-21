@@ -175,14 +175,22 @@
 
 		<ng-container matColumnDef="topKills">
 			<th mat-header-cell *matHeaderCellDef mat-sort-header>Top Kills</th>
-			<td mat-cell *matCellDef="let element">{{ element.topKills }}</td>
+			<td mat-cell *matCellDef="let element">
+				<a href="https://logs.tf/{{ element.topKillsGameId }}">
+					{{ element.topKills }}
+				</a>
+			</td>
 		</ng-container>
 
 		<ng-container matColumnDef="topDamage">
 			<th mat-header-cell *matHeaderCellDef mat-sort-header>
 				Top Damage
 			</th>
-			<td mat-cell *matCellDef="let element">{{ element.topDamage }}</td>
+			<td mat-cell *matCellDef="let element">
+				<a href="https://logs.tf/{{ element.topDamageGameId }}">
+					<i> {{ element.topDamage }}</i>
+				</a>
+			</td>
 		</ng-container>
 
 		<ng-container matColumnDef="steamProfile">
