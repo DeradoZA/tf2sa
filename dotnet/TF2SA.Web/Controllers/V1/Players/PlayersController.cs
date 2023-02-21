@@ -14,15 +14,9 @@ public class PlayersController : ControllerBase
 {
 	private readonly IMediator mediator;
 	private readonly IMapper mapper;
-	private readonly ILogger<PlayersController> logger;
 
-	public PlayersController(
-		ILogger<PlayersController> logger,
-		IMediator mediator,
-		IMapper mapper
-	)
+	public PlayersController(IMediator mediator, IMapper mapper)
 	{
-		this.logger = logger;
 		this.mediator = mediator;
 		this.mapper = mapper;
 	}

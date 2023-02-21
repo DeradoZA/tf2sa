@@ -15,18 +15,15 @@ namespace TF2SA.Http.Steam.Service;
 public class SteamService : ISteamService
 {
 	private readonly SteamConfig steamConfig;
-	private readonly ILogger<SteamService> logger;
 	private readonly IHttpClient httpClient;
 	private const int MAX_PLAYERS_PER_REQUEST = 100;
 
 	public SteamService(
 		IOptions<SteamConfig> steamConfig,
-		ILogger<SteamService> logger,
 		IHttpClient httpClient
 	)
 	{
 		this.steamConfig = steamConfig.Value;
-		this.logger = logger;
 		this.httpClient = httpClient;
 	}
 
