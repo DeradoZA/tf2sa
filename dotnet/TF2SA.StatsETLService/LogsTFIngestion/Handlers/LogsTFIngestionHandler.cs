@@ -118,16 +118,18 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			}
 		);
 
+		logger.LogInformation("Updating player steam details.");
 		OptionStrict<Error> updatePlayersResult =
 			await logIngestionRepositoryUpdater.UpdatePlayers(
 				cancellationToken
 			);
 		if (updatePlayersResult.HasValue)
 		{
-			return updatePlayersResult.Value;
+			logger.LogWarning("Failed to update players steam details.");
 		}
 
-		if (logsToProcess.Count >= 0)
+		logger.LogInformation("Updating aggregated statistics.");
+		if (logsToProcess.Any())
 		{
 			OptionStrict<Error> updateStatisticsResult =
 				await statisticsUpdater.UpdateAggregatedStatistics(
@@ -135,7 +137,10 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				);
 			if (updatePlayersResult.HasValue)
 			{
-				return updatePlayersResult.Value;
+				logger.LogWarning(
+					"Failed to update aggregated statistics with error(s): {errors}",
+					updatePlayersResult.Value.Message
+				);
 			}
 		}
 		else
