@@ -1,7 +1,6 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
@@ -9,49 +8,50 @@ using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
 
-namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutAllTime;
+namespace TF2SA.Query.Queries.Statistics.Demoman.GetDemomanAllTime;
 
-public class GetScoutAllTimeQueryHandler
+public class GetDemomanAllTimeQueryHandler
 	: IRequestHandler<
-		GetScoutAllTimeQuery,
-		EitherStrict<Error, GetScoutStatsResult>
+		GetDemomanAllTimeQuery,
+		EitherStrict<Error, GetDemomanStatsResult>
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<ScoutAllTime> repository;
+	private readonly IStatsRepository<DemomanAllTime> repository;
 
-	public GetScoutAllTimeQueryHandler(
+	public GetDemomanAllTimeQueryHandler(
 		IMapper mapper,
-		IStatsRepository<ScoutAllTime> repository
+		IStatsRepository<DemomanAllTime> repository
 	)
 	{
 		this.mapper = mapper;
 		this.repository = repository;
 	}
 
-	public async Task<EitherStrict<Error, GetScoutStatsResult>> Handle(
-		GetScoutAllTimeQuery request,
+	public async Task<EitherStrict<Error, GetDemomanStatsResult>> Handle(
+		GetDemomanAllTimeQuery request,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			IQueryable<ScoutAllTime> allQueryable =
+			IQueryable<DemomanAllTime> allQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<ScoutAllTime> filteredQueryable = repository.ApplyFilter(
-				allQueryable,
-				request.FilterField,
-				request.FilterValue,
-				out string filterFieldUsed,
-				out string filterValueUsed
-			);
+			IQueryable<DemomanAllTime> filteredQueryable =
+				repository.ApplyFilter(
+					allQueryable,
+					request.FilterField,
+					request.FilterValue,
+					out string filterFieldUsed,
+					out string filterValueUsed
+				);
 
 			int totalCount = await filteredQueryable.CountAsync(
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<ScoutAllTime> filteredSortedQueryable =
+			IOrderedQueryable<DemomanAllTime> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -60,16 +60,16 @@ public class GetScoutAllTimeQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<ScoutAllTime> scoutStatEntites = await filteredSortedQueryable
+			List<DemomanAllTime> entities = await filteredSortedQueryable
 				.Skip(request.Offset)
 				.Take(request.Count)
 				.ToListAsync(cancellationToken: cancellationToken);
 
-			IEnumerable<ScoutStatDomain> domainMappedPlayers = mapper.Map<
-				List<ScoutStatDomain>
-			>(scoutStatEntites);
+			IEnumerable<DemomanStatDomain> domainMappedPlayers = mapper.Map<
+				List<DemomanStatDomain>
+			>(entities);
 
-			return new GetScoutStatsResult(
+			return new GetDemomanStatsResult(
 				totalCount,
 				domainMappedPlayers.Count(),
 				request.Offset,
