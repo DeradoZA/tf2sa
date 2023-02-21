@@ -56,6 +56,22 @@ public static class DependencyInjection
 			IStatsRepository<ScoutAllTime>,
 			ScoutAllTimeStatsRepository
 		>();
+		services.AddScoped<
+			IStatsRepository<SoldierRecent>,
+			SoldierRecentStatsRepository
+		>();
+		services.AddScoped<
+			IStatsRepository<SoldierAllTime>,
+			SoldierAllTimeStatsRepository
+		>();
+		services.AddScoped<
+			IStatsRepository<DemomanRecent>,
+			DemomanRecentStatsRepository
+		>();
+		services.AddScoped<
+			IStatsRepository<DemomanAllTime>,
+			DemomanAllTimeStatsRepository
+		>();
 
 		services.AddAutoMapper(typeof(GameMappingProfile));
 	}
