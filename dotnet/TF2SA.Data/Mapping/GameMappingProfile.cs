@@ -70,5 +70,7 @@ public class GameMappingProfile : Profile
 		CreateMap<SoldierAllTime, SoldierStatDomain>();
 		CreateMap<DemomanRecent, DemomanStatDomain>();
 		CreateMap<DemomanAllTime, DemomanStatDomain>();
+		CreateMap<MedicRecent, MedicStatDomain>();
+		CreateMap<MedicAllTime, MedicStatDomain>();
 	}
 }
