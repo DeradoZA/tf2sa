@@ -7,7 +7,7 @@ namespace TF2SA.Data.Repositories.MariaDb.Statistics;
 
 public class MedicAllTimeStatsRepository : StatsRepository<MedicAllTime>
 {
-	public override string UpdateProcQuery => "CALL UpdateScoutAllTimeStats();";
+	public override string UpdateProcQuery => "CALL UpdateMedicAllTimeStats();";
 
 	public override Dictionary<
 		string,

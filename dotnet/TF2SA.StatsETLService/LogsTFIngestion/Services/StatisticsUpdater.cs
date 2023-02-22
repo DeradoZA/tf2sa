@@ -15,6 +15,8 @@ public class StatisticsUpdater : IStatisticsUpdater
 	private readonly IStatsRepository<SoldierAllTime> soldierAllTimeStatsRepository;
 	private readonly IStatsRepository<DemomanRecent> demomanRecentStatsRepository;
 	private readonly IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository;
+	private readonly IStatsRepository<MedicRecent> medicRecentStatsRepository;
+	private readonly IStatsRepository<MedicAllTime> medicAllTimeStatsRepository;
 
 	public StatisticsUpdater(
 		ILogger<StatisticsUpdater> logger,
@@ -23,7 +25,9 @@ public class StatisticsUpdater : IStatisticsUpdater
 		IStatsRepository<SoldierRecent> soldierRecentStatsRepository,
 		IStatsRepository<SoldierAllTime> soldierAllTimeStatsRepository,
 		IStatsRepository<DemomanRecent> demomanRecentStatsRepository,
-		IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository
+		IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository,
+		IStatsRepository<MedicRecent> medicRecentStatsRepository,
+		IStatsRepository<MedicAllTime> medicAllTimeStatsRepository
 	)
 	{
 		this.logger = logger;
@@ -33,6 +37,8 @@ public class StatisticsUpdater : IStatisticsUpdater
 		this.soldierAllTimeStatsRepository = soldierAllTimeStatsRepository;
 		this.demomanRecentStatsRepository = demomanRecentStatsRepository;
 		this.demomanAllTimeStatsRepository = demomanAllTimeStatsRepository;
+		this.medicRecentStatsRepository = medicRecentStatsRepository;
+		this.medicAllTimeStatsRepository = medicAllTimeStatsRepository;
 	}
 
 	public async Task<OptionStrict<Error>> UpdateAggregatedStatistics(
@@ -94,6 +100,24 @@ public class StatisticsUpdater : IStatisticsUpdater
 		if (updateDemomanAllTime.HasValue)
 		{
 			errors.Add(updateDemomanAllTime.Value);
+		}
+
+		OptionStrict<Error> updatemedicRecent =
+			await medicRecentStatsRepository.CallUpdateStoredProc(
+				cancellationToken
+			);
+		if (updatemedicRecent.HasValue)
+		{
+			errors.Add(updatemedicRecent.Value);
+		}
+
+		OptionStrict<Error> updatemedicAllTime =
+			await medicAllTimeStatsRepository.CallUpdateStoredProc(
+				cancellationToken
+			);
+		if (updatemedicAllTime.HasValue)
+		{
+			errors.Add(updatemedicAllTime.Value);
 		}
 
 		if (errors.Any())

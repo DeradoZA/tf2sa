@@ -133,7 +133,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		}
 
 		logger.LogInformation("Updating aggregated statistics.");
-		if (logsToProcess.Any())
+		if (logsToProcess.Any() || logsTFIngestionConfig.DebugIngestion)
 		{
 			OptionStrict<Error> updateStatisticsResult =
 				await statisticsUpdater.UpdateAggregatedStatistics(
