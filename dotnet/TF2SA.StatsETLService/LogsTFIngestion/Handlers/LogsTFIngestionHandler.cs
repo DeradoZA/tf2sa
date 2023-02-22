@@ -95,6 +95,10 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			return logsToProcessResult.Left;
 		}
 		List<LogListItem> logsToProcess = logsToProcessResult.Right;
+		if (logsTFIngestionConfig.DebugIngestion == true)
+		{
+			logsToProcess = logsToProcess.Take(100).ToList();
+		}
 
 		await Parallel.ForEachAsync(
 			logsToProcess,
@@ -129,7 +133,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		}
 
 		logger.LogInformation("Updating aggregated statistics.");
-		if (logsToProcess.Any())
+		if (logsToProcess.Any() || logsTFIngestionConfig.DebugIngestion)
 		{
 			OptionStrict<Error> updateStatisticsResult =
 				await statisticsUpdater.UpdateAggregatedStatistics(
