@@ -95,6 +95,10 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			return logsToProcessResult.Left;
 		}
 		List<LogListItem> logsToProcess = logsToProcessResult.Right;
+		if (logsTFIngestionConfig.DebugIngestion == true)
+		{
+			logsToProcess = logsToProcess.Take(100).ToList();
+		}
 
 		await Parallel.ForEachAsync(
 			logsToProcess,
