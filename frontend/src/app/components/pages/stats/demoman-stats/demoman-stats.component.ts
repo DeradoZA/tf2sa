@@ -14,7 +14,6 @@ import {
 } from 'rxjs';
 import { DEFAULT_PAGE_SIZE } from 'src/app/services/httpConstants';
 import { GetDemomanStatsResult } from 'src/app/services/stats/getDemomanStats';
-import { GetSoldierStatsResult } from 'src/app/services/stats/getSoldierStats';
 import { StatsService } from 'src/app/services/stats/stats.service';
 
 @Component({
