@@ -7,13 +7,12 @@ using TF2SA.Common.Models.Core;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
-using TF2SA.Query.Queries.Statistics.Medic.GetMedicAllTime;
 
 namespace TF2SA.Query.Queries.Statistics.Medic.GetMedicRecent;
 
 public class GetMedicRecentQueryHandler
 	: IRequestHandler<
-		GetMedicAllTimeQuery,
+		GetMedicRecentQuery,
 		EitherStrict<Error, GetMedicStatsResult>
 	>
 {
@@ -30,7 +29,7 @@ public class GetMedicRecentQueryHandler
 	}
 
 	public async Task<EitherStrict<Error, GetMedicStatsResult>> Handle(
-		GetMedicAllTimeQuery request,
+		GetMedicRecentQuery request,
 		CancellationToken cancellationToken
 	)
 	{
