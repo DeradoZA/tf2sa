@@ -20,4 +20,6 @@ dotnet ef dbcontext scaffold \
     --table DemomanRecent \
     --table DemomanAllTime \
     --table MedicRecent \
-    --table MedicAllTime
+    --table MedicAllTime \
+    --table OverallStatsRecent \
+    --table OverallStatsAllTime
