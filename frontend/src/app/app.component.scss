@@ -1,3 +1,5 @@
+@import "tf2sa-colors";
+
 nav li {
 	display: inline;
 }
@@ -14,6 +16,11 @@ mat-toolbar img {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+}
+
+li .active {
+	border-bottom: solid $tf2sa-text 2px;
+	border-radius: 0;
 }
 
 .app-content {

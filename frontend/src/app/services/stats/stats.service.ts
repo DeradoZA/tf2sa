@@ -12,6 +12,7 @@ import { GetScoutStatsResult } from './getScoutStats';
 import { GetSoldierStatsResult } from './getSoldierStats';
 import { GetDemomanStatsResult } from './getDemomanStats';
 import { GetMedicStatsResult } from './getMedicStats';
+import { GetOverallStatsResult } from './getOverallStats';
 
 const STATS_BASE_URL = `${environment.backendUrl}/Statistics`;
 
@@ -146,6 +147,40 @@ export class StatsService {
 		}
 		return this.httpClient
 			.get<GetMedicStatsResult>(`${STATS_BASE_URL}/MedicRecent`, {
+				params: params,
+			})
+			.pipe(catchError(this.handleError));
+	}
+
+	getOverallStats(
+		count = DEFAULT_PAGE_SIZE,
+		offset = 0,
+		sort = 'averageDpm',
+		sortorder = 'desc',
+		filterField = 'playerName',
+		filterValue = '',
+		period = 'recent'
+	) {
+		let params = new HttpParams();
+		params = params.append('count', count.toString());
+		params = params.append('offset', offset.toString());
+		params = params.append('sort', sort);
+		params = params.append('sortorder', sortorder);
+		params = params.append('filterField', filterField);
+		params = params.append('filterValue', filterValue);
+
+		if (period === 'alltime') {
+			return this.httpClient
+				.get<GetOverallStatsResult>(
+					`${STATS_BASE_URL}/OverallAllTime`,
+					{
+						params: params,
+					}
+				)
+				.pipe(catchError(this.handleError));
+		}
+		return this.httpClient
+			.get<GetOverallStatsResult>(`${STATS_BASE_URL}/OverallRecent`, {
 				params: params,
 			})
 			.pipe(catchError(this.handleError));

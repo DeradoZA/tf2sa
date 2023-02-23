@@ -80,6 +80,14 @@ public static class DependencyInjection
 			IStatsRepository<MedicAllTime>,
 			MedicAllTimeStatsRepository
 		>();
+		services.AddScoped<
+			IStatsRepository<OverallStatsRecent>,
+			OverallRecentStatsRepository
+		>();
+		services.AddScoped<
+			IStatsRepository<OverallStatsAllTime>,
+			OverallAllTimeStatsRepository
+		>();
 
 		services.AddAutoMapper(typeof(GameMappingProfile));
 	}

@@ -17,6 +17,8 @@ public class StatisticsUpdater : IStatisticsUpdater
 	private readonly IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository;
 	private readonly IStatsRepository<MedicRecent> medicRecentStatsRepository;
 	private readonly IStatsRepository<MedicAllTime> medicAllTimeStatsRepository;
+	private readonly IStatsRepository<OverallStatsRecent> overallStatsRecentRepository;
+	private readonly IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository;
 
 	public StatisticsUpdater(
 		ILogger<StatisticsUpdater> logger,
@@ -27,7 +29,9 @@ public class StatisticsUpdater : IStatisticsUpdater
 		IStatsRepository<DemomanRecent> demomanRecentStatsRepository,
 		IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository,
 		IStatsRepository<MedicRecent> medicRecentStatsRepository,
-		IStatsRepository<MedicAllTime> medicAllTimeStatsRepository
+		IStatsRepository<MedicAllTime> medicAllTimeStatsRepository,
+		IStatsRepository<OverallStatsRecent> overallStatsRecentRepository,
+		IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository
 	)
 	{
 		this.logger = logger;
@@ -39,6 +43,8 @@ public class StatisticsUpdater : IStatisticsUpdater
 		this.demomanAllTimeStatsRepository = demomanAllTimeStatsRepository;
 		this.medicRecentStatsRepository = medicRecentStatsRepository;
 		this.medicAllTimeStatsRepository = medicAllTimeStatsRepository;
+		this.overallStatsRecentRepository = overallStatsRecentRepository;
+		this.overallStatsAllTimeRepository = overallStatsAllTimeRepository;
 	}
 
 	public async Task<OptionStrict<Error>> UpdateAggregatedStatistics(
@@ -118,6 +124,24 @@ public class StatisticsUpdater : IStatisticsUpdater
 		if (updatemedicAllTime.HasValue)
 		{
 			errors.Add(updatemedicAllTime.Value);
+		}
+
+		OptionStrict<Error> updateOverallRecent =
+			await overallStatsRecentRepository.CallUpdateStoredProc(
+				cancellationToken
+			);
+		if (updateOverallRecent.HasValue)
+		{
+			errors.Add(updateOverallRecent.Value);
+		}
+
+		OptionStrict<Error> updateOverallAllTime =
+			await overallStatsAllTimeRepository.CallUpdateStoredProc(
+				cancellationToken
+			);
+		if (updateOverallAllTime.HasValue)
+		{
+			errors.Add(updateOverallAllTime.Value);
 		}
 
 		if (errors.Any())
