@@ -1,5 +1,11 @@
+@import "tf2sa-colors";
+
 .stats-container {
 	height: 100%;
+}
+
+.active {
+	color: $tf2sa-text;
 }
 
 ul {

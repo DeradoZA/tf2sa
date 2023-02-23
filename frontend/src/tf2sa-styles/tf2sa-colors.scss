@@ -8,6 +8,9 @@ $theme-warn: mat.define-palette(mat.$red-palette);
 
 $theme-grey: mat.define-palette(mat.$grey-palette);
 
+//primary
+$tf2sa-text: mat.get-color-from-palette($theme-accent, A200);
+
 //background
 $tf2sa-background: mat.get-color-from-palette($theme-grey, 800);
 
