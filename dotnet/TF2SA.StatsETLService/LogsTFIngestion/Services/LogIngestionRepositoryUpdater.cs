@@ -135,6 +135,17 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		Game game = mapper.Map<Game>(log);
 		game.GameId = logId;
 		game.IsValidStats = true;
+		bool isTfTrueGame =
+			game.UploaderInfo is not null
+			&& game.UploaderInfo.Contains(
+				"TFTrue",
+				StringComparison.InvariantCultureIgnoreCase
+			);
+
+		if (isTfTrueGame)
+		{
+			logger.LogWarning("TFTrue game detected. Nulling airshots.");
+		}
 
 		foreach (PlayerStat playerStat in game.PlayerStats)
 		{
@@ -156,9 +167,8 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 			playerStat.DamageTaken = !game.HasDamageTaken
 				? null
 				: playerStat.DamageTaken;
-			playerStat.Airshots = !game.HasAirshots
-				? null
-				: playerStat.Airshots;
+			playerStat.Airshots =
+				!game.HasAirshots || isTfTrueGame ? null : playerStat.Airshots;
 			playerStat.HealsReceived = !game.HasHealsReceived
 				? null
 				: playerStat.HealsReceived;
