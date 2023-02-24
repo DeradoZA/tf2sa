@@ -42,21 +42,21 @@ WITH AllGames AS (
 		p.Avatar,
 		(
 			CASE 
-				WHEN (ps.TeamID = 0 AND g.BlueScore > g.RedScore) THEN 1
-				WHEN (ps.TeamID = 1 AND g.BlueScore < g.RedScore) THEN 1
+				WHEN (ps.TeamID = 0 AND g.RedScore > g.BlueScore) THEN 1
+				WHEN (ps.TeamID = 1 AND g.BlueScore > g.RedScore) THEN 1
 				ELSE 0
 			END
 		) AS Win,
 		(
 			CASE 
-				WHEN (ps.TeamID = 0 AND g.BlueScore < g.RedScore) THEN 1
-				WHEN (ps.TeamID = 1 AND g.BlueScore > g.RedScore) THEN 1
+				WHEN (ps.TeamID = 0 AND g.RedScore < g.BlueScore) THEN 1
+				WHEN (ps.TeamID = 1 AND g.BlueScore < g.RedScore) THEN 1
 				ELSE 0
 			END
 		) AS Loss,
 		(
 			CASE 
-				WHEN (g.BlueScore = g.RedScore) THEN 1
+				WHEN (g.BlueScore = g.RedScore) THEN 1 -- draw
 				ELSE 0
 			END
 		) AS Draw,
