@@ -59,7 +59,7 @@ WITH Games AS (
 		) AS Loss,
 		(
 			CASE 
-				WHEN (g.BlueScore = g.RedScore) THEN 1 -- draw
+				WHEN (g.BlueScore = g.RedScore) THEN 1
 				ELSE 0
 			END
 		) AS Draw,
