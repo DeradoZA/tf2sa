@@ -1,10 +1,10 @@
 DROP PROCEDURE IF EXISTS UpdateOverallRecentStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateOverallRecentStats()
 BEGIN
-    
+
 DELETE FROM OverallStatsRecent;
 INSERT INTO OverallStatsRecent(
 	SteamID,
@@ -56,7 +56,7 @@ WITH AllGames AS (
 		) AS Loss,
 		(
 			CASE 
-				WHEN (g.BlueScore = g.RedScore) THEN 1 -- draw
+				WHEN (g.BlueScore = g.RedScore) THEN 1
 				ELSE 0
 			END
 		) AS Draw,
@@ -259,4 +259,6 @@ GROUP BY
 HAVING NumberOfGames > 10
 ORDER BY AverageDPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

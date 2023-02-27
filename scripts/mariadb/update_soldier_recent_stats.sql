@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS UpdateSoldierRecentStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateSoldierRecentStats()
 BEGIN
     
@@ -209,4 +209,6 @@ GROUP BY sg.SteamID
 HAVING NumberOfGames >= 5
 ORDER BY AverageDPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS UpdateDemomanAllTimeStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateDemomanAllTimeStats()
 BEGIN
     
@@ -208,4 +208,6 @@ GROUP BY sg.SteamID
 HAVING NumberOfGames >= 20
 ORDER BY AverageDPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

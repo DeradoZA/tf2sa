@@ -1,10 +1,10 @@
 DROP PROCEDURE IF EXISTS UpdateOverallAllTimeStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateOverallAllTimeStats()
 BEGIN
-    
+
 DELETE FROM OverallStatsAllTime;
 INSERT INTO OverallStatsAllTime(
 	SteamID,
@@ -257,4 +257,6 @@ GROUP BY
 HAVING NumberOfGames > 20
 ORDER BY AverageDPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

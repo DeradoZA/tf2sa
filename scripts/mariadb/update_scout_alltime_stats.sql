@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS UpdateScoutAllTimeStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateScoutAllTimeStats()
 BEGIN
 
@@ -172,4 +172,6 @@ GROUP BY sg.SteamID
 HAVING NumberOfGames >= 20
 ORDER BY AverageDPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

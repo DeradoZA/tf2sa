@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS UpdateMedicRecentStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateMedicRecentStats()
 BEGIN
 
@@ -203,4 +203,6 @@ GROUP BY sg.SteamID
 HAVING NumberOfGames >= 5
 ORDER BY AverageHealsPM DESC;
 
-END$$
+END //
+
+DELIMITER ;
