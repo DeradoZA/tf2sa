@@ -2,6 +2,7 @@
 
 .player-table {
 	min-width: 100%;
+	overflow-x: auto;
 }
 
 .profile-rank {
@@ -23,8 +24,6 @@ a {
 .table-container {
 	background-color: $tf2sa-background;
 	border-radius: 8px;
-	min-width: 100%;
-	overflow-x: auto;
 	height: 100%;
 }
 
