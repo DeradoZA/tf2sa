@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS UpdateMedicRecentStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateMedicRecentStats()
 BEGIN
 
@@ -12,6 +12,7 @@ INSERT INTO MedicRecent (
 	Avatar,
 	NumberOfGames,
 	Wins,
+	WinPercentage,
 	Draws,
 	Losses,
 	AverageKills,
@@ -56,7 +57,7 @@ WITH Games AS (
 		) AS Loss,
 		(
 			CASE 
-				WHEN (g.BlueScore = g.RedScore) THEN 1 -- draw
+				WHEN (g.BlueScore = g.RedScore) THEN 1
 				ELSE 0
 			END
 		) AS Draw,
@@ -180,6 +181,7 @@ SELECT
 	sg.Avatar AS Avatar,
 	COUNT(sg.ClassStatsID) AS NumberOfGames,
 	SUM(sg.Win) AS Wins,
+	ROUND(SUM(sg.Win)/COUNT(sg.ClassStatsID)*100,1) AS WinPercentage,
 	SUM(sg.Draw) AS Draws,
 	SUM(sg.Loss) AS Losses,
  	ROUND(AVG(sg.Kills),1) AS AverageKills,
@@ -203,4 +205,6 @@ GROUP BY sg.SteamID
 HAVING NumberOfGames >= 5
 ORDER BY AverageHealsPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

@@ -21,6 +21,7 @@ public class OverallRecentStatsRepository : StatsRepository<OverallStatsRecent>
 			{ "avatar", s => s.Avatar! },
 			{ "numberOfGames", s => s.NumberOfGames! },
 			{ "wins", s => s.Wins! },
+			{ "winPercentage", s => s.WinPercentage! },
 			{ "draws", s => s.Draws! },
 			{ "losses", s => s.Losses! },
 			{ "averageDpm", s => s.AverageDpm! },

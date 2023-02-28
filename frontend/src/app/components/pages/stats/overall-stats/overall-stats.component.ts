@@ -27,6 +27,7 @@ export class OverallStatsComponent {
 		'playerName',
 		'numberOfGames',
 		'wins',
+		'winPercentage',
 		'draws',
 		'losses',
 		'averageKills',

@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS UpdateDemomanAllTimeStats;
 
-DELIMITER $$
-$$
+DELIMITER //
+
 CREATE PROCEDURE UpdateDemomanAllTimeStats()
 BEGIN
     
@@ -12,6 +12,7 @@ INSERT INTO DemomanAllTime (
 	Avatar,
 	NumberOfGames,
 	Wins,
+	WinPercentage,
 	Draws,
 	Losses,
 	AverageDPM,
@@ -59,7 +60,7 @@ WITH Games AS (
 		) AS Loss,
 		(
 			CASE 
-				WHEN (g.BlueScore = g.RedScore) THEN 1 -- draw
+				WHEN (g.BlueScore = g.RedScore) THEN 1
 				ELSE 0
 			END
 		) AS Draw,
@@ -182,6 +183,7 @@ SELECT
 	sg.Avatar AS Avatar,
 	COUNT(sg.ClassStatsID) AS NumberOfGames,
 	SUM(sg.Win) AS Wins,
+	ROUND(SUM(sg.Win)/COUNT(sg.ClassStatsID)*100,1) AS WinPercentage,
 	SUM(sg.Draw) AS Draws,
 	SUM(sg.Loss) AS Losses,
 	ROUND(AVG(sg.Damage/sg.Playtime*60),1) AS AverageDPM,
@@ -208,4 +210,6 @@ GROUP BY sg.SteamID
 HAVING NumberOfGames >= 20
 ORDER BY AverageDPM DESC;
 
-END$$
+END //
+
+DELIMITER ;

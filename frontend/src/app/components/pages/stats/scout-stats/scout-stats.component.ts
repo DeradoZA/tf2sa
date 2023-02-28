@@ -27,6 +27,7 @@ export class ScoutStatsComponent {
 		'playerName',
 		'numberOfGames',
 		'wins',
+		'winPercentage',
 		'draws',
 		'losses',
 		'averageKills',

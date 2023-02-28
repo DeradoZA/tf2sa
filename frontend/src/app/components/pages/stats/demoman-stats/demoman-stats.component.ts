@@ -27,6 +27,7 @@ export class DemomanStatsComponent {
 		'playerName',
 		'numberOfGames',
 		'wins',
+		'winPercentage',
 		'draws',
 		'losses',
 		'averageKills',

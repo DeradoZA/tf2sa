@@ -27,6 +27,7 @@ export class MedicStatsComponent {
 		'playerName',
 		'numberOfGames',
 		'wins',
+		'winPercentage',
 		'draws',
 		'losses',
 		'averageKills',

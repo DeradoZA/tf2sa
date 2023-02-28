@@ -28,6 +28,7 @@ export class SoldierStatsComponent {
 		'playerName',
 		'numberOfGames',
 		'wins',
+		'winPercentage',
 		'draws',
 		'losses',
 		'averageKills',

@@ -7,6 +7,7 @@ public class DemomanStatHttpResult
 	public string? Avatar { get; set; }
 	public ushort? NumberOfGames { get; set; }
 	public uint? Wins { get; set; }
+	public float? WinPercentage { get; set; }
 	public uint? Draws { get; set; }
 	public uint? Losses { get; set; }
 	public float? AverageDpm { get; set; }
