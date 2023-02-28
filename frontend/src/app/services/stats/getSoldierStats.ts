@@ -9,6 +9,7 @@ export interface SoldierStat {
 	avatar: string;
 	numberOfGames: number;
 	wins: number;
+	winPercentage: number;
 	draws: number;
 	losses: number;
 	averageDpm: number;

@@ -8,6 +8,7 @@ export interface MedicStat {
 	avatar: string;
 	numberOfGames: number;
 	wins: number;
+	winPercentage: number;
 	draws: number;
 	losses: number;
 	averageKills: number;

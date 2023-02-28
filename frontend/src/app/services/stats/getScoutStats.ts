@@ -8,6 +8,7 @@ export interface ScoutStat {
 	avatar: string;
 	numberOfGames: number;
 	wins: number;
+	winPercentage: number;
 	draws: number;
 	losses: number;
 	averageDpm: number;

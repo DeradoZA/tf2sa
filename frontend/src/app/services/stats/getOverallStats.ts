@@ -9,6 +9,7 @@ export interface OverallStat {
 	avatar: string;
 	numberOfGames: number;
 	wins: number;
+	winPercentage: number;
 	draws: number;
 	losses: number;
 	averageDpm: number;
