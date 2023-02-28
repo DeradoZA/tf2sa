@@ -103,6 +103,13 @@
 			</td>
 		</ng-container>
 
+		<ng-container matColumnDef="winPercentage">
+			<th mat-header-cell *matHeaderCellDef mat-sort-header>%</th>
+			<td mat-cell *matCellDef="let element">
+				{{ element.winPercentage }}
+			</td>
+		</ng-container>
+
 		<ng-container matColumnDef="draws">
 			<th mat-header-cell *matHeaderCellDef mat-sort-header>D</th>
 			<td mat-cell *matCellDef="let element">
