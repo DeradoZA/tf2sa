@@ -1,7 +1,8 @@
 @import "tf2sa-colors";
 
 .player-table {
-	width: 100%;
+	min-width: 100%;
+	overflow-x: auto;
 }
 
 .profile-rank {
@@ -23,7 +24,6 @@ a {
 .table-container {
 	background-color: $tf2sa-background;
 	border-radius: 8px;
-	overflow: hidden !important;
 	height: 100%;
 }
 
