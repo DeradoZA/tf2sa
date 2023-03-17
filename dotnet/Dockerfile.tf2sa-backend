@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
 # COPY STUFF
 COPY . ./
@@ -10,6 +10,6 @@ RUN dotnet test TF2SA.Tests.Unit
 RUN dotnet publish TF2SA.Web/TF2SA.Web.csproj -c Release -o out
 
 # BUILD RUNTIME
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
 COPY --from=build-env /out .
 ENTRYPOINT ["dotnet", "TF2SA.Web.dll"]
