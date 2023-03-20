@@ -23,3 +23,12 @@ dotnet ef dbcontext scaffold \
     --table MedicAllTime \
     --table OverallStatsRecent \
     --table OverallStatsAllTime
+
+for file in ./Entities/MariaDb/*
+do
+  updated=$(echo "$file" | sed "s/.cs/Entity.cs/")
+  mv "$file" "$updated"
+  echo "$file -> $updated" 
+done
+
+dotnet csharpier .
