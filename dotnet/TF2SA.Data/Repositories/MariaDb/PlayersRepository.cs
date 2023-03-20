@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
-public class PlayersRepository : IPlayersRepository<Player, ulong>
+public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 {
 	private readonly TF2SADbContext dbContext;
 
@@ -17,25 +17,25 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		this.dbContext = dbContext;
 	}
 
-	public Task<EitherStrict<Error, Player>> Delete(
-		Player entity,
+	public Task<EitherStrict<Error, PlayerEntity>> Delete(
+		PlayerEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public List<Player> GetAll()
+	public List<PlayerEntity> GetAll()
 	{
 		return GetAllQueryable().ToList();
 	}
 
-	public IQueryable<Player> GetAllQueryable()
+	public IQueryable<PlayerEntity> GetAllQueryable()
 	{
-		return dbContext.Players.AsQueryable();
+		return dbContext.PlayersEntities.AsQueryable();
 	}
 
-	public Task<EitherStrict<Error, Player?>> GetById(
+	public Task<EitherStrict<Error, PlayerEntity?>> GetById(
 		ulong id,
 		CancellationToken cancellationToken
 	)
@@ -43,7 +43,7 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		throw new NotImplementedException();
 	}
 
-	public List<Player> GetPlayerByName(string name)
+	public List<PlayerEntity> GetPlayerByName(string name)
 	{
 		var Result = GetAllQueryable()
 			.Where(p => p.PlayerName == name)
@@ -51,8 +51,8 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return Result;
 	}
 
-	public Task<EitherStrict<Error, Player>> Insert(
-		Player entity,
+	public Task<EitherStrict<Error, PlayerEntity>> Insert(
+		PlayerEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
@@ -67,20 +67,20 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 	// MySqlConnector.MySqlException (0x80004005): Duplicate entry '76561198107170907' for key 'PRIMARY'
 	// milestone: 7
 	public async Task<OptionStrict<Error>> InsertPlayersIfNotExists(
-		IEnumerable<Player> players,
+		IEnumerable<PlayerEntity> players,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
 			IEnumerable<ulong> keys = players.Select(p => p.SteamId);
-			List<ulong> existingEntites = await dbContext.Players
+			List<ulong> existingEntites = await dbContext.PlayersEntities
 				.Select(p => p.SteamId)
 				.Where(id => keys.Contains(id))
 				.ToListAsync(cancellationToken: cancellationToken);
 
 			IEnumerable<ulong> idsToAdd = keys.Except(existingEntites);
-			IEnumerable<Player> playersToAdd = players.Where(
+			IEnumerable<PlayerEntity> playersToAdd = players.Where(
 				p => idsToAdd.Contains(p.SteamId)
 			);
 
@@ -95,8 +95,8 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 		return OptionStrict<Error>.Nothing;
 	}
 
-	public Task<EitherStrict<Error, Player>> Update(
-		Player entity,
+	public Task<EitherStrict<Error, PlayerEntity>> Update(
+		PlayerEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
@@ -104,16 +104,16 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 	}
 
 	public async Task<OptionStrict<Error>> UpdatePlayers(
-		IEnumerable<Player> updatedPlayers,
+		IEnumerable<PlayerEntity> updatedPlayers,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			DbSet<Player> trackedPlayers = dbContext.Players;
+			DbSet<PlayerEntity> trackedPlayers = dbContext.PlayersEntities;
 			foreach (var player in trackedPlayers)
 			{
-				Player? updatedPlayer = updatedPlayers
+				PlayerEntity? updatedPlayer = updatedPlayers
 					.Where(p => p.SteamId == player.SteamId)
 					.FirstOrDefault();
 				player.Avatar = updatedPlayer?.Avatar;
@@ -125,7 +125,7 @@ public class PlayersRepository : IPlayersRepository<Player, ulong>
 				player.RealName = updatedPlayer?.RealName;
 				player.ProfileUrl = updatedPlayer?.ProfileUrl;
 			}
-			dbContext.Players.UpdateRange(trackedPlayers);
+			dbContext.PlayersEntities.UpdateRange(trackedPlayers);
 			await dbContext.SaveChangesAsync(cancellationToken);
 		}
 		catch (Exception e)

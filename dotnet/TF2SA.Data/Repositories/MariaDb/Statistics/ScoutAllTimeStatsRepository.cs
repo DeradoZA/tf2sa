@@ -5,13 +5,13 @@ using static TF2SA.Data.Extensions.TF2SALinqExtensions;
 
 namespace TF2SA.Data.Repositories.MariaDb.Statistics;
 
-public class ScoutAllTimeStatsRepository : StatsRepository<ScoutAllTime>
+public class ScoutAllTimeStatsRepository : StatsRepository<ScoutAllTimeEntity>
 {
 	public override string UpdateProcQuery => "CALL UpdateScoutAllTimeStats();";
 
 	public override Dictionary<
 		string,
-		Expression<Func<ScoutAllTime, object>>
+		Expression<Func<ScoutAllTimeEntity, object>>
 	> PropertyKeySelectors =>
 		new()
 		{
@@ -42,7 +42,7 @@ public class ScoutAllTimeStatsRepository : StatsRepository<ScoutAllTime>
 
 	public override Tuple<
 		string,
-		Expression<Func<ScoutAllTime, object>>
+		Expression<Func<ScoutAllTimeEntity, object>>
 	> DefaultSortField => new("averageDpm", s => s.AverageDpm!);
 
 	public override SortOrder DefaultSortOrder => SortOrder.desc;

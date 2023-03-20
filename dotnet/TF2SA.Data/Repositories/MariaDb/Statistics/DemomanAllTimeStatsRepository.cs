@@ -6,14 +6,15 @@ using static TF2SA.Data.Extensions.TF2SALinqExtensions;
 
 namespace TF2SA.Data.Repositories.MariaDb.Statistics;
 
-public class DemomanAllTimeStatsRepository : StatsRepository<DemomanAllTime>
+public class DemomanAllTimeStatsRepository
+	: StatsRepository<DemomanAllTimeEntity>
 {
 	public override string UpdateProcQuery =>
 		"CALL UpdateDemomanAllTimeStats();";
 
 	public override Dictionary<
 		string,
-		Expression<Func<DemomanAllTime, object>>
+		Expression<Func<DemomanAllTimeEntity, object>>
 	> PropertyKeySelectors =>
 		new()
 		{
@@ -47,7 +48,7 @@ public class DemomanAllTimeStatsRepository : StatsRepository<DemomanAllTime>
 
 	public override Tuple<
 		string,
-		Expression<Func<DemomanAllTime, object>>
+		Expression<Func<DemomanAllTimeEntity, object>>
 	> DefaultSortField => new("averageDpm", s => s.AverageDpm!);
 
 	public override SortOrder DefaultSortOrder => SortOrder.desc;

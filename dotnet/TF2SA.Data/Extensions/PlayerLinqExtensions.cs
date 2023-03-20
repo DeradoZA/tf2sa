@@ -1,4 +1,4 @@
-using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
+using TF2SA.Data.Entities.MariaDb;
 using System.Linq.Expressions;
 
 namespace TF2SA.Data.Extensions;

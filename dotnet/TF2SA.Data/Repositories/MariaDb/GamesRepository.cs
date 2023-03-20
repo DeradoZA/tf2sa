@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Data.Entities.MariaDb;
@@ -7,7 +6,7 @@ using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
-public class GamesRepository : IGamesRepository<Game, uint>
+public class GamesRepository : IGamesRepository<GameEntity, uint>
 {
 	private readonly TF2SADbContext dbContext;
 
@@ -16,32 +15,32 @@ public class GamesRepository : IGamesRepository<Game, uint>
 		this.dbContext = dbContext;
 	}
 
-	public Task<EitherStrict<Error, Game>> Delete(
-		Game entity,
+	public Task<EitherStrict<Error, GameEntity>> Delete(
+		GameEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public List<Game> GetAll()
+	public List<GameEntity> GetAll()
 	{
 		return GetAllQueryable().ToList();
 	}
 
-	public IQueryable<Game> GetAllQueryable()
+	public IQueryable<GameEntity> GetAllQueryable()
 	{
-		return dbContext.Games.AsQueryable();
+		return dbContext.GamesEntities.AsQueryable();
 	}
 
-	public async Task<EitherStrict<Error, Game?>> GetById(
+	public async Task<EitherStrict<Error, GameEntity?>> GetById(
 		uint id,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			Game? entity = await dbContext.Games.FindAsync(
+			GameEntity? entity = await dbContext.GamesEntities.FindAsync(
 				new object?[] { id },
 				cancellationToken: cancellationToken
 			);
@@ -53,14 +52,14 @@ public class GamesRepository : IGamesRepository<Game, uint>
 		}
 	}
 
-	public async Task<EitherStrict<Error, Game>> Insert(
-		Game entity,
+	public async Task<EitherStrict<Error, GameEntity>> Insert(
+		GameEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			await dbContext.Games.AddAsync(entity, cancellationToken);
+			await dbContext.GamesEntities.AddAsync(entity, cancellationToken);
 			await dbContext.SaveChangesAsync(cancellationToken);
 			return entity;
 		}
@@ -72,8 +71,8 @@ public class GamesRepository : IGamesRepository<Game, uint>
 		}
 	}
 
-	public Task<EitherStrict<Error, Game>> Update(
-		Game entity,
+	public Task<EitherStrict<Error, GameEntity>> Update(
+		GameEntity entity,
 		CancellationToken cancellationToken
 	)
 	{

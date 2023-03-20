@@ -7,8 +7,6 @@ using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
 using TF2SA.Data.Repositories.MariaDb.Statistics;
-using TF2SA.Data.Services.Base;
-using TF2SA.Data.Services.Mariadb;
 
 namespace TF2SA.Data;
 
@@ -34,58 +32,60 @@ public static class DependencyInjection
 		);
 
 		services.AddScoped<
-			IPlayersRepository<Player, ulong>,
+			IPlayersRepository<PlayerEntity, ulong>,
 			PlayersRepository
 		>();
 		services.AddScoped<
-			IPlayerStatsRepository<PlayerStat, uint>,
+			IPlayerStatsRepository<PlayerStatEntity, uint>,
 			PlayerStatsRepository
 		>();
 		services.AddScoped<
-			IClassStatsRepository<ClassStat, uint>,
+			IClassStatsRepository<ClassStatEntity, uint>,
 			ClassStatsRepository
 		>();
-		services.AddScoped<IGamesRepository<Game, uint>, GamesRepository>();
-		services.AddScoped<IStatsService<ulong>, StatsService>();
+		services.AddScoped<
+			IGamesRepository<GameEntity, uint>,
+			GamesRepository
+		>();
 
 		services.AddScoped<
-			IStatsRepository<ScoutRecent>,
+			IStatsRepository<ScoutRecentEntity>,
 			ScoutRecentStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<ScoutAllTime>,
+			IStatsRepository<ScoutAllTimeEntity>,
 			ScoutAllTimeStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<SoldierRecent>,
+			IStatsRepository<SoldierRecentEntity>,
 			SoldierRecentStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<SoldierAllTime>,
+			IStatsRepository<SoldierAllTimeEntity>,
 			SoldierAllTimeStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<DemomanRecent>,
+			IStatsRepository<DemomanRecentEntity>,
 			DemomanRecentStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<DemomanAllTime>,
+			IStatsRepository<DemomanAllTimeEntity>,
 			DemomanAllTimeStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<MedicRecent>,
+			IStatsRepository<MedicRecentEntity>,
 			MedicRecentStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<MedicAllTime>,
+			IStatsRepository<MedicAllTimeEntity>,
 			MedicAllTimeStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<OverallStatsRecent>,
+			IStatsRepository<OverallStatsRecentEntity>,
 			OverallRecentStatsRepository
 		>();
 		services.AddScoped<
-			IStatsRepository<OverallStatsAllTime>,
+			IStatsRepository<OverallStatsAllTimeEntity>,
 			OverallAllTimeStatsRepository
 		>();
 

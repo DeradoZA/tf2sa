@@ -5,7 +5,7 @@ using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
-public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
+public class ClassStatsRepository : IClassStatsRepository<ClassStatEntity, uint>
 {
 	private readonly TF2SADbContext tF2SADbContext;
 
@@ -14,25 +14,25 @@ public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
 		this.tF2SADbContext = tF2SADbContext;
 	}
 
-	public Task<EitherStrict<Error, ClassStat>> Delete(
-		ClassStat entity,
+	public Task<EitherStrict<Error, ClassStatEntity>> Delete(
+		ClassStatEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public List<ClassStat> GetAll()
+	public List<ClassStatEntity> GetAll()
 	{
 		return GetAllQueryable().ToList();
 	}
 
-	public IQueryable<ClassStat> GetAllQueryable()
+	public IQueryable<ClassStatEntity> GetAllQueryable()
 	{
-		return tF2SADbContext.ClassStats.AsQueryable();
+		return tF2SADbContext.ClassStatsEntities.AsQueryable();
 	}
 
-	public Task<EitherStrict<Error, ClassStat?>> GetById(
+	public Task<EitherStrict<Error, ClassStatEntity?>> GetById(
 		uint id,
 		CancellationToken cancellationToken
 	)
@@ -40,16 +40,16 @@ public class ClassStatsRepository : IClassStatsRepository<ClassStat, uint>
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<Error, ClassStat>> Insert(
-		ClassStat entity,
+	public Task<EitherStrict<Error, ClassStatEntity>> Insert(
+		ClassStatEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<EitherStrict<Error, ClassStat>> Update(
-		ClassStat entity,
+	public Task<EitherStrict<Error, ClassStatEntity>> Update(
+		ClassStatEntity entity,
 		CancellationToken cancellationToken
 	)
 	{

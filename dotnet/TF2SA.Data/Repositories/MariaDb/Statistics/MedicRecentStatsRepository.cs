@@ -5,13 +5,13 @@ using static TF2SA.Data.Extensions.TF2SALinqExtensions;
 
 namespace TF2SA.Data.Repositories.MariaDb.Statistics;
 
-public class MedicRecentStatsRepository : StatsRepository<MedicRecent>
+public class MedicRecentStatsRepository : StatsRepository<MedicRecentEntity>
 {
 	public override string UpdateProcQuery => "CALL UpdateMedicRecentStats();";
 
 	public override Dictionary<
 		string,
-		Expression<Func<MedicRecent, object>>
+		Expression<Func<MedicRecentEntity, object>>
 	> PropertyKeySelectors =>
 		new()
 		{
@@ -39,7 +39,7 @@ public class MedicRecentStatsRepository : StatsRepository<MedicRecent>
 
 	public override Tuple<
 		string,
-		Expression<Func<MedicRecent, object>>
+		Expression<Func<MedicRecentEntity, object>>
 	> DefaultSortField => new("averageHealsPm", s => s.AverageHealsPm!);
 
 	public override SortOrder DefaultSortOrder => SortOrder.desc;
