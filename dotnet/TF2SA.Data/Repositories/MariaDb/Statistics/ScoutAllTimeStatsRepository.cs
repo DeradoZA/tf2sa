@@ -50,5 +50,6 @@ public class ScoutAllTimeStatsRepository : StatsRepository<ScoutAllTime>
 	public ScoutAllTimeStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<ScoutAllTimeStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

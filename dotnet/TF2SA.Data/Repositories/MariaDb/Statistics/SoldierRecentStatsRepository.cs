@@ -54,5 +54,6 @@ public class SoldierRecentStatsRepository : StatsRepository<SoldierRecent>
 	public SoldierRecentStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<SoldierRecentStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

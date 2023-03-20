@@ -47,5 +47,6 @@ public class MedicAllTimeStatsRepository : StatsRepository<MedicAllTime>
 	public MedicAllTimeStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<MedicAllTimeStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

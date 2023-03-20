@@ -3,7 +3,8 @@ using TF2SA.Common.Errors;
 
 namespace TF2SA.Data.Repositories.Base;
 
-public interface IStatsRepository<TEntity> where TEntity : class
+public interface IStatsRepository<TEntity>
+	where TEntity : class
 {
 	Task<EitherStrict<Error, List<TEntity>>> GetAll(
 		CancellationToken cancellationToken

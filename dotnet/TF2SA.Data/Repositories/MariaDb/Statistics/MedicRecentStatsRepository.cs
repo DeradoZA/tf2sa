@@ -47,5 +47,6 @@ public class MedicRecentStatsRepository : StatsRepository<MedicRecent>
 	public MedicRecentStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<MedicRecentStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

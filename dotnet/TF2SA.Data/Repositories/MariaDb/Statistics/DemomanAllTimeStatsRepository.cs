@@ -55,5 +55,6 @@ public class DemomanAllTimeStatsRepository : StatsRepository<DemomanAllTime>
 	public DemomanAllTimeStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<DemomanAllTimeStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

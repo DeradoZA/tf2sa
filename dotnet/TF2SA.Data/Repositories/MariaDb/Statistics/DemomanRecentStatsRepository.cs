@@ -54,5 +54,6 @@ public class DemomanRecentStatsRepository : StatsRepository<DemomanRecent>
 	public DemomanRecentStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<DemomanRecentStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

@@ -55,5 +55,6 @@ public class OverallRecentStatsRepository : StatsRepository<OverallStatsRecent>
 	public OverallRecentStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<OverallRecentStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }

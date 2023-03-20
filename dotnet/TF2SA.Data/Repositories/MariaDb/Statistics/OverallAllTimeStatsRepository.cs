@@ -57,5 +57,6 @@ public class OverallAllTimeStatsRepository
 	public OverallAllTimeStatsRepository(
 		TF2SADbContext dbContext,
 		ILogger<OverallAllTimeStatsRepository> logger
-	) : base(dbContext, logger) { }
+	)
+		: base(dbContext, logger) { }
 }
