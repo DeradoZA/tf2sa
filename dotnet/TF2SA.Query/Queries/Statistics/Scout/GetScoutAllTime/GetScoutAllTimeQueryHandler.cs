@@ -18,11 +18,11 @@ public class GetScoutAllTimeQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<ScoutAllTime> repository;
+	private readonly IStatsRepository<ScoutAllTimeEntity> repository;
 
 	public GetScoutAllTimeQueryHandler(
 		IMapper mapper,
-		IStatsRepository<ScoutAllTime> repository
+		IStatsRepository<ScoutAllTimeEntity> repository
 	)
 	{
 		this.mapper = mapper;
@@ -36,22 +36,23 @@ public class GetScoutAllTimeQueryHandler
 	{
 		try
 		{
-			IQueryable<ScoutAllTime> allQueryable =
+			IQueryable<ScoutAllTimeEntity> allQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<ScoutAllTime> filteredQueryable = repository.ApplyFilter(
-				allQueryable,
-				request.FilterField,
-				request.FilterValue,
-				out string filterFieldUsed,
-				out string filterValueUsed
-			);
+			IQueryable<ScoutAllTimeEntity> filteredQueryable =
+				repository.ApplyFilter(
+					allQueryable,
+					request.FilterField,
+					request.FilterValue,
+					out string filterFieldUsed,
+					out string filterValueUsed
+				);
 
 			int totalCount = await filteredQueryable.CountAsync(
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<ScoutAllTime> filteredSortedQueryable =
+			IOrderedQueryable<ScoutAllTimeEntity> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -60,10 +61,11 @@ public class GetScoutAllTimeQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<ScoutAllTime> scoutStatEntites = await filteredSortedQueryable
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
+			List<ScoutAllTimeEntity> scoutStatEntites =
+				await filteredSortedQueryable
+					.Skip(request.Offset)
+					.Take(request.Count)
+					.ToListAsync(cancellationToken: cancellationToken);
 
 			IEnumerable<ScoutStatDomain> domainMappedPlayers = mapper.Map<
 				List<ScoutStatDomain>

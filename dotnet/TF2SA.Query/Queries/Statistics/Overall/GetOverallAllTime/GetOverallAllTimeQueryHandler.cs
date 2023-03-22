@@ -17,11 +17,11 @@ public class GetOverallAllTimeQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<OverallStatsAllTime> repository;
+	private readonly IStatsRepository<OverallStatsAllTimeEntity> repository;
 
 	public GetOverallAllTimeQueryHandler(
 		IMapper mapper,
-		IStatsRepository<OverallStatsAllTime> repository
+		IStatsRepository<OverallStatsAllTimeEntity> repository
 	)
 	{
 		this.mapper = mapper;
@@ -35,10 +35,10 @@ public class GetOverallAllTimeQueryHandler
 	{
 		try
 		{
-			IQueryable<OverallStatsAllTime> allQueryable =
+			IQueryable<OverallStatsAllTimeEntity> allQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<OverallStatsAllTime> filteredQueryable =
+			IQueryable<OverallStatsAllTimeEntity> filteredQueryable =
 				repository.ApplyFilter(
 					allQueryable,
 					request.FilterField,
@@ -51,7 +51,7 @@ public class GetOverallAllTimeQueryHandler
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<OverallStatsAllTime> filteredSortedQueryable =
+			IOrderedQueryable<OverallStatsAllTimeEntity> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -60,10 +60,11 @@ public class GetOverallAllTimeQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<OverallStatsAllTime> entities = await filteredSortedQueryable
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
+			List<OverallStatsAllTimeEntity> entities =
+				await filteredSortedQueryable
+					.Skip(request.Offset)
+					.Take(request.Count)
+					.ToListAsync(cancellationToken: cancellationToken);
 
 			IEnumerable<OverallStatDomain> domainMappedPlayers = mapper.Map<
 				List<OverallStatDomain>

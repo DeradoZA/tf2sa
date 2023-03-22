@@ -9,29 +9,29 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 public class StatisticsUpdater : IStatisticsUpdater
 {
 	private readonly ILogger<StatisticsUpdater> logger;
-	private readonly IStatsRepository<ScoutRecent> scoutRecentStatsRepository;
-	private readonly IStatsRepository<ScoutAllTime> scoutAllTimeStatsRepository;
-	private readonly IStatsRepository<SoldierRecent> soldierRecentStatsRepository;
-	private readonly IStatsRepository<SoldierAllTime> soldierAllTimeStatsRepository;
-	private readonly IStatsRepository<DemomanRecent> demomanRecentStatsRepository;
-	private readonly IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository;
-	private readonly IStatsRepository<MedicRecent> medicRecentStatsRepository;
-	private readonly IStatsRepository<MedicAllTime> medicAllTimeStatsRepository;
-	private readonly IStatsRepository<OverallStatsRecent> overallStatsRecentRepository;
-	private readonly IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository;
+	private readonly IStatsRepository<ScoutRecentEntity> scoutRecentStatsRepository;
+	private readonly IStatsRepository<ScoutAllTimeEntity> scoutAllTimeStatsRepository;
+	private readonly IStatsRepository<SoldierRecentEntity> soldierRecentStatsRepository;
+	private readonly IStatsRepository<SoldierAllTimeEntity> soldierAllTimeStatsRepository;
+	private readonly IStatsRepository<DemomanRecentEntity> demomanRecentStatsRepository;
+	private readonly IStatsRepository<DemomanAllTimeEntity> demomanAllTimeStatsRepository;
+	private readonly IStatsRepository<MedicRecentEntity> medicRecentStatsRepository;
+	private readonly IStatsRepository<MedicAllTimeEntity> medicAllTimeStatsRepository;
+	private readonly IStatsRepository<OverallStatsRecentEntity> overallStatsRecentRepository;
+	private readonly IStatsRepository<OverallStatsAllTimeEntity> overallStatsAllTimeRepository;
 
 	public StatisticsUpdater(
 		ILogger<StatisticsUpdater> logger,
-		IStatsRepository<ScoutRecent> scoutRecentStatsRepository,
-		IStatsRepository<ScoutAllTime> scoutAllTimeStatsRepository,
-		IStatsRepository<SoldierRecent> soldierRecentStatsRepository,
-		IStatsRepository<SoldierAllTime> soldierAllTimeStatsRepository,
-		IStatsRepository<DemomanRecent> demomanRecentStatsRepository,
-		IStatsRepository<DemomanAllTime> demomanAllTimeStatsRepository,
-		IStatsRepository<MedicRecent> medicRecentStatsRepository,
-		IStatsRepository<MedicAllTime> medicAllTimeStatsRepository,
-		IStatsRepository<OverallStatsRecent> overallStatsRecentRepository,
-		IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository
+		IStatsRepository<ScoutRecentEntity> scoutRecentStatsRepository,
+		IStatsRepository<ScoutAllTimeEntity> scoutAllTimeStatsRepository,
+		IStatsRepository<SoldierRecentEntity> soldierRecentStatsRepository,
+		IStatsRepository<SoldierAllTimeEntity> soldierAllTimeStatsRepository,
+		IStatsRepository<DemomanRecentEntity> demomanRecentStatsRepository,
+		IStatsRepository<DemomanAllTimeEntity> demomanAllTimeStatsRepository,
+		IStatsRepository<MedicRecentEntity> medicRecentStatsRepository,
+		IStatsRepository<MedicAllTimeEntity> medicAllTimeStatsRepository,
+		IStatsRepository<OverallStatsRecentEntity> overallStatsRecentRepository,
+		IStatsRepository<OverallStatsAllTimeEntity> overallStatsAllTimeRepository
 	)
 	{
 		this.logger = logger;

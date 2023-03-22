@@ -1,7 +1,6 @@
 using AutoMapper;
 using TF2SA.Common.Models.LogsTF.GameLogModel;
 using TF2SA.Data.Entities.MariaDb;
-using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 using PlayerDto = TF2SA.Common.Models.LogsTF.GameLogModel.Player;
 using PlayerDomain = TF2SA.Common.Models.Core.Player;
 using TF2SA.Common.Models.LogsTF.Constants;
@@ -14,7 +13,7 @@ public class GameMappingProfile : Profile
 {
 	public GameMappingProfile()
 	{
-		CreateMap<GameLog, Game>()
+		CreateMap<GameLog, GameEntity>()
 			.ForMember(
 				g => g.RedScore,
 				opt =>
@@ -52,27 +51,28 @@ public class GameMappingProfile : Profile
 					)
 			)
 			.IncludeMembers(gl => gl.Info);
-		CreateMap<LogInfo, Game>();
-		CreateMap<PlayerStats, PlayerStat>().IncludeMembers(ps => ps.Player);
-		CreateMap<PlayerDto, PlayerStat>()
+		CreateMap<LogInfo, GameEntity>();
+		CreateMap<PlayerStats, PlayerStatEntity>()
+			.IncludeMembers(ps => ps.Player);
+		CreateMap<PlayerDto, PlayerStatEntity>()
 			.ForMember(
 				ps => ps.SteamId,
 				opt => opt.MapFrom(p => p.SteamId!.ConvertToUInt64())
 			);
-		CreateMap<PlayerStat, PlayerEntity>();
-		CreateMap<ClassStats, ClassStat>();
-		CreateMap<WeaponStats, WeaponStat>();
+		CreateMap<PlayerStatEntity, PlayerEntity>();
+		CreateMap<ClassStats, ClassStatEntity>();
+		CreateMap<WeaponStats, WeaponStatEntity>();
 		CreateMap<SteamPlayer, PlayerEntity>();
 		CreateMap<PlayerEntity, PlayerDomain>();
-		CreateMap<ScoutRecent, ScoutStatDomain>();
-		CreateMap<ScoutAllTime, ScoutStatDomain>();
-		CreateMap<SoldierRecent, SoldierStatDomain>();
-		CreateMap<SoldierAllTime, SoldierStatDomain>();
-		CreateMap<DemomanRecent, DemomanStatDomain>();
-		CreateMap<DemomanAllTime, DemomanStatDomain>();
-		CreateMap<MedicRecent, MedicStatDomain>();
-		CreateMap<MedicAllTime, MedicStatDomain>();
-		CreateMap<OverallStatsRecent, OverallStatDomain>();
-		CreateMap<OverallStatsAllTime, OverallStatDomain>();
+		CreateMap<ScoutRecentEntity, ScoutStatDomain>();
+		CreateMap<ScoutAllTimeEntity, ScoutStatDomain>();
+		CreateMap<SoldierRecentEntity, SoldierStatDomain>();
+		CreateMap<SoldierAllTimeEntity, SoldierStatDomain>();
+		CreateMap<DemomanRecentEntity, DemomanStatDomain>();
+		CreateMap<DemomanAllTimeEntity, DemomanStatDomain>();
+		CreateMap<MedicRecentEntity, MedicStatDomain>();
+		CreateMap<MedicAllTimeEntity, MedicStatDomain>();
+		CreateMap<OverallStatsRecentEntity, OverallStatDomain>();
+		CreateMap<OverallStatsAllTimeEntity, OverallStatDomain>();
 	}
 }

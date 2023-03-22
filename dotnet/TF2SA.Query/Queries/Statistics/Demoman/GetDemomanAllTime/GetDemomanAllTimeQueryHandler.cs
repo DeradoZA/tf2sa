@@ -17,11 +17,11 @@ public class GetDemomanAllTimeQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<DemomanAllTime> repository;
+	private readonly IStatsRepository<DemomanAllTimeEntity> repository;
 
 	public GetDemomanAllTimeQueryHandler(
 		IMapper mapper,
-		IStatsRepository<DemomanAllTime> repository
+		IStatsRepository<DemomanAllTimeEntity> repository
 	)
 	{
 		this.mapper = mapper;
@@ -35,10 +35,10 @@ public class GetDemomanAllTimeQueryHandler
 	{
 		try
 		{
-			IQueryable<DemomanAllTime> allQueryable =
+			IQueryable<DemomanAllTimeEntity> allQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<DemomanAllTime> filteredQueryable =
+			IQueryable<DemomanAllTimeEntity> filteredQueryable =
 				repository.ApplyFilter(
 					allQueryable,
 					request.FilterField,
@@ -51,7 +51,7 @@ public class GetDemomanAllTimeQueryHandler
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<DemomanAllTime> filteredSortedQueryable =
+			IOrderedQueryable<DemomanAllTimeEntity> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -60,7 +60,7 @@ public class GetDemomanAllTimeQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<DemomanAllTime> entities = await filteredSortedQueryable
+			List<DemomanAllTimeEntity> entities = await filteredSortedQueryable
 				.Skip(request.Offset)
 				.Take(request.Count)
 				.ToListAsync(cancellationToken: cancellationToken);

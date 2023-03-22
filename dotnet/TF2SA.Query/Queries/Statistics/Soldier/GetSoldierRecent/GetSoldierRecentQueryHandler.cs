@@ -17,11 +17,11 @@ public class GetSoldierRecentQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<SoldierRecent> repository;
+	private readonly IStatsRepository<SoldierRecentEntity> repository;
 
 	public GetSoldierRecentQueryHandler(
 		IMapper mapper,
-		IStatsRepository<SoldierRecent> repository
+		IStatsRepository<SoldierRecentEntity> repository
 	)
 	{
 		this.mapper = mapper;
@@ -35,10 +35,10 @@ public class GetSoldierRecentQueryHandler
 	{
 		try
 		{
-			IQueryable<SoldierRecent> allQueryable =
+			IQueryable<SoldierRecentEntity> allQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<SoldierRecent> filteredQueryable =
+			IQueryable<SoldierRecentEntity> filteredQueryable =
 				repository.ApplyFilter(
 					allQueryable,
 					request.FilterField,
@@ -51,7 +51,7 @@ public class GetSoldierRecentQueryHandler
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<SoldierRecent> filteredSortedQueryable =
+			IOrderedQueryable<SoldierRecentEntity> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -60,7 +60,7 @@ public class GetSoldierRecentQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<SoldierRecent> entities = await filteredSortedQueryable
+			List<SoldierRecentEntity> entities = await filteredSortedQueryable
 				.Skip(request.Offset)
 				.Take(request.Count)
 				.ToListAsync(cancellationToken: cancellationToken);

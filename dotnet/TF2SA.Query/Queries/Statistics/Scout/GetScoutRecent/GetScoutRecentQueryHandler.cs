@@ -18,11 +18,11 @@ public class GetScoutRecentQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<ScoutRecent> repository;
+	private readonly IStatsRepository<ScoutRecentEntity> repository;
 
 	public GetScoutRecentQueryHandler(
 		IMapper mapper,
-		IStatsRepository<ScoutRecent> repository
+		IStatsRepository<ScoutRecentEntity> repository
 	)
 	{
 		this.mapper = mapper;
@@ -36,22 +36,23 @@ public class GetScoutRecentQueryHandler
 	{
 		try
 		{
-			IQueryable<ScoutRecent> scoutRecentAllQueryable =
+			IQueryable<ScoutRecentEntity> scoutRecentAllQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<ScoutRecent> filteredQueryable = repository.ApplyFilter(
-				scoutRecentAllQueryable,
-				request.FilterField,
-				request.FilterValue,
-				out string filterFieldUsed,
-				out string filterValueUsed
-			);
+			IQueryable<ScoutRecentEntity> filteredQueryable =
+				repository.ApplyFilter(
+					scoutRecentAllQueryable,
+					request.FilterField,
+					request.FilterValue,
+					out string filterFieldUsed,
+					out string filterValueUsed
+				);
 
 			int totalCount = await filteredQueryable.CountAsync(
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<ScoutRecent> filteredSortedQueryable =
+			IOrderedQueryable<ScoutRecentEntity> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -60,7 +61,7 @@ public class GetScoutRecentQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<ScoutRecent> scoutRecentEntities =
+			List<ScoutRecentEntity> scoutRecentEntities =
 				await filteredSortedQueryable
 					.Skip(request.Offset)
 					.Take(request.Count)

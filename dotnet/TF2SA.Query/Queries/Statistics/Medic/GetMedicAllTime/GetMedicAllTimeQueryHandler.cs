@@ -17,11 +17,11 @@ public class GetMedicAllTimeQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<MedicAllTime> repository;
+	private readonly IStatsRepository<MedicAllTimeEntity> repository;
 
 	public GetMedicAllTimeQueryHandler(
 		IMapper mapper,
-		IStatsRepository<MedicAllTime> repository
+		IStatsRepository<MedicAllTimeEntity> repository
 	)
 	{
 		this.mapper = mapper;
@@ -35,22 +35,23 @@ public class GetMedicAllTimeQueryHandler
 	{
 		try
 		{
-			IQueryable<MedicAllTime> allQueryable =
+			IQueryable<MedicAllTimeEntity> allQueryable =
 				repository.GetAllQueryable();
 
-			IQueryable<MedicAllTime> filteredQueryable = repository.ApplyFilter(
-				allQueryable,
-				request.FilterField,
-				request.FilterValue,
-				out string filterFieldUsed,
-				out string filterValueUsed
-			);
+			IQueryable<MedicAllTimeEntity> filteredQueryable =
+				repository.ApplyFilter(
+					allQueryable,
+					request.FilterField,
+					request.FilterValue,
+					out string filterFieldUsed,
+					out string filterValueUsed
+				);
 
 			int totalCount = await filteredQueryable.CountAsync(
 				cancellationToken: cancellationToken
 			);
 
-			IOrderedQueryable<MedicAllTime> filteredSortedQueryable =
+			IOrderedQueryable<MedicAllTimeEntity> filteredSortedQueryable =
 				repository.ApplySort(
 					filteredQueryable,
 					request.Sort,
@@ -59,7 +60,7 @@ public class GetMedicAllTimeQueryHandler
 					out string sortOrderUsed
 				);
 
-			List<MedicAllTime> entities = await filteredSortedQueryable
+			List<MedicAllTimeEntity> entities = await filteredSortedQueryable
 				.Skip(request.Offset)
 				.Take(request.Count)
 				.ToListAsync(cancellationToken: cancellationToken);
