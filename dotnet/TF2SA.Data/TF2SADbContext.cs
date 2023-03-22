@@ -8,35 +8,48 @@ public partial class TF2SADbContext : DbContext
 	public TF2SADbContext(DbContextOptions<TF2SADbContext> options)
 		: base(options) { }
 
-	public virtual DbSet<ClassStatEntity> ClassStatsEntities { get; set; }
+	public virtual DbSet<ClassStatEntity> ClassStatsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<DemomanAllTimeEntity> DemomanAllTimesEntities { get; set; }
+	public virtual DbSet<DemomanAllTimeEntity> DemomanAllTimesEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<DemomanRecentEntity> DemomanRecentsEntities { get; set; }
+	public virtual DbSet<DemomanRecentEntity> DemomanRecentsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<GameEntity> GamesEntities { get; set; }
+	public virtual DbSet<GameEntity> GamesEntities { get; set; } = null!;
 
-	public virtual DbSet<MedicAllTimeEntity> MedicAllTimesEntities { get; set; }
+	public virtual DbSet<MedicAllTimeEntity> MedicAllTimesEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<MedicRecentEntity> MedicRecentsEntities { get; set; }
+	public virtual DbSet<MedicRecentEntity> MedicRecentsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<OverallStatsAllTimeEntity> OverallStatsAllTimesEntities { get; set; }
+	public virtual DbSet<OverallStatsAllTimeEntity> OverallStatsAllTimesEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<OverallStatsRecentEntity> OverallStatsRecentsEntities { get; set; }
+	public virtual DbSet<OverallStatsRecentEntity> OverallStatsRecentsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<PlayerEntity> PlayersEntities { get; set; }
+	public virtual DbSet<PlayerEntity> PlayersEntities { get; set; } = null!;
 
-	public virtual DbSet<PlayerStatEntity> PlayerStatsEntities { get; set; }
+	public virtual DbSet<PlayerStatEntity> PlayerStatsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<ScoutAllTimeEntity> ScoutAllTimesEntities { get; set; }
+	public virtual DbSet<ScoutAllTimeEntity> ScoutAllTimesEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<ScoutRecentEntity> ScoutRecentsEntities { get; set; }
+	public virtual DbSet<ScoutRecentEntity> ScoutRecentsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<SoldierAllTimeEntity> SoldierAllTimesEntities { get; set; }
+	public virtual DbSet<SoldierAllTimeEntity> SoldierAllTimesEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<SoldierRecentEntity> SoldierRecentsEntities { get; set; }
+	public virtual DbSet<SoldierRecentEntity> SoldierRecentsEntities { get; set; } =
+		null!;
 
-	public virtual DbSet<WeaponStatEntity> WeaponStatsEntities { get; set; }
+	public virtual DbSet<WeaponStatEntity> WeaponStatsEntities { get; set; } =
+		null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
