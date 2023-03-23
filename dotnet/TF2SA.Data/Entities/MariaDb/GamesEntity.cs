@@ -1,8 +1,11 @@
 ﻿using System;
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TF2SA.Data.Entities.MariaDb;
 
-public partial class GameEntity
+[Table("Games")]
+public partial class GamesEntity
 {
 	public uint GameId { get; set; }
 
@@ -66,6 +69,6 @@ public partial class GameEntity
 
 	public bool? Success { get; set; }
 
-	public virtual ICollection<PlayerStatEntity> PlayerStatsEntities { get; } =
-		new List<PlayerStatEntity>();
+	public virtual ICollection<PlayerStatsEntity> PlayerStatsEntities { get; } =
+		new List<PlayerStatsEntity>();
 }

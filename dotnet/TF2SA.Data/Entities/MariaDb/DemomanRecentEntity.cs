@@ -1,7 +1,10 @@
 ﻿using System;
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TF2SA.Data.Entities.MariaDb;
 
+[Table("DemomanRecent")]
 public partial class DemomanRecentEntity
 {
 	public ulong SteamId { get; set; }

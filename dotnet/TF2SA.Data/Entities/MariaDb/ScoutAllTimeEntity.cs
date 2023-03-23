@@ -1,7 +1,10 @@
 ﻿using System;
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TF2SA.Data.Entities.MariaDb;
 
+[Table("ScoutAllTime")]
 public partial class ScoutAllTimeEntity
 {
 	public ulong SteamId { get; set; }

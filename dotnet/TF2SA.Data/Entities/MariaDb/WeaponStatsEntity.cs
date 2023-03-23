@@ -1,8 +1,11 @@
 ﻿using System;
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TF2SA.Data.Entities.MariaDb;
 
-public partial class WeaponStatEntity
+[Table("WeaponStats")]
+public partial class WeaponStatsEntity
 {
 	public uint WeaponStatsId { get; set; }
 
@@ -18,5 +21,5 @@ public partial class WeaponStatEntity
 
 	public uint? Hits { get; set; }
 
-	public virtual ClassStatEntity ClassStatsEntity { get; set; } = null!;
+	public virtual ClassStatsEntity ClassStatsEntity { get; set; } = null!;
 }

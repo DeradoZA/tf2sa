@@ -1,8 +1,11 @@
 ﻿using System;
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TF2SA.Data.Entities.MariaDb;
 
-public partial class PlayerStatEntity
+[Table("PlayerStats")]
+public partial class PlayerStatsEntity
 {
 	public uint PlayerStatsId { get; set; }
 
@@ -42,10 +45,10 @@ public partial class PlayerStatEntity
 
 	public byte? IntelCaptures { get; set; }
 
-	public virtual ICollection<ClassStatEntity> ClassStatsEntities { get; } =
-		new List<ClassStatEntity>();
+	public virtual ICollection<ClassStatsEntity> ClassStatsEntities { get; } =
+		new List<ClassStatsEntity>();
 
-	public virtual GameEntity GameEntity { get; set; } = null!;
+	public virtual GamesEntity GameEntity { get; set; } = null!;
 
-	public virtual PlayerEntity SteamEntity { get; set; } = null!;
+	public virtual PlayersEntity SteamEntity { get; set; } = null!;
 }

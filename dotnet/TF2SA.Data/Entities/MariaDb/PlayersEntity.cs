@@ -1,6 +1,9 @@
-﻿namespace TF2SA.Data.Entities.MariaDb;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-public partial class PlayerEntity
+namespace TF2SA.Data.Entities.MariaDb;
+
+[Table("Players")]
+public partial class PlayersEntity
 {
 	public ulong SteamId { get; set; }
 
@@ -20,6 +23,6 @@ public partial class PlayerEntity
 
 	public string? RealName { get; set; }
 
-	public virtual ICollection<PlayerStatEntity> PlayerStatsEntities { get; } =
-		new List<PlayerStatEntity>();
+	public virtual ICollection<PlayerStatsEntity> PlayerStatsEntities { get; } =
+		new List<PlayerStatsEntity>();
 }

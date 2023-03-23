@@ -8,54 +8,54 @@ public partial class TF2SADbContext : DbContext
 	public TF2SADbContext(DbContextOptions<TF2SADbContext> options)
 		: base(options) { }
 
-	public virtual DbSet<ClassStatEntity> ClassStatsEntities { get; set; } =
+	public virtual DbSet<ClassStatsEntity> ClassStatsEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<DemomanAllTimeEntity> DemomanAllTimesEntities { get; set; } =
+	public virtual DbSet<DemomanAllTimeEntity> DemomanAllTimeEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<DemomanRecentEntity> DemomanRecentsEntities { get; set; } =
+	public virtual DbSet<DemomanRecentEntity> DemomanRecentEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<GameEntity> GamesEntities { get; set; } = null!;
+	public virtual DbSet<GamesEntity> GamesEntities { get; set; } = null!;
 
-	public virtual DbSet<MedicAllTimeEntity> MedicAllTimesEntities { get; set; } =
+	public virtual DbSet<MedicAllTimeEntity> MedicAllTimeEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<MedicRecentEntity> MedicRecentsEntities { get; set; } =
+	public virtual DbSet<MedicRecentEntity> MedicRecentEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<OverallStatsAllTimeEntity> OverallStatsAllTimesEntities { get; set; } =
+	public virtual DbSet<OverallStatsAllTimeEntity> OverallStatsAllTimeEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<OverallStatsRecentEntity> OverallStatsRecentsEntities { get; set; } =
+	public virtual DbSet<OverallStatsRecentEntity> OverallStatsRecentEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<PlayerEntity> PlayersEntities { get; set; } = null!;
-
-	public virtual DbSet<PlayerStatEntity> PlayerStatsEntities { get; set; } =
+	public virtual DbSet<PlayerStatsEntity> PlayerStatsEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<ScoutAllTimeEntity> ScoutAllTimesEntities { get; set; } =
+	public virtual DbSet<PlayersEntity> PlayersEntities { get; set; } = null!;
+
+	public virtual DbSet<ScoutAllTimeEntity> ScoutAllTimeEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<ScoutRecentEntity> ScoutRecentsEntities { get; set; } =
+	public virtual DbSet<ScoutRecentEntity> ScoutRecentEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<SoldierAllTimeEntity> SoldierAllTimesEntities { get; set; } =
+	public virtual DbSet<SoldierAllTimeEntity> SoldierAllTimeEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<SoldierRecentEntity> SoldierRecentsEntities { get; set; } =
+	public virtual DbSet<SoldierRecentEntity> SoldierRecentEntities { get; set; } =
 		null!;
 
-	public virtual DbSet<WeaponStatEntity> WeaponStatsEntities { get; set; } =
+	public virtual DbSet<WeaponStatsEntity> WeaponStatsEntities { get; set; } =
 		null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.UseCollation("utf8mb4_unicode_ci").HasCharSet("utf8mb4");
 
-		modelBuilder.Entity<ClassStatEntity>(entity =>
+		modelBuilder.Entity<ClassStatsEntity>(entity =>
 		{
 			entity.HasKey(e => e.ClassStatsId).HasName("PRIMARY");
 
@@ -95,8 +95,6 @@ public partial class TF2SADbContext : DbContext
 		modelBuilder.Entity<DemomanAllTimeEntity>(entity =>
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
-
-			entity.ToTable("DemomanAllTime");
 
 			entity
 				.Property(e => e.SteamId)
@@ -148,8 +146,6 @@ public partial class TF2SADbContext : DbContext
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("DemomanRecent");
-
 			entity
 				.Property(e => e.SteamId)
 				.ValueGeneratedNever()
@@ -196,7 +192,7 @@ public partial class TF2SADbContext : DbContext
 			entity.Property(e => e.Wins).HasColumnType("int(10) unsigned");
 		});
 
-		modelBuilder.Entity<GameEntity>(entity =>
+		modelBuilder.Entity<GamesEntity>(entity =>
 		{
 			entity.HasKey(e => e.GameId).HasName("PRIMARY");
 
@@ -236,8 +232,6 @@ public partial class TF2SADbContext : DbContext
 		modelBuilder.Entity<MedicAllTimeEntity>(entity =>
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
-
-			entity.ToTable("MedicAllTime");
 
 			entity
 				.Property(e => e.SteamId)
@@ -282,8 +276,6 @@ public partial class TF2SADbContext : DbContext
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("MedicRecent");
-
 			entity
 				.Property(e => e.SteamId)
 				.ValueGeneratedNever()
@@ -326,8 +318,6 @@ public partial class TF2SADbContext : DbContext
 		modelBuilder.Entity<OverallStatsAllTimeEntity>(entity =>
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
-
-			entity.ToTable("OverallStatsAllTime");
 
 			entity
 				.Property(e => e.SteamId)
@@ -379,8 +369,6 @@ public partial class TF2SADbContext : DbContext
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("OverallStatsRecent");
-
 			entity
 				.Property(e => e.SteamId)
 				.ValueGeneratedNever()
@@ -427,26 +415,7 @@ public partial class TF2SADbContext : DbContext
 			entity.Property(e => e.Wins).HasColumnType("int(10) unsigned");
 		});
 
-		modelBuilder.Entity<PlayerEntity>(entity =>
-		{
-			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
-
-			entity
-				.Property(e => e.SteamId)
-				.ValueGeneratedNever()
-				.HasColumnType("bigint(20) unsigned")
-				.HasColumnName("SteamID");
-			entity.Property(e => e.Avatar).HasMaxLength(1000);
-			entity.Property(e => e.AvatarFull).HasMaxLength(1000);
-			entity.Property(e => e.AvatarHash).HasMaxLength(255);
-			entity.Property(e => e.AvatarMedium).HasMaxLength(1000);
-			entity.Property(e => e.LocalCountryCode).HasMaxLength(10);
-			entity.Property(e => e.PlayerName).HasMaxLength(255);
-			entity.Property(e => e.ProfileUrl).HasMaxLength(1000);
-			entity.Property(e => e.RealName).HasMaxLength(255);
-		});
-
-		modelBuilder.Entity<PlayerStatEntity>(entity =>
+		modelBuilder.Entity<PlayerStatsEntity>(entity =>
 		{
 			entity.HasKey(e => e.PlayerStatsId).HasName("PRIMARY");
 
@@ -526,11 +495,28 @@ public partial class TF2SADbContext : DbContext
 				.HasConstraintName("fk_player_id");
 		});
 
-		modelBuilder.Entity<ScoutAllTimeEntity>(entity =>
+		modelBuilder.Entity<PlayersEntity>(entity =>
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("ScoutAllTime");
+			entity
+				.Property(e => e.SteamId)
+				.ValueGeneratedNever()
+				.HasColumnType("bigint(20) unsigned")
+				.HasColumnName("SteamID");
+			entity.Property(e => e.Avatar).HasMaxLength(1000);
+			entity.Property(e => e.AvatarFull).HasMaxLength(1000);
+			entity.Property(e => e.AvatarHash).HasMaxLength(255);
+			entity.Property(e => e.AvatarMedium).HasMaxLength(1000);
+			entity.Property(e => e.LocalCountryCode).HasMaxLength(10);
+			entity.Property(e => e.PlayerName).HasMaxLength(255);
+			entity.Property(e => e.ProfileUrl).HasMaxLength(1000);
+			entity.Property(e => e.RealName).HasMaxLength(255);
+		});
+
+		modelBuilder.Entity<ScoutAllTimeEntity>(entity =>
+		{
+			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
 			entity
 				.Property(e => e.SteamId)
@@ -575,8 +561,6 @@ public partial class TF2SADbContext : DbContext
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("ScoutRecent");
-
 			entity
 				.Property(e => e.SteamId)
 				.ValueGeneratedNever()
@@ -619,8 +603,6 @@ public partial class TF2SADbContext : DbContext
 		modelBuilder.Entity<SoldierAllTimeEntity>(entity =>
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
-
-			entity.ToTable("SoldierAllTime");
 
 			entity
 				.Property(e => e.SteamId)
@@ -672,8 +654,6 @@ public partial class TF2SADbContext : DbContext
 		{
 			entity.HasKey(e => e.SteamId).HasName("PRIMARY");
 
-			entity.ToTable("SoldierRecent");
-
 			entity
 				.Property(e => e.SteamId)
 				.ValueGeneratedNever()
@@ -720,7 +700,7 @@ public partial class TF2SADbContext : DbContext
 			entity.Property(e => e.Wins).HasColumnType("int(10) unsigned");
 		});
 
-		modelBuilder.Entity<WeaponStatEntity>(entity =>
+		modelBuilder.Entity<WeaponStatsEntity>(entity =>
 		{
 			entity.HasKey(e => e.WeaponStatsId).HasName("PRIMARY");
 
