@@ -13,7 +13,7 @@ public class GameMappingProfile : Profile
 {
 	public GameMappingProfile()
 	{
-		CreateMap<GameLog, GameEntity>()
+		CreateMap<GameLog, GamesEntity>()
 			.ForMember(
 				g => g.RedScore,
 				opt =>
@@ -51,19 +51,19 @@ public class GameMappingProfile : Profile
 					)
 			)
 			.IncludeMembers(gl => gl.Info);
-		CreateMap<LogInfo, GameEntity>();
-		CreateMap<PlayerStats, PlayerStatEntity>()
+		CreateMap<LogInfo, GamesEntity>();
+		CreateMap<PlayerStats, PlayerStatsEntity>()
 			.IncludeMembers(ps => ps.Player);
-		CreateMap<PlayerDto, PlayerStatEntity>()
+		CreateMap<PlayerDto, PlayerStatsEntity>()
 			.ForMember(
 				ps => ps.SteamId,
 				opt => opt.MapFrom(p => p.SteamId!.ConvertToUInt64())
 			);
-		CreateMap<PlayerStatEntity, PlayerEntity>();
-		CreateMap<ClassStats, ClassStatEntity>();
-		CreateMap<WeaponStats, WeaponStatEntity>();
-		CreateMap<SteamPlayer, PlayerEntity>();
-		CreateMap<PlayerEntity, PlayerDomain>();
+		CreateMap<PlayerStatsEntity, PlayersEntity>();
+		CreateMap<ClassStats, ClassStatsEntity>();
+		CreateMap<WeaponStats, WeaponStatsEntity>();
+		CreateMap<SteamPlayer, PlayersEntity>();
+		CreateMap<PlayersEntity, PlayerDomain>();
 		CreateMap<ScoutRecentEntity, ScoutStatDomain>();
 		CreateMap<ScoutAllTimeEntity, ScoutStatDomain>();
 		CreateMap<SoldierRecentEntity, SoldierStatDomain>();

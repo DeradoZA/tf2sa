@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
-public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
+public class PlayersRepository : IPlayersRepository<PlayersEntity, ulong>
 {
 	private readonly TF2SADbContext dbContext;
 
@@ -17,25 +17,25 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 		this.dbContext = dbContext;
 	}
 
-	public Task<EitherStrict<Error, PlayerEntity>> Delete(
-		PlayerEntity entity,
+	public Task<EitherStrict<Error, PlayersEntity>> Delete(
+		PlayersEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public List<PlayerEntity> GetAll()
+	public List<PlayersEntity> GetAll()
 	{
 		return GetAllQueryable().ToList();
 	}
 
-	public IQueryable<PlayerEntity> GetAllQueryable()
+	public IQueryable<PlayersEntity> GetAllQueryable()
 	{
 		return dbContext.PlayersEntities.AsQueryable();
 	}
 
-	public Task<EitherStrict<Error, PlayerEntity?>> GetById(
+	public Task<EitherStrict<Error, PlayersEntity?>> GetById(
 		ulong id,
 		CancellationToken cancellationToken
 	)
@@ -43,7 +43,7 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 		throw new NotImplementedException();
 	}
 
-	public List<PlayerEntity> GetPlayerByName(string name)
+	public List<PlayersEntity> GetPlayerByName(string name)
 	{
 		var Result = GetAllQueryable()
 			.Where(p => p.PlayerName == name)
@@ -51,8 +51,8 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 		return Result;
 	}
 
-	public Task<EitherStrict<Error, PlayerEntity>> Insert(
-		PlayerEntity entity,
+	public Task<EitherStrict<Error, PlayersEntity>> Insert(
+		PlayersEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
@@ -67,7 +67,7 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 	// MySqlConnector.MySqlException (0x80004005): Duplicate entry '76561198107170907' for key 'PRIMARY'
 	// milestone: 7
 	public async Task<OptionStrict<Error>> InsertPlayersIfNotExists(
-		IEnumerable<PlayerEntity> players,
+		IEnumerable<PlayersEntity> players,
 		CancellationToken cancellationToken
 	)
 	{
@@ -80,7 +80,7 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 				.ToListAsync(cancellationToken: cancellationToken);
 
 			IEnumerable<ulong> idsToAdd = keys.Except(existingEntites);
-			IEnumerable<PlayerEntity> playersToAdd = players.Where(
+			IEnumerable<PlayersEntity> playersToAdd = players.Where(
 				p => idsToAdd.Contains(p.SteamId)
 			);
 
@@ -95,8 +95,8 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 		return OptionStrict<Error>.Nothing;
 	}
 
-	public Task<EitherStrict<Error, PlayerEntity>> Update(
-		PlayerEntity entity,
+	public Task<EitherStrict<Error, PlayersEntity>> Update(
+		PlayersEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
@@ -104,16 +104,16 @@ public class PlayersRepository : IPlayersRepository<PlayerEntity, ulong>
 	}
 
 	public async Task<OptionStrict<Error>> UpdatePlayers(
-		IEnumerable<PlayerEntity> updatedPlayers,
+		IEnumerable<PlayersEntity> updatedPlayers,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			DbSet<PlayerEntity> trackedPlayers = dbContext.PlayersEntities;
+			DbSet<PlayersEntity> trackedPlayers = dbContext.PlayersEntities;
 			foreach (var player in trackedPlayers)
 			{
-				PlayerEntity? updatedPlayer = updatedPlayers
+				PlayersEntity? updatedPlayer = updatedPlayers
 					.Where(p => p.SteamId == player.SteamId)
 					.FirstOrDefault();
 				player.Avatar = updatedPlayer?.Avatar;

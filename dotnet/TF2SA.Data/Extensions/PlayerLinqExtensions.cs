@@ -7,7 +7,7 @@ public static class TF2SALinqExtensions
 {
 	private static readonly Dictionary<
 		string,
-		Expression<Func<PlayerEntity, object>>
+		Expression<Func<PlayersEntity, object>>
 	> PlayerPropertyKeySelectors =
 		new()
 		{
@@ -31,11 +31,11 @@ public static class TF2SALinqExtensions
 	}
 
 	/// <summary>
-	/// Apply filtering to PlayerEntity IQueryable<PlayerEntity>. Filters all properties by the same string
+	/// Apply filtering to PlayersEntity IQueryable<PlayerEntity>. Filters all properties by the same string
 	/// </summary>
 	/// <param name="filterString"> string to filter by </param>
-	public static IQueryable<PlayerEntity> ApplyFilter(
-		this IQueryable<PlayerEntity> playerQueryable,
+	public static IQueryable<PlayersEntity> ApplyFilter(
+		this IQueryable<PlayersEntity> playerQueryable,
 		string filterString,
 		out string filterStringUsed
 	)
@@ -55,13 +55,13 @@ public static class TF2SALinqExtensions
 	}
 
 	/// <summary>
-	/// Apply sorting to PlayerEntity IQueryable<PlayerEntity>
+	/// Apply sorting to PlayersEntity IQueryable<PlayerEntity>
 	/// </summary>
 	/// <param name="sort">The first parameter</param>
 	/// <param name="sortOrder"> asc / desc </param>
 	/// <returns> Sorted queryable. Defaults to PlayerName Desc given invalid params. </returns>
-	public static IOrderedQueryable<PlayerEntity> ApplySort(
-		this IQueryable<PlayerEntity> playerQueryable,
+	public static IOrderedQueryable<PlayersEntity> ApplySort(
+		this IQueryable<PlayersEntity> playerQueryable,
 		string sort,
 		string sortOrder,
 		out string sortUsed,
@@ -76,7 +76,7 @@ public static class TF2SALinqExtensions
 				if (
 					PlayerPropertyKeySelectors.TryGetValue(
 						sort,
-						out Expression<Func<PlayerEntity, object>>? ascSelector
+						out Expression<Func<PlayersEntity, object>>? ascSelector
 					)
 				)
 				{
@@ -90,7 +90,9 @@ public static class TF2SALinqExtensions
 				if (
 					PlayerPropertyKeySelectors.TryGetValue(
 						sort,
-						out Expression<Func<PlayerEntity, object>>? descSelector
+						out Expression<
+							Func<PlayersEntity, object>
+						>? descSelector
 					)
 				)
 				{

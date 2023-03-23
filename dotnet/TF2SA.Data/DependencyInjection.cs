@@ -32,19 +32,19 @@ public static class DependencyInjection
 		);
 
 		services.AddScoped<
-			IPlayersRepository<PlayerEntity, ulong>,
+			IPlayersRepository<PlayersEntity, ulong>,
 			PlayersRepository
 		>();
 		services.AddScoped<
-			IPlayerStatsRepository<PlayerStatEntity, uint>,
+			IPlayerStatsRepository<PlayerStatsEntity, uint>,
 			PlayerStatsRepository
 		>();
 		services.AddScoped<
-			IClassStatsRepository<ClassStatEntity, uint>,
+			IClassStatsRepository<ClassStatsEntity, uint>,
 			ClassStatsRepository
 		>();
 		services.AddScoped<
-			IGamesRepository<GameEntity, uint>,
+			IGamesRepository<GamesEntity, uint>,
 			GamesRepository
 		>();
 

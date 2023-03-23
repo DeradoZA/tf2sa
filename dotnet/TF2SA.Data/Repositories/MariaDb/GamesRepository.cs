@@ -6,7 +6,7 @@ using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Data.Repositories.MariaDb;
 
-public class GamesRepository : IGamesRepository<GameEntity, uint>
+public class GamesRepository : IGamesRepository<GamesEntity, uint>
 {
 	private readonly TF2SADbContext dbContext;
 
@@ -15,32 +15,32 @@ public class GamesRepository : IGamesRepository<GameEntity, uint>
 		this.dbContext = dbContext;
 	}
 
-	public Task<EitherStrict<Error, GameEntity>> Delete(
-		GameEntity entity,
+	public Task<EitherStrict<Error, GamesEntity>> Delete(
+		GamesEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
 		throw new NotImplementedException();
 	}
 
-	public List<GameEntity> GetAll()
+	public List<GamesEntity> GetAll()
 	{
 		return GetAllQueryable().ToList();
 	}
 
-	public IQueryable<GameEntity> GetAllQueryable()
+	public IQueryable<GamesEntity> GetAllQueryable()
 	{
 		return dbContext.GamesEntities.AsQueryable();
 	}
 
-	public async Task<EitherStrict<Error, GameEntity?>> GetById(
+	public async Task<EitherStrict<Error, GamesEntity?>> GetById(
 		uint id,
 		CancellationToken cancellationToken
 	)
 	{
 		try
 		{
-			GameEntity? entity = await dbContext.GamesEntities.FindAsync(
+			GamesEntity? entity = await dbContext.GamesEntities.FindAsync(
 				new object?[] { id },
 				cancellationToken: cancellationToken
 			);
@@ -52,8 +52,8 @@ public class GamesRepository : IGamesRepository<GameEntity, uint>
 		}
 	}
 
-	public async Task<EitherStrict<Error, GameEntity>> Insert(
-		GameEntity entity,
+	public async Task<EitherStrict<Error, GamesEntity>> Insert(
+		GamesEntity entity,
 		CancellationToken cancellationToken
 	)
 	{
@@ -71,8 +71,8 @@ public class GamesRepository : IGamesRepository<GameEntity, uint>
 		}
 	}
 
-	public Task<EitherStrict<Error, GameEntity>> Update(
-		GameEntity entity,
+	public Task<EitherStrict<Error, GamesEntity>> Update(
+		GamesEntity entity,
 		CancellationToken cancellationToken
 	)
 	{

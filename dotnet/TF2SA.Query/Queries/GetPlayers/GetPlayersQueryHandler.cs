@@ -15,11 +15,11 @@ namespace TF2SA.Query.Queries.GetPlayers;
 public class GetPlayersQueryHandler
 	: IRequestHandler<GetPlayersQuery, EitherStrict<Error, GetPlayersResult>>
 {
-	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
+	private readonly IPlayersRepository<PlayersEntity, ulong> playersRepository;
 	private readonly IMapper mapper;
 
 	public GetPlayersQueryHandler(
-		IPlayersRepository<PlayerEntity, ulong> playersRepository,
+		IPlayersRepository<PlayersEntity, ulong> playersRepository,
 		IMapper mapper
 	)
 	{
@@ -42,7 +42,7 @@ public class GetPlayersQueryHandler
 				.ApplyFilter(request.FilterString, out string _)
 				.CountAsync(cancellationToken: cancellationToken);
 
-			List<PlayerEntity> playersEntities = await playersRepository
+			List<PlayersEntity> playersEntities = await playersRepository
 				.GetAllQueryable()
 				.ApplyFilter(request.FilterString, out string filterStringUsed)
 				.ApplySort(

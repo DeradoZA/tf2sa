@@ -13,17 +13,17 @@ namespace TF2SA.StatsETLService.LogsTFIngestion.Services;
 
 public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 {
-	private readonly IGamesRepository<GameEntity, uint> gamesRepository;
-	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
+	private readonly IGamesRepository<GamesEntity, uint> gamesRepository;
+	private readonly IPlayersRepository<PlayersEntity, ulong> playersRepository;
 	private readonly ILogger<LogIngestionRepositoryUpdater> logger;
 	private readonly IMapper mapper;
 	private readonly ISteamService steamService;
 
 	public LogIngestionRepositoryUpdater(
-		IGamesRepository<GameEntity, uint> gamesRepository,
+		IGamesRepository<GamesEntity, uint> gamesRepository,
 		ILogger<LogIngestionRepositoryUpdater> logger,
 		IMapper mapper,
-		IPlayersRepository<PlayerEntity, ulong> playersRepository,
+		IPlayersRepository<PlayersEntity, ulong> playersRepository,
 		ISteamService steamService
 	)
 	{
@@ -41,9 +41,9 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		CancellationToken cancellationToken
 	)
 	{
-		GameEntity game = MakeInvalidGame(log, logId, ingestionErrors);
+		GamesEntity game = MakeInvalidGame(log, logId, ingestionErrors);
 
-		EitherStrict<Error, GameEntity> insertResult =
+		EitherStrict<Error, GamesEntity> insertResult =
 			await gamesRepository.Insert(game, cancellationToken);
 
 		if (insertResult.IsLeft)
@@ -58,14 +58,14 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		return OptionStrict<Error>.Nothing;
 	}
 
-	private GameEntity MakeInvalidGame(
+	private GamesEntity MakeInvalidGame(
 		GameLog log,
 		uint logId,
 		List<Error> ingestionErrors
 	)
 	{
 		log?.PlayerStats?.Clear();
-		GameEntity game = mapper.Map<GameEntity>(log);
+		GamesEntity game = mapper.Map<GamesEntity>(log);
 		game.GameId = logId;
 		game.IsValidStats = false;
 		game.InvalidStatsReason = string.Join(
@@ -81,10 +81,10 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		CancellationToken cancellationToken
 	)
 	{
-		GameEntity game = MakeValidGame(log, logId);
+		GamesEntity game = MakeValidGame(log, logId);
 
-		HashSet<PlayerEntity> players = new();
-		foreach (PlayerStatEntity playerStat in game.PlayerStatsEntities)
+		HashSet<PlayersEntity> players = new();
+		foreach (PlayerStatsEntity playerStat in game.PlayerStatsEntities)
 		{
 			players.Add(
 				new()
@@ -111,7 +111,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 			return updatePlayersResult.Value;
 		}
 
-		EitherStrict<Error, GameEntity> insertResult =
+		EitherStrict<Error, GamesEntity> insertResult =
 			await gamesRepository.Insert(game, cancellationToken);
 		if (insertResult.IsLeft)
 		{
@@ -125,9 +125,9 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 		return OptionStrict<Error>.Nothing;
 	}
 
-	private GameEntity MakeValidGame(GameLog log, uint logId)
+	private GamesEntity MakeValidGame(GameLog log, uint logId)
 	{
-		GameEntity game = mapper.Map<GameEntity>(log);
+		GamesEntity game = mapper.Map<GamesEntity>(log);
 		game.GameId = logId;
 		game.IsValidStats = true;
 		bool isTfTrueGame =
@@ -142,7 +142,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 			logger.LogWarning("TFTrue game detected. Nulling airshots.");
 		}
 
-		foreach (PlayerStatEntity playerStat in game.PlayerStatsEntities)
+		foreach (PlayerStatsEntity playerStat in game.PlayerStatsEntities)
 		{
 			playerStat.Headshots = !game.HasHeadshots
 				? null
@@ -171,10 +171,12 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 				? null
 				: playerStat.IntelCaptures;
 
-			foreach (ClassStatEntity classStat in playerStat.ClassStatsEntities)
+			foreach (
+				ClassStatsEntity classStat in playerStat.ClassStatsEntities
+			)
 			{
 				foreach (
-					WeaponStatEntity weaponStat in classStat.WeaponStatsEntities
+					WeaponStatsEntity weaponStat in classStat.WeaponStatsEntities
 				)
 				{
 					if (!game.HasWeaponDamage)
@@ -222,7 +224,7 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 			return steamPlayersResult.Left;
 		}
 
-		List<PlayerEntity> updatedPlayers = mapper.Map<List<PlayerEntity>>(
+		List<PlayersEntity> updatedPlayers = mapper.Map<List<PlayersEntity>>(
 			steamPlayersResult.Right
 		);
 

@@ -18,7 +18,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private int count = 0;
 	private readonly LogsTFIngestionConfig logsTFIngestionConfig;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
-	private readonly IGamesRepository<GameEntity, uint> gamesRepository;
+	private readonly IGamesRepository<GamesEntity, uint> gamesRepository;
 	private readonly ILogsTFService logsTFService;
 	private readonly IServiceProvider serviceProvider;
 	private readonly ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater;
@@ -28,7 +28,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
 		ILogger<LogsTFIngestionHandler> logger,
 		ILogsTFService logsTFService,
-		IGamesRepository<GameEntity, uint> gamesRepository,
+		IGamesRepository<GamesEntity, uint> gamesRepository,
 		IServiceProvider serviceProvider,
 		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater,
 		IStatisticsUpdater statisticsUpdater
@@ -170,7 +170,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		List<LogListItem> allLogs = allLogsResult.Right;
 		logger.LogInformation("Fetched all logs: {count}", allLogs.Count);
 
-		List<GameEntity> processedLogs = new();
+		List<GamesEntity> processedLogs = new();
 		try
 		{
 			// TODO repository methods should use monads and propagate cancellation tokens
