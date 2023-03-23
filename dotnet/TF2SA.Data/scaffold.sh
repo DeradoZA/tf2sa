@@ -3,6 +3,7 @@ dotnet ef dbcontext scaffold \
     "Server=${TF2SA_MYSQL_HOST};User=${TF2SA_MYSQL_USR};Password=${TF2SA_MYSQL_PWD};Database=${TF2SA_MYSQL_DB}" \
     "Pomelo.EntityFrameworkCore.MySql" \
     --context TF2SADbContext \
+	--no-pluralize \
     --force \
     --output-dir Entities/MariaDb \
     --context-dir . \

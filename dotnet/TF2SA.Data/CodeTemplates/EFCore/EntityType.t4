@@ -38,6 +38,8 @@
 	if (!string.IsNullOrEmpty(NamespaceHint))
 	{
 #>
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace <#= NamespaceHint #>;
 
 <#
@@ -62,6 +64,7 @@ namespace <#= NamespaceHint #>;
 		}
 	}
 #>
+[Table( "<#= EntityType.Name #>" )]
 public partial class <#= EntityType.Name #>Entity
 {
 <#
