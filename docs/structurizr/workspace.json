@@ -1,0 +1,576 @@
+{
+  "id" : 1,
+  "name" : "Name",
+  "description" : "Description",
+  "lastModifiedDate" : "2023-04-10T13:18:53Z",
+  "lastModifiedAgent" : "structurizr-javascript",
+  "properties" : {
+    "structurizr.dsl" : "d29ya3NwYWNlIHsKCiAgICBtb2RlbCB7CgkJbG9nc1RGQXBpID0gc29mdHdhcmVTeXN0ZW0gIkxvZ3NURiBQdWJsaWMgQVBJIiAiU2VydmVycyBydW5uaW5nIHRoZSBMb2dzVEYgcGx1Z2luIHVwbG9hZCBsb2cgZGF0YSBmcm9tIGNvbXBldGl0aXZlIGdhbWVzIGhlcmUuIgoKICAgICAgICB0ZjJzYUdhbWVyID0gcGVyc29uICJURjJTQSBHYW1lciIgIlBsYXllciB3aG8gd291bGQgbGlrZSB0byBhbmFseXplIHRoZWlyIHBlcmZvcm1hbmNlIGluIFRGMlNBIGNvbXBldGl0dmUgZ2FtZXMuIgoKICAgICAgICB0ZjJzYVN0YXRzU3lzdGVtID0gc29mdHdhcmVTeXN0ZW0gIlRGMlNBIFN0YXRzIFN5c3RlbSIgIkEgcGxheWVyIHN0YXRpc3RpY3MgcGxhdGZvcm0gZm9yIFNvdXRoIEFmcmljYW4gVEYyIEdhbWVzLiBIYW5kbGVzIHRoZSBpbmdlc3Rpb24gYW5kIHByZXNlbnRhdGlvbi4iIHsKCQkJZGIgPSBjb250YWluZXIgIkRhdGFiYXNlIiAiTWFyaWFEQiIKCgkJCXRmMnNhV2ViQXBpID0gY29udGFpbmVyICJURjJTQSBXZWIgQVBJIiAiQVNQLk5FVCBDb3JlIFdlYiBBcHBsaWNhdGlvbiIgewoJCQkJcmVwb3NpdG9yaWVzID0gY29tcG9uZW50ICJSZXBvc2l0b3JpZXMiICJFbnRpdHktRnJhbWV3b3JrIGRyaXZlbiBkYXRhIHJlcG9zaXRvcmllcyIgewoJCQkJCXRoaXMgLT4gZGIgIlF1ZXJpZXMiICJTUUwiCgkJCQl9CgkJCQlwbGF5ZXJzUXVlcnlIYW5kbGVycyA9IGNvbXBvbmVudCAiUGxheWVycyBRdWVyeSBIYW5kbGVycyIgIkNRUlMgUXVlcnkgSGFuZGxlcnMiIHsKCQkJCQl0aGlzIC0+IHJlcG9zaXRvcmllcyAiUmVhZHMiCgkJCQl9CgkJCQlwbGF5ZXJzQ29udHJvbGxlciA9IGNvbXBvbmVudCAiUGxheWVycyBDb250cm9sbGVyIiAgIlJldHVybnMgcGxheWVyIGRhdGEuIiAiQVNQLk5FVCBBUEkgQ29udHJvbGxlciIgewoJCQkJCXRoaXMgLT4gcGxheWVyc1F1ZXJ5SGFuZGxlcnMgIlF1ZXJpZXMiICJDUVJTIgoJCQkJfQoJCQkJc3RhdHNRdWVyeUhhbmRsZXJzID0gY29tcG9uZW50ICJTdGF0cyBRdWVyeSBIYW5kbGVycyIgIkNRUlMgUXVlcnkgSGFuZGxlcnMiIHsKCQkJCQl0aGlzIC0+IHJlcG9zaXRvcmllcyAiUmVhZHMiCgkJCQl9CgkJCQlzdGF0c0NvbnRyb2xsZXIgPSBjb21wb25lbnQgIlN0YXRzIENvbnRyb2xsZXIiICAiUmV0dXJucyBzdGF0cyBkYXRhLiIgIkFTUC5ORVQgQVBJIENvbnRyb2xsZXIiIHsKCQkJCQl0aGlzIC0+IHN0YXRzUXVlcnlIYW5kbGVycyAiUXVlcmllcyIgIkNRUlMiCgkJCQl9CgkJCQlzdGF0c0NvbW1hbmRIYW5kbGVycyA9IGNvbXBvbmVudCAiU3RhdHMgQ29tbWFuZCBIYW5kbGVycyIgIkNRUlMgQ29tbWFuZCBIYW5kbGVycyIgewoJCQkJCXRoaXMgLT4gcmVwb3NpdG9yaWVzICJXcml0ZXMiCgkJCQl9CgkJCQlldGxTZXJ2aWNlID0gY29tcG9uZW50ICJFVEwgU2VydmljZSIgIk9yY2hlc3RyYXRlcyB0aGUgaW5nZXN0aW9uLCBFVEwgb2YgZ2FtZSBsb2cgZGF0YS4iICJCYWNrZ3JvdW5kIFNlcnZpY2UiIHsKCQkJCQl0aGlzIC0+IGxvZ3NURkFwaSAiRmV0Y2hlcyBURjIgTG9nIERhdGEiICJIVFRQUy9KU09OIgoJCQkJCXRoaXMgLT4gc3RhdHNDb21tYW5kSGFuZGxlcnMgIldyaXRlcyBpbmdlc3RlZCBURjIgR2FtZSBkYXRhIgoJCQkJfQoJCQl9CgoJCQlmcm9udGVuZCA9IGNvbnRhaW5lciAiRnJvbnRlbmQgV2ViIEFwcGxpY2F0aW9uIiAiQW5ndWxhciBTUEEiIHsKCQkJCXBsYXllcnNTZXJ2aWNlID0gY29tcG9uZW50ICJQbGF5ZXJzIFNlcnZpY2UiIHsKCQkJCQl0aGlzIC0+IHBsYXllcnNDb250cm9sbGVyICJNYWtlcyBBUEkgY2FsbHMgdG8iICJIVFRQUy9KU09OIgoJCQkJfQoJCQkJcGxheWVyc1BhZ2UgPSBjb21wb25lbnQgIlBsYXllcnMgUGFnZSIgewoJCQkJCXRoaXMgLT4gcGxheWVyc1NlcnZpY2UgIlF1ZXJpZXMiCgkJCQkJdGYyc2FHYW1lciAtPiB0aGlzICJVc2VzIgoJCQkJfQoJCQkJc3RhdHNTZXJ2aWNlID0gY29tcG9uZW50ICJTdGF0cyBTZXJ2aWNlIiB7CgkJCQkJdGhpcyAtPiBzdGF0c0NvbnRyb2xsZXIgIk1ha2VzIEFQSSBjYWxscyB0byIgIkhUVFBTL0pTT04iCgkJCQl9CgkJCQlzdGF0c1BhZ2UgPSBjb21wb25lbnQgIlN0YXRzIFBhZ2UiIHsKCQkJCQl0aGlzIC0+IHN0YXRzU2VydmljZSAiUXVlcmllcyIKCQkJCQl0ZjJzYUdhbWVyIC0+IHRoaXMgIlVzZXMiCgkJCQl9CgkJCX0KICAgICAgICB9CiAgICB9CgogICAgdmlld3MgewogICAgICAgIHN5c3RlbUNvbnRleHQgdGYyc2FTdGF0c1N5c3RlbSB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCiAgICAgICAgfQoKICAgICAgICBjb250YWluZXIgdGYyc2FTdGF0c1N5c3RlbSB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvbGF5b3V0IGxyCiAgICAgICAgfQoKICAgICAgICBjb21wb25lbnQgZnJvbnRlbmQgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b2xheW91dCBscgogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IHRmMnNhV2ViQXBpIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9sYXlvdXQgbHIKICAgICAgICB9CgogICAgICAgIHRoZW1lIGRlZmF1bHQKICAgIH0KCn0K"
+  },
+  "configuration" : { },
+  "model" : {
+    "people" : [ {
+      "id" : "2",
+      "tags" : "Element,Person",
+      "properties" : {
+        "structurizr.dsl.identifier" : "tf2sagamer"
+      },
+      "name" : "TF2SA Gamer",
+      "description" : "Player who would like to analyze their performance in TF2SA competitve games.",
+      "relationships" : [ {
+        "id" : "33",
+        "sourceId" : "2",
+        "destinationId" : "24",
+        "description" : "Uses",
+        "linkedRelationshipId" : "32"
+      }, {
+        "id" : "34",
+        "sourceId" : "2",
+        "destinationId" : "3",
+        "description" : "Uses",
+        "linkedRelationshipId" : "32"
+      }, {
+        "id" : "41",
+        "tags" : "Relationship",
+        "sourceId" : "2",
+        "destinationId" : "39",
+        "description" : "Uses"
+      }, {
+        "id" : "32",
+        "tags" : "Relationship",
+        "sourceId" : "2",
+        "destinationId" : "30",
+        "description" : "Uses"
+      } ],
+      "location" : "Unspecified"
+    } ],
+    "softwareSystems" : [ {
+      "id" : "1",
+      "tags" : "Element,Software System",
+      "properties" : {
+        "structurizr.dsl.identifier" : "logstfapi"
+      },
+      "name" : "LogsTF Public API",
+      "description" : "Servers running the LogsTF plugin upload log data from competitive games here.",
+      "location" : "Unspecified",
+      "documentation" : { }
+    }, {
+      "id" : "3",
+      "tags" : "Element,Software System",
+      "properties" : {
+        "structurizr.dsl.identifier" : "tf2sastatssystem"
+      },
+      "name" : "TF2SA Stats System",
+      "description" : "A player statistics platform for South African TF2 Games. Handles the ingestion and presentation.",
+      "relationships" : [ {
+        "id" : "22",
+        "sourceId" : "3",
+        "destinationId" : "1",
+        "description" : "Fetches TF2 Log Data",
+        "technology" : "HTTPS/JSON",
+        "linkedRelationshipId" : "20"
+      } ],
+      "location" : "Unspecified",
+      "containers" : [ {
+        "id" : "24",
+        "tags" : "Element,Container",
+        "properties" : {
+          "structurizr.dsl.identifier" : "frontend"
+        },
+        "name" : "Frontend Web Application",
+        "description" : "Angular SPA",
+        "relationships" : [ {
+          "id" : "29",
+          "sourceId" : "24",
+          "destinationId" : "5",
+          "description" : "Makes API calls to",
+          "technology" : "HTTPS/JSON",
+          "linkedRelationshipId" : "26"
+        }, {
+          "id" : "38",
+          "sourceId" : "24",
+          "destinationId" : "15",
+          "description" : "Makes API calls to",
+          "technology" : "HTTPS/JSON",
+          "linkedRelationshipId" : "36"
+        }, {
+          "id" : "28",
+          "sourceId" : "24",
+          "destinationId" : "11",
+          "description" : "Makes API calls to",
+          "technology" : "HTTPS/JSON",
+          "linkedRelationshipId" : "26"
+        } ],
+        "components" : [ {
+          "id" : "39",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "statspage"
+          },
+          "name" : "Stats Page",
+          "relationships" : [ {
+            "id" : "40",
+            "tags" : "Relationship",
+            "sourceId" : "39",
+            "destinationId" : "35",
+            "description" : "Queries"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "35",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "statsservice"
+          },
+          "name" : "Stats Service",
+          "relationships" : [ {
+            "id" : "37",
+            "sourceId" : "35",
+            "destinationId" : "5",
+            "description" : "Makes API calls to",
+            "technology" : "HTTPS/JSON",
+            "linkedRelationshipId" : "36"
+          }, {
+            "id" : "36",
+            "tags" : "Relationship",
+            "sourceId" : "35",
+            "destinationId" : "15",
+            "description" : "Makes API calls to",
+            "technology" : "HTTPS/JSON"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "25",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "playersservice"
+          },
+          "name" : "Players Service",
+          "relationships" : [ {
+            "id" : "27",
+            "sourceId" : "25",
+            "destinationId" : "5",
+            "description" : "Makes API calls to",
+            "technology" : "HTTPS/JSON",
+            "linkedRelationshipId" : "26"
+          }, {
+            "id" : "26",
+            "tags" : "Relationship",
+            "sourceId" : "25",
+            "destinationId" : "11",
+            "description" : "Makes API calls to",
+            "technology" : "HTTPS/JSON"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "30",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "playerspage"
+          },
+          "name" : "Players Page",
+          "relationships" : [ {
+            "id" : "31",
+            "tags" : "Relationship",
+            "sourceId" : "30",
+            "destinationId" : "25",
+            "description" : "Queries"
+          } ],
+          "documentation" : { }
+        } ],
+        "documentation" : { }
+      }, {
+        "id" : "4",
+        "tags" : "Element,Container",
+        "properties" : {
+          "structurizr.dsl.identifier" : "db"
+        },
+        "name" : "Database",
+        "description" : "MariaDB",
+        "documentation" : { }
+      }, {
+        "id" : "5",
+        "tags" : "Element,Container",
+        "properties" : {
+          "structurizr.dsl.identifier" : "tf2sawebapi"
+        },
+        "name" : "TF2SA Web API",
+        "description" : "ASP.NET Core Web Application",
+        "relationships" : [ {
+          "id" : "21",
+          "sourceId" : "5",
+          "destinationId" : "1",
+          "description" : "Fetches TF2 Log Data",
+          "technology" : "HTTPS/JSON",
+          "linkedRelationshipId" : "20"
+        }, {
+          "id" : "8",
+          "sourceId" : "5",
+          "destinationId" : "4",
+          "description" : "Queries",
+          "technology" : "SQL",
+          "linkedRelationshipId" : "7"
+        } ],
+        "components" : [ {
+          "id" : "9",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "playersqueryhandlers"
+          },
+          "name" : "Players Query Handlers",
+          "description" : "CQRS Query Handlers",
+          "relationships" : [ {
+            "id" : "10",
+            "tags" : "Relationship",
+            "sourceId" : "9",
+            "destinationId" : "6",
+            "description" : "Reads"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "17",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "statscommandhandlers"
+          },
+          "name" : "Stats Command Handlers",
+          "description" : "CQRS Command Handlers",
+          "relationships" : [ {
+            "id" : "18",
+            "tags" : "Relationship",
+            "sourceId" : "17",
+            "destinationId" : "6",
+            "description" : "Writes"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "6",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "repositories"
+          },
+          "name" : "Repositories",
+          "description" : "Entity-Framework driven data repositories",
+          "relationships" : [ {
+            "id" : "7",
+            "tags" : "Relationship",
+            "sourceId" : "6",
+            "destinationId" : "4",
+            "description" : "Queries",
+            "technology" : "SQL"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "15",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "statscontroller"
+          },
+          "name" : "Stats Controller",
+          "description" : "Returns stats data.",
+          "relationships" : [ {
+            "id" : "16",
+            "tags" : "Relationship",
+            "sourceId" : "15",
+            "destinationId" : "13",
+            "description" : "Queries",
+            "technology" : "CQRS"
+          } ],
+          "technology" : "ASP.NET API Controller",
+          "documentation" : { }
+        }, {
+          "id" : "13",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "statsqueryhandlers"
+          },
+          "name" : "Stats Query Handlers",
+          "description" : "CQRS Query Handlers",
+          "relationships" : [ {
+            "id" : "14",
+            "tags" : "Relationship",
+            "sourceId" : "13",
+            "destinationId" : "6",
+            "description" : "Reads"
+          } ],
+          "documentation" : { }
+        }, {
+          "id" : "19",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "etlservice"
+          },
+          "name" : "ETL Service",
+          "description" : "Orchestrates the ingestion, ETL of game log data.",
+          "relationships" : [ {
+            "id" : "20",
+            "tags" : "Relationship",
+            "sourceId" : "19",
+            "destinationId" : "1",
+            "description" : "Fetches TF2 Log Data",
+            "technology" : "HTTPS/JSON"
+          }, {
+            "id" : "23",
+            "tags" : "Relationship",
+            "sourceId" : "19",
+            "destinationId" : "17",
+            "description" : "Writes ingested TF2 Game data"
+          } ],
+          "technology" : "Background Service",
+          "documentation" : { }
+        }, {
+          "id" : "11",
+          "tags" : "Element,Component",
+          "properties" : {
+            "structurizr.dsl.identifier" : "playerscontroller"
+          },
+          "name" : "Players Controller",
+          "description" : "Returns player data.",
+          "relationships" : [ {
+            "id" : "12",
+            "tags" : "Relationship",
+            "sourceId" : "11",
+            "destinationId" : "9",
+            "description" : "Queries",
+            "technology" : "CQRS"
+          } ],
+          "technology" : "ASP.NET API Controller",
+          "documentation" : { }
+        } ],
+        "documentation" : { }
+      } ],
+      "documentation" : { }
+    } ]
+  },
+  "documentation" : { },
+  "views" : {
+    "systemContextViews" : [ {
+      "key" : "SystemContext-001",
+      "order" : 1,
+      "softwareSystemId" : "3",
+      "dimensions" : {
+        "width" : 2300,
+        "height" : 800
+      },
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "enterpriseBoundaryVisible" : true,
+      "elements" : [ {
+        "id" : "1",
+        "x" : 1649,
+        "y" : 249
+      }, {
+        "id" : "2",
+        "x" : 199,
+        "y" : 199
+      }, {
+        "id" : "3",
+        "x" : 899,
+        "y" : 249
+      } ],
+      "relationships" : [ {
+        "id" : "34"
+      }, {
+        "id" : "22"
+      } ]
+    } ],
+    "containerViews" : [ {
+      "key" : "Container-001",
+      "order" : 2,
+      "softwareSystemId" : "3",
+      "dimensions" : {
+        "width" : 3070,
+        "height" : 1350
+      },
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "externalSoftwareSystemBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "1",
+        "x" : 2400,
+        "y" : 850
+      }, {
+        "id" : "24",
+        "x" : 900,
+        "y" : 250
+      }, {
+        "id" : "2",
+        "x" : 200,
+        "y" : 200
+      }, {
+        "id" : "4",
+        "x" : 2400,
+        "y" : 250
+      }, {
+        "id" : "5",
+        "x" : 1650,
+        "y" : 250
+      } ],
+      "relationships" : [ {
+        "id" : "29"
+      }, {
+        "id" : "33"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "8"
+      } ]
+    } ],
+    "componentViews" : [ {
+      "key" : "Component-001",
+      "order" : 3,
+      "paperSize" : "A4_Landscape",
+      "dimensions" : {
+        "width" : 3066,
+        "height" : 1558
+      },
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "containerId" : "24",
+      "externalContainerBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "2",
+        "x" : 208,
+        "y" : 579
+      }, {
+        "id" : "35",
+        "x" : 1658,
+        "y" : 929
+      }, {
+        "id" : "25",
+        "x" : 1658,
+        "y" : 329
+      }, {
+        "id" : "5",
+        "x" : 2408,
+        "y" : 629
+      }, {
+        "id" : "39",
+        "x" : 908,
+        "y" : 929
+      }, {
+        "id" : "30",
+        "x" : 908,
+        "y" : 329
+      } ],
+      "relationships" : [ {
+        "id" : "27"
+      }, {
+        "id" : "37"
+      }, {
+        "id" : "40"
+      }, {
+        "id" : "41"
+      }, {
+        "id" : "32"
+      }, {
+        "id" : "31"
+      } ]
+    }, {
+      "key" : "Component-002",
+      "order" : 4,
+      "dimensions" : {
+        "width" : 3850,
+        "height" : 2520
+      },
+      "automaticLayout" : {
+        "implementation" : "Graphviz",
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 300,
+        "nodeSeparation" : 300,
+        "edgeSeparation" : 0,
+        "vertices" : false
+      },
+      "containerId" : "5",
+      "externalContainerBoundariesVisible" : true,
+      "elements" : [ {
+        "id" : "11",
+        "x" : 950,
+        "y" : 220
+      }, {
+        "id" : "1",
+        "x" : 1700,
+        "y" : 2020
+      }, {
+        "id" : "24",
+        "x" : 200,
+        "y" : 520
+      }, {
+        "id" : "13",
+        "x" : 1700,
+        "y" : 820
+      }, {
+        "id" : "4",
+        "x" : 3200,
+        "y" : 820
+      }, {
+        "id" : "15",
+        "x" : 950,
+        "y" : 820
+      }, {
+        "id" : "6",
+        "x" : 2450,
+        "y" : 820
+      }, {
+        "id" : "17",
+        "x" : 1700,
+        "y" : 1420
+      }, {
+        "id" : "19",
+        "x" : 950,
+        "y" : 1420
+      }, {
+        "id" : "9",
+        "x" : 1700,
+        "y" : 220
+      } ],
+      "relationships" : [ {
+        "id" : "18"
+      }, {
+        "id" : "28"
+      }, {
+        "id" : "16"
+      }, {
+        "id" : "14"
+      }, {
+        "id" : "12"
+      }, {
+        "id" : "23"
+      }, {
+        "id" : "7"
+      }, {
+        "id" : "10"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "38"
+      } ]
+    } ],
+    "configuration" : {
+      "branding" : { },
+      "styles" : { },
+      "themes" : [ "https://static.structurizr.com/themes/default/theme.json" ],
+      "terminology" : { },
+      "metadataSymbols" : "SquareBrackets",
+      "lastSavedView" : "SystemContext-001"
+    }
+  }
+}
