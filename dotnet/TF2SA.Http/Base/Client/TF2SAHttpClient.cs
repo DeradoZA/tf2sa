@@ -45,6 +45,10 @@ public class TF2SAHttpClient : IHttpClient
 			string json = await response.Content.ReadAsStringAsync(
 				cancellationToken
 			);
+				if (typeof(TResponse) == typeof(string))
+				{
+					return (TResponse)(object)json;
+				}
 
 			EitherStrict<SerializationError, TResponse> deserialized =
 				jsonSerializer.Deserialize<TResponse>(json);
