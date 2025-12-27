@@ -86,6 +86,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
         {
             _logger.LogInformation("Processing {i}/{n}: log {id}", logsToProcess.IndexOf(log), logsToProcess.Count, log.Id);
             await IngestLog(log, token);
+			_logger.LogInformation("Processed {i}/{n}: log {id}", logsToProcess.IndexOf(log), logsToProcess.Count, log.Id);
         });
 
         return OptionStrict<Error>.Nothing;
