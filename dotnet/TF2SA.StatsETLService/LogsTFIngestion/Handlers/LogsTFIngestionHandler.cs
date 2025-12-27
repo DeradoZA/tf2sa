@@ -1,204 +1,162 @@
+using ClickHouse.Client.ADO;
+using ClickHouse.Client.Utility;
 using Microsoft.Extensions.Options;
 using Monad;
-using TF2SA.Common.Configuration;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.LogsTF.LogListModel;
-using TF2SA.Data.Entities.MariaDb;
-using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
 using TF2SA.StatsETLService.LogsTFIngestion.Configuration;
-using TF2SA.StatsETLService.LogsTFIngestion.Services;
+using TF2SA.StatsETLService.LogsTFIngestion.Errors;
 
 namespace TF2SA.StatsETLService.LogsTFIngestion.Handlers;
 
 internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 {
-	private int count = 0;
-	private readonly LogsTFIngestionConfig logsTFIngestionConfig;
-	private readonly ILogger<LogsTFIngestionHandler> logger;
-	private readonly IGamesRepository<Game, uint> gamesRepository;
-	private readonly ILogsTFService logsTFService;
-	private readonly IServiceProvider serviceProvider;
-	private readonly ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater;
-	private readonly IStatisticsUpdater statisticsUpdater;
+	private int _count;
+	private readonly LogsTFIngestionConfig _logsTfIngestionConfig;
+	private readonly ILogger<LogsTFIngestionHandler> _logger;
+	private readonly ILogsTFService _logsTfService;
 
-	public LogsTFIngestionHandler(
-		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
+    public LogsTFIngestionHandler (
+		IOptions<LogsTFIngestionConfig> logsTfIngestionConfig,
 		ILogger<LogsTFIngestionHandler> logger,
-		ILogsTFService logsTFService,
-		IGamesRepository<Game, uint> gamesRepository,
-		IServiceProvider serviceProvider,
-		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater,
-		IStatisticsUpdater statisticsUpdater
+		ILogsTFService logsTfService
 	)
 	{
-		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
-		this.logger = logger;
-		this.logsTFService = logsTFService;
-		this.gamesRepository = gamesRepository;
-		this.serviceProvider = serviceProvider;
-		this.logIngestionRepositoryUpdater = logIngestionRepositoryUpdater;
-		this.statisticsUpdater = statisticsUpdater;
-	}
+		_logsTfIngestionConfig = logsTfIngestionConfig.Value;
+		_logger = logger;
+		_logsTfService = logsTfService;
+    }
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
 	{
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			count++;
+			_count++;
 
-			if (!logsTFIngestionConfig.EnableIngestion)
+			if (!_logsTfIngestionConfig.EnableIngestion)
 			{
-				logger.LogInformation(
-					"Processing disabled, iteration {iteration}",
-					count
+				_logger.LogInformation(
+					message: "Processing disabled, iteration {iteration}",
+					args: _count
 				);
 				await Task.Delay(
-					logsTFIngestionConfig.IngestionIntervalSeconds * 1000,
-					cancellationToken
+					millisecondsDelay: _logsTfIngestionConfig.IngestionIntervalSeconds * 1000,
+					cancellationToken: cancellationToken
 				);
 				continue;
 			}
 
-			OptionStrict<Error> processResult = await ProcessLogs(
-				cancellationToken
+			var processResult = await ProcessLogs(
+				cancellationToken: cancellationToken
 			);
 			if (processResult.HasValue)
 			{
-				logger.LogWarning(
-					"Failed to fetch logs: {Error}",
-					processResult.Value
+				_logger.LogWarning(
+					message: "Failed to fetch logs: {Error}",
+					args: processResult.Value
 				);
 			}
-			logger.LogInformation(
-				"Successfully processed logs, iteration {iteration}",
-				count
+			_logger.LogInformation(
+				message: "Successfully processed logs, iteration {Iteration}. Next run in {IngestionIntervalSeconds}s",
+				 _count, _logsTfIngestionConfig.IngestionIntervalSeconds
 			);
 
 			await Task.Delay(
-				logsTFIngestionConfig.IngestionIntervalSeconds * 1000,
-				cancellationToken
+				millisecondsDelay: _logsTfIngestionConfig.IngestionIntervalSeconds * 1000,
+				cancellationToken: cancellationToken
 			);
 		}
 	}
 
-	private async Task<OptionStrict<Error>> ProcessLogs(
-		CancellationToken cancellationToken
-	)
+    private async Task<OptionStrict<Error>> ProcessLogs(CancellationToken cancellationToken)
+    {
+        var logsToProcessResult = await GetLogsToProcess(cancellationToken: cancellationToken);
+        if (logsToProcessResult.IsLeft) return logsToProcessResult.Left;
+        var logsToProcess = logsToProcessResult.Right;
+
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = _logsTfIngestionConfig.ConcurrentThreads,
+            CancellationToken = cancellationToken
+        };
+
+        await Parallel.ForEachAsync(logsToProcess, parallelOptions, async (log, token) =>
+        {
+            _logger.LogInformation("Processing {i}/{n}: log {id}", logsToProcess.IndexOf(log), logsToProcess.Count, log.Id);
+            await IngestLog(log, token);
+        });
+
+        return OptionStrict<Error>.Nothing;
+    }
+
+	private async Task IngestLog(LogListItem log, CancellationToken cancellationToken)
 	{
-		EitherStrict<Error, List<LogListItem>> logsToProcessResult =
-			await GetLogsToProcess(cancellationToken);
-		if (logsToProcessResult.IsLeft)
-		{
-			return logsToProcessResult.Left;
-		}
-		List<LogListItem> logsToProcess = logsToProcessResult.Right;
-		if (logsTFIngestionConfig.DebugIngestion == true)
-		{
-			logsToProcess = logsToProcess.Take(100).ToList();
-		}
+		List<Error> ingestionErrors = new();
 
-		await Parallel.ForEachAsync(
-			logsToProcess,
-			new ParallelOptions()
-			{
-				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
-				CancellationToken = cancellationToken
-			},
-			async (log, token) =>
-			{
-				using IServiceScope scope = serviceProvider.CreateScope();
-				ILogIngestor logIngestor =
-					scope.ServiceProvider.GetRequiredService<ILogIngestor>();
-
-				await logIngestor.IngestLog(
-					log,
-					logsToProcess.IndexOf(log),
-					logsToProcess.Count,
-					token
-				);
-			}
-		);
-
-		logger.LogInformation("Updating player steam details.");
-		OptionStrict<Error> updatePlayersResult =
-			await logIngestionRepositoryUpdater.UpdatePlayers(
-				cancellationToken
-			);
-		if (updatePlayersResult.HasValue)
+		EitherStrict<HttpError, string> logResult =
+			await _logsTfService.GetGameLogRaw(logId: log.Id, cancellationToken: cancellationToken);
+		if (logResult.IsLeft)
 		{
-			logger.LogWarning("Failed to update players steam details.");
+			ReportLogFetchFailed(logListItem: log, ingestionErrors: ingestionErrors, logResult: logResult);
+			return;
 		}
+        var gameLogRaw = logResult.Right;
 
-		logger.LogInformation("Updating aggregated statistics.");
-		if (logsToProcess.Any() || logsTFIngestionConfig.DebugIngestion)
-		{
-			OptionStrict<Error> updateStatisticsResult =
-				await statisticsUpdater.UpdateAggregatedStatistics(
-					cancellationToken
-				);
-			if (updatePlayersResult.HasValue)
-			{
-				logger.LogWarning(
-					"Failed to update aggregated statistics with error(s): {errors}",
-					updatePlayersResult.Value.Message
-				);
-			}
-		}
-		else
-		{
-			logger.LogInformation(
-				"No new logs, not updating aggregated statistics"
-			);
-		}
+        await using var connection = new ClickHouseConnection(_logsTfIngestionConfig.ClickhouseConnectionString);
+        await connection.OpenAsync(cancellationToken);
 
-		return OptionStrict<Error>.Nothing;
+        await using var command = connection.CreateCommand();
+        // parameters matching the logs_tf table schema
+        command.AddParameter("id", "UInt32", log.Id);
+        command.AddParameter("title", "String", log.Title);
+        command.AddParameter("map", "String", log.Map);
+        command.AddParameter("date_raw", "Int32", log.Date);
+        command.AddParameter("views", "Int32", log.Views);
+        command.AddParameter("players", "Nullable(Int32)", log.Players.HasValue ? log.Players.Value : null);
+        command.AddParameter("raw_game_log", "String", gameLogRaw);
+
+        command.CommandText = @"
+INSERT INTO default.logs_tf
+  (id, title, map, date_raw, views, players, raw_game_log)
+VALUES
+  ({id:UInt32}, {title:String}, {map:String}, {date_raw:Int32}, {views:Int32}, {players:Nullable(Int32)}, {raw_game_log:String});
+";
+        await command.ExecuteNonQueryAsync(cancellationToken);
 	}
 
 	private async Task<EitherStrict<Error, List<LogListItem>>> GetLogsToProcess(
 		CancellationToken cancellationToken
 	)
 	{
-		EitherStrict<HttpError, List<LogListItem>> allLogsResult =
-			await logsTFService.GetAllLogs(cancellationToken);
+		var allLogsResult =
+			await _logsTfService.GetAllLogs(cancellationToken: cancellationToken);
 		if (allLogsResult.IsLeft)
 		{
 			return allLogsResult.Left;
 		}
-		List<LogListItem> allLogs = allLogsResult.Right;
-		logger.LogInformation("Fetched all logs: {count}", allLogs.Count);
-
-		List<Game> processedLogs = new();
-		try
-		{
-			// TODO repository methods should use monads and propagate cancellation tokens
-			// this will enhance error handling and we won't have to try catch everywhere
-			// propagate cancellation tokens so we can handle cancellation properly
-			// milestone: StatsETL
-			processedLogs = gamesRepository.GetAll();
-			logger.LogInformation(
-				"Processed logs: {count}",
-				processedLogs.Count
-			);
-
-			int logsRemoved = allLogs.RemoveAll(
-				a => processedLogs.Where(p => p.GameId == a.Id).Any()
-			);
-			logger.LogInformation(
-				"{logsRemoved} logs already processed. {logToProcess} logs to process",
-				logsRemoved,
-				allLogs.Count
-			);
-		}
-		catch (Exception e)
-		{
-			return new DatabaseError(
-				$"Failed to access games/blacklist from database: {e.Message}"
-			);
-		}
+		var allLogs = allLogsResult.Right;
+		_logger.LogInformation(message: "Fetched all logs: {count}", args: allLogs.Count);
 
 		return allLogs;
+		// TODO: consider existing logs
+	}
+	
+	private void ReportLogFetchFailed(
+		LogListItem logListItem,
+		List<Error> ingestionErrors,
+		EitherStrict<HttpError, string> logResult
+	)
+	{
+		ingestionErrors.Add(
+			item: new IngestionError(message: $"Failed to fetch Log: {logResult.Left.Message}")
+		);
+		_logger.LogWarning(
+			message: "Failed to fetch {logId} from LogsTF API. "
+			         + "No changes to database. Error: {error}",
+			logListItem.Id,
+				logResult.Left.Message
+		);
 	}
 }

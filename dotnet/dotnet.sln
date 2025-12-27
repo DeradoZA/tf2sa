@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2SA.Common", "TF2SA.Commo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2SA.Benchmarks", "TF2SA.Benchmarks\TF2SA.Benchmarks.csproj", "{87A73F01-B356-499D-91C4-8FB0230BDDF1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2SA.Clickhouse", "TF2SA.Clickhouse\TF2SA.Clickhouse.csproj", "{74380C1F-2B23-4E8F-8A56-C4CDB95BAEE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{87A73F01-B356-499D-91C4-8FB0230BDDF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87A73F01-B356-499D-91C4-8FB0230BDDF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87A73F01-B356-499D-91C4-8FB0230BDDF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74380C1F-2B23-4E8F-8A56-C4CDB95BAEE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74380C1F-2B23-4E8F-8A56-C4CDB95BAEE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74380C1F-2B23-4E8F-8A56-C4CDB95BAEE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74380C1F-2B23-4E8F-8A56-C4CDB95BAEE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
