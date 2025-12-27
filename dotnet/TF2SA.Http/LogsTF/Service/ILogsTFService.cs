@@ -7,6 +7,10 @@ namespace TF2SA.Http.LogsTF.Service;
 
 public interface ILogsTFService
 {
+	public Task<EitherStrict<HttpError, string>> GetGameLogRaw(
+		ulong logId,
+		CancellationToken cancellationToken
+	);
 	public Task<EitherStrict<HttpError, GameLog>> GetGameLog(
 		ulong logId,
 		CancellationToken cancellationToken

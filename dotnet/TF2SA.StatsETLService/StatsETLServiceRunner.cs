@@ -25,8 +25,8 @@ public class StatsETLServiceRunner : BackgroundService
 
 	private async Task DoWork(CancellationToken cancellationToken)
 	{
-		using IServiceScope scope = serviceProvider.CreateScope();
-		ILogsTFIngestionHandler scopedLogsTFIngestionHandler =
+		using var scope = serviceProvider.CreateScope();
+		var scopedLogsTFIngestionHandler =
 			scope.ServiceProvider.GetRequiredService<ILogsTFIngestionHandler>();
 
 		await scopedLogsTFIngestionHandler.ExecuteAsync(cancellationToken);

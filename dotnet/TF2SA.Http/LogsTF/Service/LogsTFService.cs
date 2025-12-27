@@ -32,23 +32,37 @@ public class LogsTFService : ILogsTFService
 		CancellationToken cancellationToken
 	)
 	{
-		logger.LogInformation($"Fetching log list");
+		logger.LogInformation(message: $"Fetching log list");
 
 		string url = $"{logsTFConfig.BaseUrl}/log";
-		string? queryString = LogListQueryParams.GetQueryString(filter);
+		string? queryString = LogListQueryParams.GetQueryString(filter: filter);
 		if (queryString is not null)
 		{
 			url += $"?{queryString}";
 		}
 
 		EitherStrict<HttpError, LogListResult> logList =
-			await httpClient.Get<LogListResult>(url, cancellationToken);
+			await httpClient.Get<LogListResult>(url: url, cancellationToken: cancellationToken);
 		if (logList.IsLeft)
 		{
 			return logList.Left;
 		}
 
 		return logList.Right;
+	}
+
+	public async Task<EitherStrict<HttpError, string>> GetGameLogRaw(ulong logId, CancellationToken cancellationToken)
+	{
+		var url = $"{logsTFConfig.BaseUrl}/log/{logId}";
+
+		EitherStrict<HttpError, string> log =
+			await httpClient.Get<string>(url: url, cancellationToken: cancellationToken);
+		if (log.IsLeft)
+		{
+			return log.Left;
+		}
+
+		return log.Right;
 	}
 
 	public async Task<EitherStrict<HttpError, GameLog>> GetGameLog(
@@ -59,7 +73,7 @@ public class LogsTFService : ILogsTFService
 		var url = $"{logsTFConfig.BaseUrl}/log/{logId}";
 
 		EitherStrict<HttpError, GameLog> logList =
-			await httpClient.Get<GameLog>(url, cancellationToken);
+			await httpClient.Get<GameLog>(url: url, cancellationToken: cancellationToken);
 		if (logList.IsLeft)
 		{
 			return logList.Left;
@@ -88,24 +102,24 @@ public class LogsTFService : ILogsTFService
 				};
 
 			EitherStrict<HttpError, LogListResult> logListResult =
-				await GetLogList(filter, cancellationToken);
+				await GetLogList(filter: filter, cancellationToken: cancellationToken);
 			if (logListResult.IsLeft)
 			{
 				return logListResult.Left;
 			}
 
-			logs.AddRange(logListResult.Right.Logs);
+			logs.AddRange(collection: logListResult.Right.Logs);
 
 			totalLogCount = logListResult.Right.Total;
 			totalLogsFetched =
 				logListResult.Right.Results
 				+ logListResult.Right.Parameters.Offset;
 			logger.LogTrace(
-				"Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}",
-				uploader,
-				totalLogsFetched,
-				totalLogCount,
-				filter.Offset
+				message: "Fetching from uploader {uploader}: Fetched {count} logs of {totalLogsFetched}. Offset: {offset}",
+				args: new object?[]{uploader,
+					totalLogsFetched,
+					totalLogCount,
+					filter.Offset}
 			);
 		} while (totalLogsFetched != totalLogCount);
 
@@ -116,36 +130,36 @@ public class LogsTFService : ILogsTFService
 		CancellationToken cancellationToken
 	)
 	{
-		logger.LogInformation("fetching game logs");
+		logger.LogInformation(message: "fetching game logs");
 
 		ulong[] uploaders = logsTFConfig.Uploaders;
 		List<LogListItem> logs = new();
 		List<HttpError> errors = new();
 
 		await Parallel.ForEachAsync(
-			uploaders,
-			new ParallelOptions()
+			source: uploaders,
+			parallelOptions: new ParallelOptions
 			{
 				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
 				CancellationToken = cancellationToken
 			},
-			async (uploader, token) =>
+			body: async (uploader, token) =>
 			{
 				EitherStrict<HttpError, List<LogListItem>> uploaderLogs =
-					await GetAllLogs(uploader, cancellationToken);
+					await GetAllLogs(uploader: uploader, cancellationToken: token);
 				if (uploaderLogs.IsLeft)
 				{
-					errors.Add(uploaderLogs.Left);
+					errors.Add(item: uploaderLogs.Left);
 					return;
 				}
 
-				logs.AddRange(uploaderLogs.Right);
+				logs.AddRange(collection: uploaderLogs.Right);
 			}
 		);
 
 		if (errors.Any())
 		{
-			return errors[0];
+			return errors[index: 0];
 		}
 
 		return logs;
