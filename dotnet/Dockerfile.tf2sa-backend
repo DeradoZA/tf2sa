@@ -14,4 +14,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0
 COPY --from=build-env /out /app
 
 WORKDIR /app
-ENTRYPOINT ["dotnet", "/TF2SA.Web.dll"]
+ENTRYPOINT ["dotnet", "/app/TF2SA.Web.dll"]
