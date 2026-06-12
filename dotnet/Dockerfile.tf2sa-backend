@@ -11,5 +11,7 @@ RUN dotnet publish TF2SA.Web/TF2SA.Web.csproj -c Release -o out
 
 # BUILD RUNTIME
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
-COPY --from=build-env /out .
-ENTRYPOINT ["dotnet", "TF2SA.Web.dll"]
+COPY --from=build-env /out /app
+
+WORKDIR /app
+ENTRYPOINT ["dotnet", "/TF2SA.Web.dll"]
