@@ -78,3 +78,28 @@ services:
     volumes:
       - /home/ubuntu/certbot/www/:/var/www/certbot/:rw
       - /home/ubuntu/certbot/conf/:/etc/letsencrypt/:rw
+
+  tf2sa-clickhouse:
+    image: clickhouse/clickhouse-server:23.12.11.30
+    container_name: tf2sa-clickhouse
+    restart: unless-stopped
+    networks:
+      - tf2sa-net
+    volumes:
+      - ./scripts/clickhouse/config:/etc/clickhouse-server:ro
+      - ./scripts/clickhouse/data:/var/lib/clickhouse
+    ports:
+      - "8123:8123" # HTTP interface
+      - "9000:9000" # Native client
+    environment:
+      - CLICKHOUSE_DB=default
+
+  tf2sa-clickhouse-client:
+    image: clickhouse/clickhouse-client:23.12.11.30
+    container_name: tf2sa-clickhouse-client
+    depends_on:
+      - tf2sa-clickhouse
+    networks:
+      - tf2sa-net
+    entrypoint: ["/bin/sh"]
+    tty: true
