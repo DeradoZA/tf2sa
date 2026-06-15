@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - workflow_dispatch
 
 env:
   TF2SA_MYSQL_HOST: ${{ secrets.TF2SA_MYSQL_HOST }}
