@@ -10,7 +10,6 @@ volumes:
 services:
   tf2sa-db:
     image: danielcoetzee/tf2sa-db
-    platform: linux/arm64
     container_name: tf2sa-db
     restart: unless-stopped
     networks:
@@ -25,7 +24,6 @@ services:
 
   tf2sa-backend:
     image: danielcoetzee/tf2sa-backend
-    platform: linux/arm64
     container_name: tf2sa-backend
     restart: unless-stopped
     depends_on:
@@ -44,7 +42,6 @@ services:
 
   tf2sa-frontend:
     image: danielcoetzee/tf2sa-frontend
-    platform: linux/arm64
     container_name: tf2sa-frontend
     depends_on:
       - tf2sa-backend
