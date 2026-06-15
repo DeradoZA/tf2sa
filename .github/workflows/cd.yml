@@ -6,12 +6,15 @@ on:
       - main
 
 env:
-  DOCKER_REGISTRY: docker.io
   TF2SA_MYSQL_HOST: ${{ secrets.TF2SA_MYSQL_HOST }}
   TF2SA_MYSQL_USR: ${{ secrets.TF2SA_MYSQL_USR }}
   TF2SA_MYSQL_PWD: ${{ secrets.TF2SA_MYSQL_PWD }}
   TF2SA_MYSQL_DB: ${{ secrets.TF2SA_MYSQL_DB }}
   TF2SA_STEAM_API_KEY: ${{ secrets.TF2SA_STEAM_API_KEY }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  EC2_HOST: ${{ secrets.EC2_HOST }}
+  EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
 
 jobs:
   build:
@@ -44,30 +47,27 @@ jobs:
       - name: TODO to Issue
         uses: alstr/todo-to-issue-action@v4
 
-      - name: build docker images
-        run: |
-          docker-compose build
-
-      - name: Publish Docker images
-        uses: docker/login-action@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Push Docker images
-        run: |
-          docker-compose push
+      - name: Build docker images
+        run: docker-compose -f docker-compose.yml build --no-cache
 
-      - name: run deployment script
-        uses: fifsky/ssh-action@master
+      - name: Push docker images to Docker Hub
+        run: docker-compose -f docker-compose.yml push
+
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@master
         with:
-          command: |
+          host: ${{ env.EC2_HOST }}
+          username: ubuntu
+          key: ${{ env.EC2_SSH_KEY }}
+          script: |
             cd tf2sa
             git pull origin main
             sudo docker-compose pull
             sudo docker-compose down -v
             sudo docker-compose up -d
-          host: ${{ secrets.SSH_ORACLE_HOST }}
-          user: ubuntu
-          key: ${{ secrets.SSH_ORACLE_PRIVATE}}
