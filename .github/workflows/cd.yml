@@ -54,10 +54,10 @@ jobs:
           password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build docker images
-        run: docker-compose -f docker-compose.yml build --no-cache
+        run: docker compose -f docker-compose.yml build --no-cache
 
       - name: Push docker images to Docker Hub
-        run: docker-compose -f docker-compose.yml push
+        run: docker compose -f docker-compose.yml push
 
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@master
