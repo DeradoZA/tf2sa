@@ -13,4 +13,4 @@ jobs:
 
       - name: build docker images
         run: |
-          docker-compose build
+          docker compose build
