@@ -55,7 +55,7 @@ jobs:
           password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build docker images
-        run: docker compose -f docker-compose.yml build --no-cache
+        run: docker compose -f docker-compose.yml build --no-cache --platform linux/arm64
 
       - name: Push docker images to Docker Hub
         run: docker compose -f docker-compose.yml push
