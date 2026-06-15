@@ -12,6 +12,8 @@ env:
   TF2SA_MYSQL_PWD: ${{ secrets.TF2SA_MYSQL_PWD }}
   TF2SA_MYSQL_DB: ${{ secrets.TF2SA_MYSQL_DB }}
   TF2SA_STEAM_API_KEY: ${{ secrets.TF2SA_STEAM_API_KEY }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
 jobs:
   build:
@@ -44,20 +46,17 @@ jobs:
       - name: TODO to Issue
         uses: alstr/todo-to-issue-action@v4
 
-      - name: build docker images
-        run: |
-          docker-compose build
-
-      - name: Publish Docker images
-        uses: docker/login-action@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Push Docker images
-        run: |
-          docker-compose push
+      - name: Build docker images
+        run: docker-compose -f docker-compose.yml build --no-cache
+
+      - name: Push docker images to Docker Hub
+        run: docker-compose -f docker-compose.yml push
 
       - name: run deployment script
         uses: fifsky/ssh-action@master
