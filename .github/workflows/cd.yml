@@ -6,7 +6,6 @@ on:
       - main
 
 env:
-  DOCKER_REGISTRY: docker.io
   TF2SA_MYSQL_HOST: ${{ secrets.TF2SA_MYSQL_HOST }}
   TF2SA_MYSQL_USR: ${{ secrets.TF2SA_MYSQL_USR }}
   TF2SA_MYSQL_PWD: ${{ secrets.TF2SA_MYSQL_PWD }}
@@ -14,6 +13,8 @@ env:
   TF2SA_STEAM_API_KEY: ${{ secrets.TF2SA_STEAM_API_KEY }}
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  EC2_HOST: ${{ secrets.EC2_HOST }}
+  EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
 
 jobs:
   build:
@@ -58,15 +59,15 @@ jobs:
       - name: Push docker images to Docker Hub
         run: docker-compose -f docker-compose.yml push
 
-      - name: run deployment script
-        uses: fifsky/ssh-action@master
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@master
         with:
-          command: |
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
             cd tf2sa
             git pull origin main
             sudo docker-compose pull
             sudo docker-compose down -v
             sudo docker-compose up -d
-          host: ${{ secrets.SSH_ORACLE_HOST }}
-          user: ubuntu
-          key: ${{ secrets.SSH_ORACLE_PRIVATE}}
