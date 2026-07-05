@@ -1,47 +1,159 @@
 [![Coverage Status](https://coveralls.io/repos/github/DeradoZA/tf2sa/badge.svg?branch=main)](https://coveralls.io/github/DeradoZA/tf2sa?branch=main)
 
-# tf2sa
+# TF2SA
 
-A collection of resources for tf2sa.
+**Player-performance statistics for the South African competitive Team Fortress 2
+community.** Live at **[tf2sa.co.za](https://tf2sa.co.za)**.
 
-# run project
+TF2SA periodically ingests match logs from the public [logs.tf](https://logs.tf)
+API for a curated set of SA community uploaders, stores them in MariaDB, aggregates
+per-class and overall leaderboards, enriches player profiles from the Steam Web API,
+and serves ranked leaderboards through an Angular single-page app.
 
-Environments running the solution require the following configuration injected as environment variables
+![Leaderboards Showcase](docs/Leaderboards.png)
 
-- TF2SA_MYSQL_HOST
-- TF2SA_MYSQL_USR
-- TF2SA_MYSQL_PWD
-- TF2SA_MYSQL_DB
-- TF2SA_STEAM_API_KEY
+## Why it exists
 
-# Project description
+Competitive TF2 games upload rich per-match logs to logs.tf, but that data isn't
+aggregated per player, over time, for a specific community. TF2SA curates logs from
+the SA community, computes rolling **"recent" (last 365 days)** and **"all-time"**
+leaderboards per class (minimum 20 games to qualify), and makes individual and
+comparative performance easy to explore.
 
-Data extraction from the logs.tf API is done through a python script which inputs the data into a MariaDB database. This data is then used in the ASP.NET Web Application that we have created to be able to properly display player performance statistics to all those who are interested.
+## High-level architecture
 
-![Leaderboards Showcase](Images/Leaderboards.png)
+Two data paths that meet only at the database: a background **ingestion (write)
+path** and the user-facing **serving (read) path**.
 
-# Dad Jokes
+```mermaid
+flowchart LR
+    gamer["TF2SA Gamer"]
+    subgraph host["AWS EC2 host (Docker Compose)"]
+        proxy["nginx<br/>TLS + /api proxy"]
+        backend["ASP.NET Core 7 backend<br/>REST API + co-hosted ETL worker"]
+        db[("MariaDB 10.6<br/>raw + aggregated tables")]
+        spa["Angular 15 SPA<br/>(static, built)"]
+    end
+    logstf["logs.tf API"]
+    steam["Steam Web API"]
 
-- You guys wanna know where I keep my dad jokes?  
-  In a DAD-A-BASE.
+    gamer -->|HTTPS| proxy
+    proxy --> spa
+    proxy -->|/api| backend
+    backend -->|EF Core| db
+    backend -->|ingest logs| logstf
+    backend -->|player profiles| steam
+```
 
-- Which bear is the most condescending?  
-  A PAN-DUH.
+> The ETL ingestion worker runs **inside** the backend process as a
+> `BackgroundService`, not as a separate container. See
+> [docs/architecture/overview.md](docs/architecture/overview.md) for the full
+> picture.
 
-- What do you call a fat psychic?  
-  A four-chin teller.
+## Technology stack
 
-- I tried to make a reservation at the library.  
-  Unfortunately they're completely booked.
+| Area | Tech |
+|------|------|
+| Backend | .NET 7 / ASP.NET Core, EF Core 7 (Pomelo MySQL), MediatR, AutoMapper, FluentValidation, `csharp-monad` |
+| Database | MariaDB 10.6 (schema + stored-procedure aggregation) |
+| Frontend | Angular 15, Angular Material, RxJS |
+| External data | logs.tf API, Steam Web API |
+| Infra | Docker Compose, nginx, certbot (Let's Encrypt), GitHub Actions, Docker Hub, AWS EC2 |
 
-- Did you hear about the guy who cut off the left side of his body?  
-  He's all right now.
+Full rationale: [docs/architecture/overview.md](docs/architecture/overview.md#technology-stack-and-rationale).
 
-- What do you call a can opener that's broken?  
-  A can't opener.
+## Repository structure
 
-- What does Jeff Bezos do before bed?  
-  He puts his PyjAmazon.
+```
+.
+├── dotnet/                     # .NET 7 solution (8 projects)
+│   ├── TF2SA.Common/           # domain + logs.tf models, errors, constants
+│   ├── TF2SA.Http/             # HTTP client, logs.tf + Steam clients
+│   ├── TF2SA.Data/             # EF Core (DB-first), entities, repositories, procs
+│   ├── TF2SA.Query/            # CQRS read side (MediatR)
+│   ├── TF2SA.StatsETLService/  # ingestion pipeline + BackgroundService
+│   ├── TF2SA.Web/              # API controllers, Swagger, CORS (deployed entrypoint)
+│   ├── TF2SA.Benchmarks/       # BenchmarkDotNet
+│   └── TF2SA.Tests.Unit/       # xUnit tests
+├── frontend/                   # Angular 15 SPA (atomic-design components)
+├── scripts/
+│   ├── mariadb/                # schema + 10 aggregation stored procedures
+│   └── iac/                    # host bootstrap + nginx config
+├── docs/                       # documentation (start at docs/README.md)
+├── docker-compose.yml          # 5-container topology
+└── .github/workflows/          # CI (build on PR) + CD (deploy on main)
+```
 
-- Why do nurses like red crayons the best?  
-  Sometimes they have to draw blood.
+## Quick start (local)
+
+Requires Docker + Docker Compose. Create a `.env` next to `docker-compose.yml`:
+
+```dotenv
+TF2SA_MYSQL_HOST=tf2sa-db
+TF2SA_MYSQL_USR=tf2sa
+TF2SA_MYSQL_PWD=changeme
+TF2SA_MYSQL_DB=tf2sa_db
+TF2SA_STEAM_API_KEY=your-steam-web-api-key
+```
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+The database seeds its schema and stored procedures automatically on first run. For
+a tighter dev loop (running the backend and frontend directly), env-var reference,
+and how to enable/disable ingestion locally, see
+**[docs/onboarding.md](docs/onboarding.md)**.
+
+## Build, test, deploy
+
+```bash
+# build
+dotnet build dotnet/ /warnaserror
+cd frontend && npm run build
+
+# test
+dotnet test dotnet/TF2SA.Tests.Unit/TF2SA.Tests.Unit.csproj
+cd frontend && npm test
+```
+
+CI builds the Docker images on every pull request; CD builds, tests, publishes
+images to Docker Hub, and deploys to EC2 on merge to `main`. Details:
+[docs/architecture/deployment.md](docs/architecture/deployment.md).
+
+## Configuration
+
+All backend configuration is injected via `TF2SA_`-prefixed environment variables
+(DB connection + Steam API key). Ingestion behavior (enable/interval/debug) and the
+community uploader allowlist live in `appsettings.json`. See
+[docs/onboarding.md](docs/onboarding.md#environment-variables) and
+[docs/architecture/ingestion-pipeline.md](docs/architecture/ingestion-pipeline.md#configuration).
+
+## Contributing
+
+Work is issue-driven; branches are named `<issue#>-<slug>`. C# is formatted with
+CSharpier, the frontend with Prettier, and CI builds with warnings-as-errors. See
+**[CONTRIBUTING.md](CONTRIBUTING.md)** for the full workflow and coding conventions.
+
+## Documentation
+
+Start at **[docs/README.md](docs/README.md)**. Highlights:
+
+- [Architecture overview](docs/architecture/overview.md) — canonical technical reference
+- [Ingestion pipeline](docs/architecture/ingestion-pipeline.md) · [Request flow](docs/architecture/request-flow.md) · [Database](docs/architecture/database.md) · [Deployment](docs/architecture/deployment.md)
+- [Architecture Decision Records](docs/decisions/) — the *why* behind key choices
+- [logs.tf → DB field mapping](docs/stats.md) · [Known issues](docs/known-issues.md)
+- AI coding assistants: [AGENTS.md](AGENTS.md)
+
+## License
+
+[GNU GPL v3.0](LICENSE).
+
+## Dad jokes
+
+Every good `DAD-A-BASE` deserves a few:
+
+- What do you call a can opener that's broken? A can't opener.
+- Which bear is the most condescending? A PAN-DUH.
+- I tried to make a reservation at the library. Unfortunately they're completely booked.
