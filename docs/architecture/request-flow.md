@@ -25,7 +25,7 @@ flowchart LR
 
     browser -->|"GET /api/v1/... (HTTPS/JSON)"| nginx
     nginx -->|"/api → backend:80"| controller
-    controller -->|Send(query)| mediator
+    controller -->|"Send(query)"| mediator
     mediator --> handler
     handler --> repo
     repo --> ef
