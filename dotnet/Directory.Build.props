@@ -1,0 +1,15 @@
+<Project>
+
+  <!--
+    AutoMapper DoS advisory GHSA-rvv3-g6hj-g44x (uncontrolled recursion when mapping
+    ~25,000-level self-referential object graphs). Not reachable in TF2SA: AutoMapper
+    only maps flat internal DTOs (entity <-> domain <-> HTTP result), with no recursive
+    types and no attacker-controlled object graphs. The first patched version (15.1.1)
+    is under AutoMapper's commercial licence, so we stay on the last free major and
+    suppress this specific advisory. Tracked in docs/known-issues.md.
+  -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+  </ItemGroup>
+
+</Project>

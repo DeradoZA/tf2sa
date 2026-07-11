@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TF2SA.Data.Analytics;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
@@ -90,5 +91,9 @@ public static class DependencyInjection
 		>();
 
 		services.AddAutoMapper(typeof(GameMappingProfile));
+
+		// DuckDB analytics read layer (ADR 0008). Refreshed alongside the stored
+		// procs during the Phase 1 parallel run; enabled via TF2SA_ANALYTICS_ENABLED.
+		services.AddSingleton<IAnalyticsStore, DuckDbAnalyticsStore>();
 	}
 }

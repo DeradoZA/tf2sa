@@ -1,5 +1,6 @@
 using Monad;
 using TF2SA.Common.Errors;
+using TF2SA.Data.Analytics;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.StatsETLService.LogsTFIngestion.Errors;
@@ -19,6 +20,7 @@ public class StatisticsUpdater : IStatisticsUpdater
 	private readonly IStatsRepository<MedicAllTime> medicAllTimeStatsRepository;
 	private readonly IStatsRepository<OverallStatsRecent> overallStatsRecentRepository;
 	private readonly IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository;
+	private readonly IAnalyticsStore analyticsStore;
 
 	public StatisticsUpdater(
 		ILogger<StatisticsUpdater> logger,
@@ -31,7 +33,8 @@ public class StatisticsUpdater : IStatisticsUpdater
 		IStatsRepository<MedicRecent> medicRecentStatsRepository,
 		IStatsRepository<MedicAllTime> medicAllTimeStatsRepository,
 		IStatsRepository<OverallStatsRecent> overallStatsRecentRepository,
-		IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository
+		IStatsRepository<OverallStatsAllTime> overallStatsAllTimeRepository,
+		IAnalyticsStore analyticsStore
 	)
 	{
 		this.logger = logger;
@@ -45,6 +48,7 @@ public class StatisticsUpdater : IStatisticsUpdater
 		this.medicAllTimeStatsRepository = medicAllTimeStatsRepository;
 		this.overallStatsRecentRepository = overallStatsRecentRepository;
 		this.overallStatsAllTimeRepository = overallStatsAllTimeRepository;
+		this.analyticsStore = analyticsStore;
 	}
 
 	public async Task<OptionStrict<Error>> UpdateAggregatedStatistics(
@@ -67,7 +71,7 @@ public class StatisticsUpdater : IStatisticsUpdater
 			await scoutAllTimeStatsRepository.CallUpdateStoredProc(
 				cancellationToken
 			);
-		if (updateScoutRecent.HasValue)
+		if (updateScoutAllTime.HasValue)
 		{
 			errors.Add(updateScoutAllTime.Value);
 		}
@@ -142,6 +146,20 @@ public class StatisticsUpdater : IStatisticsUpdater
 		if (updateOverallAllTime.HasValue)
 		{
 			errors.Add(updateOverallAllTime.Value);
+		}
+
+		// Parallel run (ADR 0008): refresh the DuckDB analytics store alongside the
+		// stored procs. Non-fatal during the migration — a refresh failure is logged
+		// but does not fail the ingestion cycle. No-op unless analytics is enabled.
+		OptionStrict<Error> refreshAnalytics = await analyticsStore.RefreshAsync(
+			cancellationToken
+		);
+		if (refreshAnalytics.HasValue)
+		{
+			logger.LogWarning(
+				"DuckDB analytics refresh failed (non-fatal): {error}",
+				refreshAnalytics.Value.Message
+			);
 		}
 
 		if (errors.Any())

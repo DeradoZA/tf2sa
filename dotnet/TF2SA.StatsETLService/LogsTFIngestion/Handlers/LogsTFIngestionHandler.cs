@@ -139,11 +139,11 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 				await statisticsUpdater.UpdateAggregatedStatistics(
 					cancellationToken
 				);
-			if (updatePlayersResult.HasValue)
+			if (updateStatisticsResult.HasValue)
 			{
 				logger.LogWarning(
 					"Failed to update aggregated statistics with error(s): {errors}",
-					updatePlayersResult.Value.Message
+					updateStatisticsResult.Value.Message
 				);
 			}
 		}

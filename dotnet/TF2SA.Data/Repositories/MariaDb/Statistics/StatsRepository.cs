@@ -194,7 +194,7 @@ public abstract class StatsRepository<TEntity> : IStatsRepository<TEntity>
 		}
 
 		logger.LogWarning(
-			"Current Filtering only works for string types.",
+			"Filtering by {FilterField} is only supported for string types.",
 			filterField
 		);
 		filterFieldUsed = string.Empty;

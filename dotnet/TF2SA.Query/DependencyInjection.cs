@@ -14,6 +14,11 @@ public static class DependencyInjection
 	)
 	{
 		services.AddDataLayer(configuration);
-		services.AddMediatR(Assembly.GetExecutingAssembly());
+		services.AddMediatR(
+			cfg =>
+				cfg.RegisterServicesFromAssembly(
+					Assembly.GetExecutingAssembly()
+				)
+		);
 	}
 }

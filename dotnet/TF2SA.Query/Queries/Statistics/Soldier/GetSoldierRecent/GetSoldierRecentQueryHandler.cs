@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
+using TF2SA.Data.Analytics;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
@@ -18,14 +19,17 @@ public class GetSoldierRecentQueryHandler
 {
 	private readonly IMapper mapper;
 	private readonly IStatsRepository<SoldierRecent> repository;
+	private readonly IAnalyticsStore analyticsStore;
 
 	public GetSoldierRecentQueryHandler(
 		IMapper mapper,
-		IStatsRepository<SoldierRecent> repository
+		IStatsRepository<SoldierRecent> repository,
+		IAnalyticsStore analyticsStore
 	)
 	{
 		this.mapper = mapper;
 		this.repository = repository;
+		this.analyticsStore = analyticsStore;
 	}
 
 	public async Task<EitherStrict<Error, GetSoldierStatsResult>> Handle(
@@ -35,6 +39,34 @@ public class GetSoldierRecentQueryHandler
 	{
 		try
 		{
+			if (analyticsStore.Enabled)
+			{
+				StatsPage<SoldierRecent> page =
+					await analyticsStore.GetPageAsync<SoldierRecent>(
+						"class_board(2, 5, 1)",
+						"averageDpm",
+						request.Sort,
+						request.SortOrder,
+						request.FilterField,
+						request.FilterValue,
+						request.Offset,
+						request.Count,
+						cancellationToken
+					);
+				IEnumerable<SoldierStatDomain> mappedPlayers =
+					mapper.Map<List<SoldierStatDomain>>(page.Rows);
+				return new GetSoldierStatsResult(
+					page.Total,
+					mappedPlayers.Count(),
+					request.Offset,
+					page.SortUsed,
+					page.SortOrderUsed,
+					page.FilterFieldUsed,
+					page.FilterValueUsed,
+					mappedPlayers
+				);
+			}
+
 			IQueryable<SoldierRecent> allQueryable =
 				repository.GetAllQueryable();
 

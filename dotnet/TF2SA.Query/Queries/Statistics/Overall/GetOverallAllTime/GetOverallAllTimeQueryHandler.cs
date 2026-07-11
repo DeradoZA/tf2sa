@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
+using TF2SA.Data.Analytics;
 using TF2SA.Data.Entities.MariaDb;
 using TF2SA.Data.Errors;
 using TF2SA.Data.Repositories.Base;
@@ -18,14 +19,17 @@ public class GetOverallAllTimeQueryHandler
 {
 	private readonly IMapper mapper;
 	private readonly IStatsRepository<OverallStatsAllTime> repository;
+	private readonly IAnalyticsStore analyticsStore;
 
 	public GetOverallAllTimeQueryHandler(
 		IMapper mapper,
-		IStatsRepository<OverallStatsAllTime> repository
+		IStatsRepository<OverallStatsAllTime> repository,
+		IAnalyticsStore analyticsStore
 	)
 	{
 		this.mapper = mapper;
 		this.repository = repository;
+		this.analyticsStore = analyticsStore;
 	}
 
 	public async Task<EitherStrict<Error, GetOverallStatsResult>> Handle(
@@ -35,6 +39,34 @@ public class GetOverallAllTimeQueryHandler
 	{
 		try
 		{
+			if (analyticsStore.Enabled)
+			{
+				StatsPage<OverallStatsAllTime> page =
+					await analyticsStore.GetPageAsync<OverallStatsAllTime>(
+						"overall_board(20, 0)",
+						"averageDpm",
+						request.Sort,
+						request.SortOrder,
+						request.FilterField,
+						request.FilterValue,
+						request.Offset,
+						request.Count,
+						cancellationToken
+					);
+				IEnumerable<OverallStatDomain> mappedPlayers =
+					mapper.Map<List<OverallStatDomain>>(page.Rows);
+				return new GetOverallStatsResult(
+					page.Total,
+					mappedPlayers.Count(),
+					request.Offset,
+					page.SortUsed,
+					page.SortOrderUsed,
+					page.FilterFieldUsed,
+					page.FilterValueUsed,
+					mappedPlayers
+				);
+			}
+
 			IQueryable<OverallStatsAllTime> allQueryable =
 				repository.GetAllQueryable();
 

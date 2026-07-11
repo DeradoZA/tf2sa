@@ -9,7 +9,9 @@ public class LogListQueryParamTest
 	public void GivenNullFilter_ReturnsEmpty()
 	{
 		LogListQueryParams filter = new();
-		Assert.Empty(LogListQueryParams.GetQueryString(filter));
+		Assert.True(
+			string.IsNullOrEmpty(LogListQueryParams.GetQueryString(filter))
+		);
 	}
 
 	[Fact]
