@@ -14,7 +14,10 @@ time or scoped to a community. The ingestion pipeline exists to:
    allowlist — [ADR 0007](../decisions/0007-curated-uploader-allowlist.md)).
 2. Fetch, validate, and store the raw game data.
 3. Enrich player identities from the Steam Web API.
-4. Recompute the aggregated leaderboard tables via SQL stored procedures.
+4. Refresh the **DuckDB analytics fact table** so leaderboards reflect the new games
+   ([analytics-store.md](./analytics-store.md)). (This replaced the former step of
+   running 10 SQL aggregation stored procedures — see
+   [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md).)
 
 It runs continuously on a timer **inside the `tf2sa-backend` process** as an
 ASP.NET Core `BackgroundService` — not as a separate container or cron job. See
@@ -28,11 +31,11 @@ ASP.NET Core `BackgroundService` — not as a separate container or cron job. Se
 | Loop + orchestration | `TF2SA.StatsETLService/LogsTFIngestion/Handlers/LogsTFIngestionHandler.cs` |
 | Per-log ingest | `TF2SA.StatsETLService/LogsTFIngestion/Services/LogIngestor.cs` |
 | Repository writes | `TF2SA.StatsETLService/LogsTFIngestion/Services/LogIngestionRepositoryUpdater.cs` |
-| Aggregation trigger | `TF2SA.StatsETLService/LogsTFIngestion/Services/StatisticsUpdater.cs` |
+| Analytics refresh trigger | `TF2SA.StatsETLService/LogsTFIngestion/Services/StatisticsUpdater.cs` (refreshes the DuckDB fact table) |
 | Validation | `TF2SA.StatsETLService/LogsTFIngestion/Validation/*.cs` (FluentValidation) |
 | logs.tf client | `TF2SA.Http/LogsTF/Service/LogsTFService.cs` |
 | Steam client | `TF2SA.Http/Steam/Service/SteamService.cs` |
-| Aggregation SQL | `scripts/mariadb/update_*_stats.sql` (10 stored procs) |
+| Analytics store | DuckDB fact table — see [analytics-store.md](./analytics-store.md) |
 | Configuration | `LogsTFIngestion` + `LogsTF` sections in `appsettings.json` |
 
 ## Configuration
@@ -72,8 +75,8 @@ flowchart TD
 
     loop --> players["UpdatePlayers():<br/>enrich Players via Steam Web API"]
     players --> anynew{New logs this cycle<br/>OR DebugIngestion?}
-    anynew -->|No| skipagg[Skip aggregation] --> wait
-    anynew -->|Yes| agg["UpdateAggregatedStatistics():<br/>run all 10 update_*_stats stored procs"]
+    anynew -->|No| skipagg[Skip refresh] --> wait
+    anynew -->|Yes| agg["UpdateAggregatedStatistics():<br/>refresh the DuckDB fact table<br/>(rebuild or append new games)"]
     agg --> wait([Delay IngestionIntervalSeconds, loop])
 ```
 
@@ -108,22 +111,27 @@ failing log does not abort the cycle.
 `UpdatePlayers()` resolves player profile fields (name, avatars, country, profile
 URL) from the Steam Web API for players seen in the ingested logs.
 
-### 5. Recompute aggregates
+### 5. Refresh the analytics store
 If any new logs were processed (or `DebugIngestion` is on),
-`StatisticsUpdater.UpdateAggregatedStatistics()` runs all ten aggregation stored
-procedures via `ExecuteSqlRawAsync`, rebuilding the leaderboard tables. See
-[database.md](./database.md) for what "recent" vs "all-time" mean and how the procs
-work.
+`StatisticsUpdater.UpdateAggregatedStatistics()` refreshes the **DuckDB fact table**
+from the raw tables (a full rebuild, or an append of the games new this cycle). The
+leaderboards are then computed on the fly from that fact table at request time — the
+"recent" window and the games threshold are query parameters, not baked-in schema.
+See [analytics-store.md](./analytics-store.md) for the fact-table grain, the refresh
+options, and the query patterns.
 
-> **Known issue:** `StatisticsUpdater` contains copy-paste guard-clause bugs that
-> can suppress or misreport some aggregation errors. Behavior of the happy path is
-> unaffected. Tracked in [known-issues.md](../known-issues.md).
+> **Historical note:** this stage formerly ran ten MariaDB aggregation stored
+> procedures to rebuild 10 pre-computed leaderboard tables
+> ([ADR 0005](../decisions/0005-sql-stored-procedures-for-aggregation.md), superseded).
+> `StatisticsUpdater` also carried copy-paste guard-clause bugs around those ten
+> calls; retiring the procs removes that per-proc guard logic. Tracked in
+> [known-issues.md](../known-issues.md).
 
 ## Design notes
 
 - **Idempotent by construction.** Re-running the pipeline reprocesses only logs not
-  already in `Games`; aggregation procs `DELETE` then re-`INSERT` their target
-  tables, so they are safe to re-run.
+  already in `Games`; the DuckDB fact table is a derived cache that can be rebuilt
+  from the raw tables at any time (or on startup), so the refresh is safe to re-run.
 - **Bounded concurrency.** Both log-list fetching and per-log ingestion are capped
   at 2 concurrent operations to stay friendly to the logs.tf API.
 - **Cancellation.** The loop and HTTP calls thread a `CancellationToken`. Some
@@ -138,6 +146,8 @@ Update this document when:
 - The source of candidate logs changes (new provider, different filtering than the
   uploader allowlist).
 - Validation rules or the raw tables written during ingestion change.
+- The analytics-refresh step changes (trigger, full-rebuild vs incremental); also
+  update [analytics-store.md](./analytics-store.md).
 - Concurrency limits, scheduling, or the enable/debug configuration change.
 - The pipeline is moved out of the backend process into its own host/container
   (which would also update [ADR 0006](../decisions/0006-cohosted-etl-background-service.md)).

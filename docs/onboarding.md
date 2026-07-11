@@ -8,7 +8,7 @@
 | Tool | Version | Used for |
 |------|---------|----------|
 | Docker + Docker Compose | recent | Running the full stack the way production does |
-| .NET SDK | 7.0.x | Building/testing the backend directly |
+| .NET SDK | 10.0.x | Building/testing the backend directly |
 | Node.js | 18.x | Building/serving the Angular frontend |
 | Angular CLI | 15.x (`npm i -g @angular/cli`) | Frontend dev server |
 | MariaDB | 10.6 | Database (via Docker or local) |

@@ -18,7 +18,7 @@ flowchart TB
         direction TB
         proxy["t2sa-reverse-proxy<br/><b>nginx:latest</b><br/>:80 → 301 https, :443 TLS"]
         subgraph net["tf2sa-net (bridge)"]
-            backend["tf2sa-backend<br/><b>ASP.NET Core 7</b><br/>listens :80 (internal)"]
+            backend["tf2sa-backend<br/><b>ASP.NET Core 10</b><br/>listens :80 (internal)"]
             db[("tf2sa-db<br/><b>MariaDB 10.6</b>")]
         end
         frontend["tf2sa-frontend<br/><b>Angular build-only</b>"]
@@ -74,6 +74,7 @@ setup). In CI/CD these come from GitHub Actions secrets.
 |----------|---------|
 | `TF2SA_MYSQL_HOST` / `_USR` / `_PWD` / `_DB` | Database connection (assembled in `TF2SA.Data/DependencyInjection.cs`). |
 | `TF2SA_STEAM_API_KEY` | Steam Web API key for player enrichment. |
+| `TF2SA_ANALYTICS_ENABLED` / `TF2SA_DUCKDB_PATH` / `TF2SA_MYSQL_PORT` | Optional — the DuckDB analytics store ([analytics-store.md](./analytics-store.md)). Disabled by default; when enabled, the ETL refreshes a DuckDB cache alongside the stored procs. |
 
 The frontend's API base URL is compiled in, not env-injected:
 `frontend/src/environments/environment.ts` (`https://tf2sa.co.za/api/v1`) for

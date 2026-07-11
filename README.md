@@ -30,8 +30,8 @@ flowchart LR
     gamer["TF2SA Gamer"]
     subgraph host["AWS EC2 host (Docker Compose)"]
         proxy["nginx<br/>TLS + /api proxy"]
-        backend["ASP.NET Core 7 backend<br/>REST API + co-hosted ETL worker"]
-        db[("MariaDB 10.6<br/>raw + aggregated tables")]
+        backend["ASP.NET Core 10 backend<br/>REST API + co-hosted ETL worker"]
+        db[("MariaDB 10.6<br/>raw tables (source of record)")]
         spa["Angular 15 SPA<br/>(static, built)"]
     end
     logstf["logs.tf API"]
@@ -54,8 +54,9 @@ flowchart LR
 
 | Area | Tech |
 |------|------|
-| Backend | .NET 7 / ASP.NET Core, EF Core 7 (Pomelo MySQL), MediatR, AutoMapper, FluentValidation, `csharp-monad` |
-| Database | MariaDB 10.6 (schema + stored-procedure aggregation) |
+| Backend | .NET 10 / ASP.NET Core, EF Core 9 (Pomelo MySQL), MediatR, AutoMapper, FluentValidation, `csharp-monad` |
+| Database | MariaDB 10.6 (raw tables, source of record) |
+| Analytics | Embedded DuckDB read layer — on-the-fly leaderboard aggregation ([ADR 0008](docs/decisions/0008-duckdb-analytics-read-layer.md)) |
 | Frontend | Angular 15, Angular Material, RxJS |
 | External data | logs.tf API, Steam Web API |
 | Infra | Docker Compose, nginx, certbot (Let's Encrypt), GitHub Actions, Docker Hub, AWS EC2 |
@@ -66,7 +67,7 @@ Full rationale: [docs/architecture/overview.md](docs/architecture/overview.md#te
 
 ```
 .
-├── dotnet/                     # .NET 7 solution (8 projects)
+├── dotnet/                     # .NET 10 solution (8 projects)
 │   ├── TF2SA.Common/           # domain + logs.tf models, errors, constants
 │   ├── TF2SA.Http/             # HTTP client, logs.tf + Steam clients
 │   ├── TF2SA.Data/             # EF Core (DB-first), entities, repositories, procs

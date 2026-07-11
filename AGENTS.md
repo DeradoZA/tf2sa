@@ -13,7 +13,7 @@ assistant-specific instruction.
 
 TF2SA ingests Team Fortress 2 match logs from the logs.tf API for a curated South
 African community, aggregates per-class and overall leaderboards in MariaDB, and
-serves them via an ASP.NET Core 7 API and an Angular 15 SPA. Full overview:
+serves them via an ASP.NET Core 10 API and an Angular 15 SPA. Full overview:
 [docs/architecture/overview.md](docs/architecture/overview.md).
 
 ## Orient yourself here first
@@ -39,9 +39,13 @@ These trip up newcomers and automated changes most often:
    and `DbContext` are scaffolded from SQL by `dotnet/TF2SA.Data/scaffold.sh`.
    **Never hand-edit scaffolded entities** — change `scripts/mariadb/*.sql`, apply
    it, then re-scaffold. ([ADR 0004](docs/decisions/0004-database-first-ef-scaffolding.md))
-3. **Leaderboard math lives in SQL stored procedures**
-   (`scripts/mariadb/update_*_stats.sql`), not C#. Recent and all-time are separate
-   files per class — keep them in sync. ([ADR 0005](docs/decisions/0005-sql-stored-procedures-for-aggregation.md))
+3. **Leaderboard aggregation is moving to an embedded DuckDB analytics read layer**
+   ([ADR 0008](docs/decisions/0008-duckdb-analytics-read-layer.md),
+   [analytics-store.md](docs/architecture/analytics-store.md)) — computed on the fly
+   from a derived fact table, not pre-computed tables. The legacy SQL stored
+   procedures (`scripts/mariadb/update_*_stats.sql`,
+   [ADR 0005](docs/decisions/0005-sql-stored-procedures-for-aggregation.md),
+   superseded) still exist until that migration lands; don't invest in extending them.
 4. **The read side is CQRS-lite (MediatR).** A new endpoint = query + handler +
    result model + a thin controller action. ([ADR 0003](docs/decisions/0003-cqrs-read-side-with-mediatr.md))
 5. **The ETL worker runs inside the backend process**, not as a separate service.

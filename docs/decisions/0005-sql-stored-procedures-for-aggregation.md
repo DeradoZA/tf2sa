@@ -1,7 +1,15 @@
 # 5. SQL stored procedures for aggregation
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0008](0008-duckdb-analytics-read-layer.md)
 - **Date:** 2026-07-05 (documented retroactively)
+
+> **Superseded (2026-07-10).** The pre-aggregated tables and stored procedures
+> described here are being retired in favour of an embedded DuckDB analytics read
+> layer that aggregates on the fly. The rationale below remains accurate history for
+> *why* this approach was chosen; see
+> [ADR 0008](0008-duckdb-analytics-read-layer.md) and
+> [architecture/analytics-store.md](../architecture/analytics-store.md) for the
+> replacement.
 
 ## Context
 

@@ -1,8 +1,11 @@
 # Database
 
-> The data model, how it is defined and evolved, and how aggregated leaderboards
-> are produced. The database is the meeting point of the
-> [write path](./ingestion-pipeline.md) and the [read path](./request-flow.md).
+> The **raw data model** — how it is defined and evolved — held in MariaDB, which is
+> the **system of record**. Leaderboard aggregation no longer lives here: it moved to
+> an embedded **DuckDB analytics read layer** ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md),
+> [analytics-store.md](./analytics-store.md)). This database is where the
+> [write path](./ingestion-pipeline.md) lands raw rows; the [read path](./request-flow.md)
+> now serves from DuckDB.
 
 ## Engine and conventions
 
@@ -16,14 +19,21 @@
 - **The SQL schema is the source of truth** for the data model. C# entities are
   reverse-engineered from it — see [ADR 0004](../decisions/0004-database-first-ef-scaffolding.md).
 
-## Two tiers of tables
+## What MariaDB holds
 
-| Tier | Tables | Written by | Read by |
-|------|--------|-----------|---------|
-| **Raw** (per match) | `Games`, `Players`, `PlayerStats`, `ClassStats`, `WeaponStats` | Ingestion pipeline (row-by-row inserts) | Aggregation stored procs |
-| **Aggregated** (per player, pre-computed) | `{Scout,Soldier,Demoman,Medic}{Recent,AllTime}`, `OverallStats{Recent,AllTime}` | Aggregation stored procs (`DELETE` + `INSERT`) | The API read path |
+MariaDB holds the **raw, per-match tables only** — the source of record:
 
-The API never aggregates on the fly — it reads the pre-computed aggregated tables.
+| Tables | Written by | Read by |
+|--------|-----------|---------|
+| `Games`, `Players`, `PlayerStats`, `ClassStats`, `WeaponStats` | Ingestion pipeline (row-by-row inserts) | The DuckDB refresh (which derives the analytics fact table from these) |
+
+> **Historical note.** MariaDB previously also held a second tier of 12
+> **pre-aggregated** leaderboard tables (`{Scout,Soldier,Demoman,Medic}{Recent,AllTime}`,
+> `OverallStats{Recent,AllTime}`) rebuilt by 10 stored procedures. Those are being
+> retired in favour of on-the-fly aggregation in DuckDB — see
+> [analytics-store.md](./analytics-store.md) and
+> [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md). The API now aggregates
+> per request in the columnar read layer; it no longer reads pre-computed tables here.
 
 ## Raw schema (entity-relationship)
 
@@ -112,64 +122,39 @@ rows. The pre-rendered ERD image [`docs/erd.png`](../erd.png) is a companion vie
 > which fields are intentionally dropped and why. Consult it before adding or
 > changing an ingested field.
 
-## Aggregated tables and the "recent vs all-time" model
+## Aggregation lives in the analytics store
 
-For each of Scout, Soldier, Demoman, Medic, and Overall there are **two** tables:
+Per-player leaderboards (per-class and overall, "recent" vs "all-time", the
+min-games threshold, win/loss/draw, averages, and "top game" highlights) are
+**computed on the fly in the DuckDB analytics read layer**, from a derived fact
+table built out of these raw tables. The "recent" window and the games threshold are
+**query parameters** there, not schema. See
+[analytics-store.md](./analytics-store.md) for the fact-table grain, the refresh
+strategy, and the query patterns.
 
-- **`*AllTime`** — aggregates over *all* qualifying games.
-- **`*Recent`** — identical shape, but restricted to games from the **last 365
-  days** (`WHERE g.Date > UNIX_TIMESTAMP() - 365*24*60*60`).
-
-Each aggregated row is keyed by `SteamID` and holds pre-computed averages (DPM,
-kills, deaths, heals, etc.), win/loss/draw counts, win percentage, and "top game"
-highlights (e.g. `TopDamage` + `TopDamageGameID`). Only players with **at least 20
-qualifying games** appear (`HAVING NumberOfGames >= 20`).
-
-Class membership is decided by `ClassStats.ClassID` (e.g. Scout procs filter
-`cs.ClassID = 1`); the Overall tables aggregate across classes.
-
-## Stored procedures (aggregation)
-
-Ten procedures, one per aggregated table, in `scripts/mariadb/update_*_stats.sql`:
-
-```
-update_scout_recent_stats.sql      → UpdateScoutRecentStats()
-update_scout_alltime_stats.sql     → UpdateScoutAllTimeStats()
-update_soldier_recent_stats.sql    → UpdateSoldierRecentStats()
-update_soldier_alltime_stats.sql   → UpdateSoldierAllTimeStats()
-update_demoman_recent_stats.sql    → UpdateDemomanRecentStats()
-update_demoman_alltime_stats.sql   → UpdateDemomanAllTimeStats()
-update_medic_recent_stats.sql      → UpdateMedicRecentStats()
-update_medic_alltime_stats.sql     → UpdateMedicAllTimeStats()
-update_overall_recent_stats.sql    → UpdateOverallRecentStats()
-update_overall_alltime_stats.sql   → UpdateOverallAllTimeStats()
-```
-
-Each procedure `DELETE`s its target table then re-`INSERT`s a freshly computed
-result set (a CTE joins `ClassStats`/`PlayerStats`/`Players`/`Games`, plus
-window-style CTEs to find each player's top games). They are invoked from C# via
-`StatsRepository<TEntity>.CallUpdateStoredProc()` →
-`DbContext.Database.ExecuteSqlRawAsync(...)`, orchestrated by `StatisticsUpdater`
-at the end of each ingestion cycle.
-
-> **Maintenance note:** the "top game" CTEs use MariaDB session-variable ranking
-> (`@rn`/`@prev`) rather than window functions. This is terse and version-sensitive;
-> see [known-issues.md](../known-issues.md). If you change stat definitions,
-> remember that recent and all-time are **separate files** that must be kept in
-> sync.
+The 10 pre-aggregated tables and the 10 `scripts/mariadb/update_*_stats.sql` stored
+procedures that formerly produced them are being removed as part of that migration
+([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)).
 
 ## How to change the schema (the scaffold workflow)
 
-Because the model is database-first, the workflow is:
+The **raw** tables remain database-first. The workflow is:
 
-1. Edit the SQL in `scripts/mariadb/` (schema and/or the relevant procedures).
+1. Edit the schema SQL in `scripts/mariadb/create_stats_schema.sql`.
 2. Apply it to your database (re-init the DB container, or run the SQL manually).
 3. Re-generate the EF Core entities and `DbContext` by running
    `TF2SA.Data/scaffold.sh` (uses `dotnet ef dbcontext scaffold` against the live
-   DB, `--force`, restricted to the listed tables).
+   DB, `--force`, restricted to the listed **raw** tables).
 4. Update `TF2SADbContext` registrations / repositories / mappings as needed for
    new entities.
-5. Update [`docs/stats.md`](../stats.md) if ingested fields changed.
+5. Update [`docs/stats.md`](../stats.md) if ingested fields changed, and refresh the
+   DuckDB fact-table projection in [analytics-store.md](./analytics-store.md) if a
+   new raw column should surface in leaderboards.
+
+> The analytics read layer is **not** part of this scaffold workflow — it queries the
+> raw tables directly via DuckDB and has no scaffolded EF entities. Changing a
+> leaderboard means editing a query, not the schema (see
+> [analytics-store.md](./analytics-store.md)).
 
 **Do not hand-edit the scaffolded entities or the generated parts of
 `TF2SADbContext`** — `scaffold.sh --force` overwrites them.
@@ -178,9 +163,10 @@ Because the model is database-first, the workflow is:
 
 Update this document when:
 
-- A table, column, key, or foreign-key relationship is added/removed/changed.
-- The recent-window definition (365 days) or the minimum-games threshold (20)
-  changes.
-- A stored procedure is added/removed, or aggregation logic changes materially.
-- The scaffold workflow or the set of scaffolded tables changes.
+- A raw table, column, key, or foreign-key relationship is added/removed/changed.
+- The scaffold workflow or the set of scaffolded (raw) tables changes.
 - The DB engine or version changes.
+
+Aggregation concerns — the recent-window length, the min-games threshold, stat
+definitions, and the fact-table shape — now live in
+[analytics-store.md](./analytics-store.md); update that document instead.

@@ -57,8 +57,8 @@ flowchart TB
     subgraph host["Docker host (AWS EC2)"]
         proxy["t2sa-reverse-proxy<br/><b>nginx</b><br/>TLS, static files, /api proxy"]
         frontend["tf2sa-frontend<br/><b>Angular 15 (build-only)</b><br/>emits static SPA to shared volume"]
-        backend["tf2sa-backend<br/><b>ASP.NET Core 7</b><br/>REST API + co-hosted ETL worker"]
-        db[("tf2sa-db<br/><b>MariaDB 10.6</b><br/>raw + aggregated tables, stored procs")]
+        backend["tf2sa-backend<br/><b>ASP.NET Core 10</b><br/>REST API + co-hosted ETL worker<br/>+ embedded DuckDB analytics store"]
+        db[("tf2sa-db<br/><b>MariaDB 10.6</b><br/>raw tables (source of record)")]
         certbot["certbot<br/>Let's Encrypt renewal"]
         vol[["shared volume<br/>compiled SPA"]]
     end
@@ -79,7 +79,11 @@ flowchart TB
 > **Key non-obvious fact:** the ETL ingestion worker is **not** a separate
 > container. It runs as an ASP.NET Core `BackgroundService` **inside the
 > `tf2sa-backend` process**, alongside the REST API. See
-> [ADR 0006](../decisions/0006-cohosted-etl-background-service.md).
+> [ADR 0006](../decisions/0006-cohosted-etl-background-service.md). The **DuckDB
+> analytics store** is likewise **embedded** in that same process (a library, not a
+> service — no container of its own); see
+> [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md) and
+> [analytics-store.md](./analytics-store.md).
 
 ## The two data paths
 
@@ -88,12 +92,16 @@ meet only at the database.
 
 | Path | Trigger | Flow | Deep dive |
 |------|---------|------|-----------|
-| **Write (ingestion)** | Timer inside backend (`IngestionIntervalSeconds`, default 3600s) | logs.tf → validate → insert raw rows → run aggregation stored procs → refresh leaderboard tables | [ingestion-pipeline.md](./ingestion-pipeline.md) |
-| **Read (serving)** | User HTTP request | Angular → nginx → controller → MediatR query → repository → EF Core → leaderboard tables | [request-flow.md](./request-flow.md) |
+| **Write (ingestion)** | Timer inside backend (`IngestionIntervalSeconds`, default 3600s) | logs.tf → validate → insert raw rows into MariaDB → refresh the DuckDB analytics fact table | [ingestion-pipeline.md](./ingestion-pipeline.md) |
+| **Read (serving)** | User HTTP request | Angular → nginx → controller → MediatR query → repository → parametrized aggregation over the DuckDB analytics store | [request-flow.md](./request-flow.md) |
+
+The two stores have distinct roles: **MariaDB** is the row-oriented **system of
+record** for raw ingested data; **DuckDB** is a **derived, columnar analytics cache**
+that serves leaderboards by aggregating on the fly ([analytics-store.md](./analytics-store.md)).
 
 ## .NET solution structure
 
-The backend is a `net7.0` solution ([`dotnet/dotnet.sln`](../../dotnet/dotnet.sln))
+The backend is a `net10.0` solution ([`dotnet/dotnet.sln`](../../dotnet/dotnet.sln))
 of eight projects in a strict layered dependency graph. Dependencies point
 inward/downward only.
 
@@ -127,7 +135,7 @@ flowchart TD
 |---------|----------------|
 | `TF2SA.Common` | Domain models, logs.tf response models (`GameLogModel`, `LogListModel`), `Player`/class stat domains, constants (`ClassId`, `TeamId`), `Error` base type. References SteamKit2. |
 | `TF2SA.Http` | HTTP client abstraction (`IHttpClient`/`TF2SAHttpClient`), JSON serialization, typed clients for logs.tf (`LogsTFService`) and Steam (`SteamService`). |
-| `TF2SA.Data` | EF Core `DbContext` (scaffolded from the live DB — see [ADR 0004](../decisions/0004-database-first-ef-scaffolding.md)), entities, repositories, stored-proc callers, AutoMapper profiles. Uses Pomelo MySQL provider. |
+| `TF2SA.Data` | EF Core `DbContext` for the raw tables (scaffolded from the live DB — see [ADR 0004](../decisions/0004-database-first-ef-scaffolding.md)), entities, repositories, AutoMapper profiles (Pomelo MySQL provider), plus the DuckDB-backed analytics repository and fact-table refresh ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)). |
 | `TF2SA.Query` | Read side. One MediatR query + handler per leaderboard (class × recent/all-time) plus players. See [ADR 0003](../decisions/0003-cqrs-read-side-with-mediatr.md). |
 | `TF2SA.StatsETLService` | The ingestion pipeline (fetch → validate → insert → aggregate) and the `StatsETLServiceRunner` hosted service. Also contains an **unused** standalone Worker `Program.cs`. |
 | `TF2SA.Web` | Versioned API controllers (`v1`), Swagger, CORS, forwarded-headers config. Composition root that wires ETL + queries and is the deployed entrypoint. |
@@ -138,16 +146,16 @@ flowchart TD
 
 | Concern | Choice | Notes |
 |---------|--------|-------|
-| Backend runtime | .NET 7 / ASP.NET Core | Single process serves API + hosts ETL. **.NET 7 is end-of-life** — see [known-issues.md](../known-issues.md). |
-| ORM / DB access | EF Core 7 + Pomelo MySQL | Database-first scaffolding; the DB schema is the source of truth ([ADR 0004](../decisions/0004-database-first-ef-scaffolding.md)). |
-| Aggregation | MariaDB stored procedures | Heavy leaderboard math runs in SQL, not C# ([ADR 0005](../decisions/0005-sql-stored-procedures-for-aggregation.md)). |
+| Backend runtime | .NET 10 (LTS) / ASP.NET Core | Single process serves API + hosts ETL. Upgraded from the EOL .NET 7 on 2026-07-10. |
+| ORM / DB access (raw) | EF Core 9 + Pomelo MySQL 9 | Database-first scaffolding of the raw tables; the DB schema is the source of truth ([ADR 0004](../decisions/0004-database-first-ef-scaffolding.md)). EF Core is on 9 (not 10) because that is Pomelo's latest provider. |
+| Analytics / aggregation | Embedded **DuckDB** (columnar) | Leaderboards are aggregated on the fly from a derived fact table, in-process — no separate service ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md), [analytics-store.md](./analytics-store.md)). Replaced MariaDB stored procedures ([ADR 0005](../decisions/0005-sql-stored-procedures-for-aggregation.md), superseded). |
 | Read side | MediatR (CQRS-lite) | Thin controllers delegate to query handlers ([ADR 0003](../decisions/0003-cqrs-read-side-with-mediatr.md)). |
 | Error handling | `csharp-monad` (`EitherStrict`/`OptionStrict`) | Errors are returned as values across boundaries, not thrown ([ADR 0002](../decisions/0002-functional-error-handling-with-monads.md)). |
 | Validation | FluentValidation | Applied to logs.tf game logs during ingestion. |
 | Mapping | AutoMapper | Entities ↔ domain ↔ HTTP result models. |
 | External data | logs.tf API, Steam Web API | Match logs and player profile enrichment. |
 | Frontend | Angular 15 + Angular Material | Atomic-design components; RxJS server-driven tables. **Angular 15 is end-of-life** — see [known-issues.md](../known-issues.md). |
-| Database | MariaDB 10.6 | Schema + procs seeded at container init. |
+| Database (system of record) | MariaDB 10.6 | Raw-table schema seeded at container init. |
 | Reverse proxy / TLS | nginx + certbot (Let's Encrypt) | Serves SPA static files, proxies `/api`. |
 | Packaging | Docker + Docker Compose | Five-container topology. |
 | CI/CD | GitHub Actions | CI builds images on PR; CD builds/tests/pushes and deploys to EC2 over SSH. |
@@ -161,8 +169,10 @@ flowchart TD
 - **The database schema is authoritative.** Entities in `TF2SA.Data/Entities/MariaDb`
   are **generated** by `scaffold.sh` from the live DB. Change SQL first, then
   re-scaffold — hand-edits get overwritten. See [database.md](./database.md).
-- **Leaderboard math lives in SQL.** To change how a stat is computed, edit the
-  relevant `scripts/mariadb/update_*_stats.sql` procedure, not C#.
+- **Leaderboard math lives in the analytics store.** To change how a stat is
+  computed — or the recent-window length or the games threshold — edit the DuckDB
+  aggregation query, not the schema. There are no per-class/per-window tables or
+  stored procedures to keep in sync ([analytics-store.md](./analytics-store.md)).
 - **Read side is CQRS.** Adding an endpoint usually means a new MediatR query +
   handler + result model + a thin controller action.
 - **Formatting is enforced.** C# uses [CSharpier](../../dotnet/.csharpierrc) (tabs,
