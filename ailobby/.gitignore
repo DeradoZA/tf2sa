@@ -1,0 +1,7 @@
+.env
+director/.venv/
+director/**/__pycache__/
+director/.pytest_cache/
+director/*.egg-info/
+# intermediate compile output; the committed copy lives in server/addons-overlay/
+plugin/ailobby.smx

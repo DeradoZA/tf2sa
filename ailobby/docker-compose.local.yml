@@ -1,0 +1,6 @@
+# Local (WSL2) overrides. No GSLT token needed for direct `connect ip:port`.
+services:
+  tf2:
+    restart: "no"
+  director:
+    restart: "no"

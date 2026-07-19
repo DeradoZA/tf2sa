@@ -18,6 +18,10 @@ Environments running the solution require the following configuration injected a
 
 Data extraction from the logs.tf API is done through a python script which inputs the data into a MariaDB database. This data is then used in the ASP.NET Web Application that we have created to be able to properly display player performance statistics to all those who are interested.
 
+# AI Lobby (experimental)
+
+[`ailobby/`](ailobby/README.md) is a self-contained proof of concept for AI-driven practice lobbies: a TF2 server whose bots get a human-feeling voice (and eventually behaviour) from an LLM-backed director. See its README and docs for architecture and runbooks.
+
 ![Leaderboards Showcase](Images/Leaderboards.png)
 
 # Dad Jokes

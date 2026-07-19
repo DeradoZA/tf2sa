@@ -1,0 +1,10 @@
+# VPS overrides. Requires SRCDS_TOKEN and LOG_SECRET in .env.
+# Firewall checklist (see docs/runbook-vps.md):
+#   - 27015/udp open (game traffic)
+#   - 27015/tcp restricted to admin IPs only (RCON binds publicly under host net)
+#   - 27100/udp blocked from outside (director log listener is localhost-only use)
+services:
+  tf2:
+    restart: unless-stopped
+  director:
+    restart: unless-stopped

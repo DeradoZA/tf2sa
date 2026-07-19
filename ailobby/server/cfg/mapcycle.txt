@@ -1,0 +1,5 @@
+// AI Lobby map rotation — ONLY maps with a shipped nav mesh + good stock TFBot
+// support. Nav-less maps (e.g. ctf_sawmill) leave bots frozen in spawn, so they
+// must never be in this list. Start conservative; add a map here only after
+// confirming bots actually fight on it (watch the log for "killed" lines).
+koth_viaduct

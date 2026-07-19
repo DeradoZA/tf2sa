@@ -1,0 +1,62 @@
+# AI Lobby base rig — shared by local (WSL2) and VPS deployments.
+#
+# Both services use host networking deliberately: logaddress_add 127.0.0.1:27100
+# and RCON at 127.0.0.1:27015 are then identical on both rigs — no per-rig
+# networking drift. Run with:
+#   docker compose -p ailobby -f docker-compose.yml -f docker-compose.local.yml up -d
+name: ailobby
+
+services:
+  tf2:
+    # Derived from cm2network/tf2:sourcemod (32-bit srcds + MetaMod + SourceMod).
+    # We build rather than bind-mount so the plugin/cfgs are copied into the game
+    # dir AFTER SM installs — bind-mounting into tf/addons breaks the SM install.
+    build: ./server
+    image: ailobby/tf2:latest
+    network_mode: host
+    environment:
+      - SRCDS_PW=${SERVER_PASSWORD:-}
+      - SRCDS_RCONPW=${RCON_PASSWORD}
+      - SRCDS_STARTMAP=koth_viaduct
+      - SRCDS_TOKEN=${SRCDS_TOKEN:-}
+    volumes:
+      - tf2-data:/home/steam/tf-dedicated
+
+  # Local LLM server (CPU-only by default: no GPU is reserved, so the TF2
+  # client keeps the whole GPU). Pull the model once after first up:
+  #   docker exec ailobby-ollama-1 ollama pull qwen2.5:3b-instruct
+  ollama:
+    image: ollama/ollama:latest
+    network_mode: host
+    environment:
+      - OLLAMA_HOST=127.0.0.1:11434
+    volumes:
+      - ollama-models:/root/.ollama
+
+  director:
+    build: ./director
+    network_mode: host
+    environment:
+      # Backend: "ollama" (local, default) or "anthropic" (needs ANTHROPIC_API_KEY)
+      - LLM_BACKEND=${LLM_BACKEND:-ollama}
+      - OLLAMA_HOST=127.0.0.1:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b-instruct}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - AILOBBY_MODEL=${AILOBBY_MODEL:-claude-haiku-4-5}
+      - RCON_HOST=127.0.0.1
+      - RCON_PORT=27015
+      - RCON_PASSWORD=${RCON_PASSWORD}
+      - LOG_LISTEN_PORT=27100
+      - LOG_SECRET=${LOG_SECRET:-}
+      # INFO = decisions + chat sent; DEBUG = also every raw parsed game event.
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    # Deliberately NOT depends_on tf2: the director tolerates the server being
+    # down (RCON reconnects, log listener just waits), and coupling them means
+    # every director change bounces tf2 into a slow Steam re-validation. Bring
+    # the director up/down freely with: up -d --no-deps director
+    depends_on:
+      - ollama
+
+volumes:
+  tf2-data:
+  ollama-models:
