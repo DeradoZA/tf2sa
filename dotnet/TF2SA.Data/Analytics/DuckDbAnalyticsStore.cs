@@ -31,6 +31,7 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 	private readonly ILogger<DuckDbAnalyticsStore> logger;
 	private readonly string duckDbPath;
 	private readonly string mysqlAttach;
+	private readonly bool logDatabaseQueries;
 	private readonly SemaphoreSlim gate = new(1, 1);
 	private DuckDBConnection? connection;
 
@@ -48,6 +49,13 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 				configuration["TF2SA_ANALYTICS_ENABLED"],
 				out bool enabled
 			) && enabled;
+
+		// Debug:LogDatabaseQueries defaults to false (appsettings.json) and true
+		// locally (appsettings.Development.json): logs every DuckDB SQL statement
+		// and its result. Off in production.
+		logDatabaseQueries = configuration.GetValue<bool>(
+			"Debug:LogDatabaseQueries"
+		);
 
 		duckDbPath =
 			configuration["TF2SA_DUCKDB_PATH"]
@@ -124,7 +132,7 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 			Execute(conn, "DETACH maria;");
 		}
 
-		Execute(conn, LoadEmbeddedSql("Leaderboards.sql"));
+		LoadViews(conn);
 
 		logger.LogInformation(
 			"DuckDB analytics refresh complete: {counts}.",
@@ -223,6 +231,42 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		}
 	}
 
+	// ---- whole-view reads -------------------------------------------------
+
+	public async Task<IReadOnlyList<T>> GetAllAsync<T>(
+		string viewCall,
+		CancellationToken cancellationToken
+	)
+		where T : class, new()
+	{
+		PropertyInfo[] props = typeof(T).GetProperties(
+			BindingFlags.Public | BindingFlags.Instance
+		);
+
+		await gate.WaitAsync(cancellationToken);
+		try
+		{
+			return Query<T>(Connection(), $"SELECT * FROM {viewCall}", props);
+		}
+		finally
+		{
+			gate.Release();
+		}
+	}
+
+	public async Task<T?> GetSingleAsync<T>(
+		string viewCall,
+		CancellationToken cancellationToken
+	)
+		where T : class, new()
+	{
+		IReadOnlyList<T> rows = await GetAllAsync<T>(
+			viewCall,
+			cancellationToken
+		);
+		return rows.Count > 0 ? rows[0] : null;
+	}
+
 	// ---- helpers ----------------------------------------------------------
 
 	private DuckDBConnection Connection()
@@ -231,17 +275,48 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		{
 			connection = new DuckDBConnection($"Data Source={duckDbPath}");
 			connection.Open();
+
+			// Reload the view definitions from the assembly on first use, so a
+			// deploy that changes them takes effect without waiting for a refresh
+			// (which only runs when an ingestion cycle finds new logs). Skipped when
+			// the raw tables are absent — DuckDB resolves table references when a
+			// macro is created, so a fresh file must be populated by a refresh first,
+			// which loads them itself.
+			if (RawTablesExist(connection))
+			{
+				LoadViews(connection);
+			}
 		}
 		return connection;
 	}
 
-	private static List<T> Query<T>(
+	private void LoadViews(DuckDBConnection conn)
+	{
+		Execute(conn, LoadEmbeddedSql("Leaderboards.sql"));
+		Execute(conn, LoadEmbeddedSql("PlayerDetail.sql"));
+	}
+
+	private bool RawTablesExist(DuckDBConnection conn)
+	{
+		string names = string.Join(", ", RawTables.Select(t => $"'{t}'"));
+		return ScalarLong(
+				conn,
+				$"SELECT COUNT(*) FROM duckdb_tables() WHERE table_name IN ({names})"
+			) == RawTables.Length;
+	}
+
+	private List<T> Query<T>(
 		DuckDBConnection conn,
 		string sql,
 		PropertyInfo[] props
 	)
 		where T : new()
 	{
+		if (logDatabaseQueries)
+		{
+			logger.LogInformation("[DuckDB] {Sql}", sql);
+		}
+
 		Dictionary<string, PropertyInfo> byName = props
 			.Where(p => p.CanWrite)
 			.ToDictionary(p => p.Name.ToLowerInvariant());
@@ -254,8 +329,11 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		while (reader.Read())
 		{
 			T row = new();
+			List<string>? rowValues = logDatabaseQueries ? new() : null;
 			for (int i = 0; i < reader.FieldCount; i++)
 			{
+				object? value = reader.IsDBNull(i) ? null : reader.GetValue(i);
+				rowValues?.Add($"{reader.GetName(i)}={value ?? "NULL"}");
 				if (
 					byName.TryGetValue(
 						reader.GetName(i).ToLowerInvariant(),
@@ -263,13 +341,24 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 					)
 				)
 				{
-					object? value = reader.IsDBNull(i)
-						? null
-						: reader.GetValue(i);
 					prop.SetValue(row, Convert(value, prop.PropertyType));
 				}
 			}
+			if (rowValues is not null)
+			{
+				logger.LogInformation(
+					"[DuckDB] -> {Row}",
+					string.Join(", ", rowValues)
+				);
+			}
 			list.Add(row);
+		}
+		if (logDatabaseQueries)
+		{
+			logger.LogInformation(
+				"[DuckDB] -> {Count} row(s) total",
+				list.Count
+			);
 		}
 		return list;
 	}
@@ -296,18 +385,38 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 			);
 	}
 
-	private static void Execute(DuckDBConnection conn, string sql)
+	private void Execute(DuckDBConnection conn, string sql)
 	{
+		if (logDatabaseQueries)
+		{
+			logger.LogInformation("[DuckDB] {Sql}", sql);
+		}
 		using DuckDBCommand command = conn.CreateCommand();
 		command.CommandText = sql;
-		command.ExecuteNonQuery();
+		int rowsAffected = command.ExecuteNonQuery();
+		if (logDatabaseQueries)
+		{
+			logger.LogInformation(
+				"[DuckDB] -> {Rows} row(s) affected",
+				rowsAffected
+			);
+		}
 	}
 
-	private static long ScalarLong(DuckDBConnection conn, string sql)
+	private long ScalarLong(DuckDBConnection conn, string sql)
 	{
+		if (logDatabaseQueries)
+		{
+			logger.LogInformation("[DuckDB] {Sql}", sql);
+		}
 		using DuckDBCommand command = conn.CreateCommand();
 		command.CommandText = sql;
-		return System.Convert.ToInt64(command.ExecuteScalar());
+		long result = System.Convert.ToInt64(command.ExecuteScalar());
+		if (logDatabaseQueries)
+		{
+			logger.LogInformation("[DuckDB] -> {Result}", result);
+		}
+		return result;
 	}
 
 	private static string LoadEmbeddedSql(string endsWith)

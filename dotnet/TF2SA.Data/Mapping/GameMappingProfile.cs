@@ -7,6 +7,7 @@ using PlayerDomain = TF2SA.Common.Models.Core.Player;
 using TF2SA.Common.Models.LogsTF.Constants;
 using TF2SA.Http.Steam.Models.PlayerSummaries;
 using TF2SA.Common.Models.Core;
+using TF2SA.Data.Analytics.PlayerDetail;
 
 namespace TF2SA.Data.Mapping;
 
@@ -74,5 +75,8 @@ public class GameMappingProfile : Profile
 		CreateMap<MedicAllTime, MedicStatDomain>();
 		CreateMap<OverallStatsRecent, OverallStatDomain>();
 		CreateMap<OverallStatsAllTime, OverallStatDomain>();
+		CreateMap<PlayerSummaryRow, PlayerSummaryDomain>();
+		CreateMap<PlayerProgressionRow, PlayerProgressionPointDomain>();
+		CreateMap<PlayerClassSplitRow, PlayerClassSplitDomain>();
 	}
 }

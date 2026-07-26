@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Analytics\Leaderboards.sql" />
+    <EmbeddedResource Include="Analytics\PlayerDetail.sql" />
   </ItemGroup>
 
   <ItemGroup>

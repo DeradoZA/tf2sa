@@ -37,4 +37,26 @@ public interface IAnalyticsStore
 		CancellationToken cancellationToken
 	)
 		where T : class, new();
+
+	/// <summary>
+	/// Read every row of a view (e.g. <c>player_progression(76561…, 'month')</c>),
+	/// mapped onto <typeparamref name="T"/> by case-insensitive column name. For views
+	/// that are already complete and ordered — no paging, sorting, or filtering is
+	/// applied, unlike <see cref="GetPageAsync"/>.
+	/// </summary>
+	Task<IReadOnlyList<T>> GetAllAsync<T>(
+		string viewCall,
+		CancellationToken cancellationToken
+	)
+		where T : class, new();
+
+	/// <summary>
+	/// Read the first row of a view, or <c>null</c> when it returns none. Views used
+	/// here must return zero rows for "no such thing" rather than a row of NULLs.
+	/// </summary>
+	Task<T?> GetSingleAsync<T>(
+		string viewCall,
+		CancellationToken cancellationToken
+	)
+		where T : class, new();
 }

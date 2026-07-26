@@ -1,6 +1,8 @@
 using AutoMapper;
 using TF2SA.Common.Models.Core;
+using TF2SA.Query.Queries.GetPlayerDetail;
 using TF2SA.Query.Queries.GetPlayers;
+using TF2SA.Query.Queries.GetPlayersComparison;
 using TF2SA.Query.Queries.Statistics.Demoman;
 using TF2SA.Query.Queries.Statistics.Medic;
 using TF2SA.Query.Queries.Statistics.Overall;
@@ -21,6 +23,17 @@ public class HttpMappingProfile : Profile
 	{
 		CreateMap<GetPlayersResult, GetPlayersHttpResult>();
 		CreateMap<Player, PlayerHttpResult>();
+
+		CreateMap<GetPlayerDetailResult, GetPlayerDetailHttpResult>();
+		CreateMap<PlayerSummaryDomain, PlayerSummaryHttpResult>();
+		CreateMap<
+			PlayerProgressionPointDomain,
+			PlayerProgressionPointHttpResult
+		>();
+		CreateMap<PlayerClassSplitDomain, PlayerClassSplitHttpResult>();
+
+		CreateMap<GetPlayersComparisonResult, GetPlayersComparisonHttpResult>();
+		CreateMap<PlayerComparisonDomain, PlayerComparisonHttpResult>();
 
 		CreateMap<GetScoutStatsResult, GetScoutStatsHttpResult>();
 		CreateMap<ScoutStatDomain, ScoutStatHttpResult>();
