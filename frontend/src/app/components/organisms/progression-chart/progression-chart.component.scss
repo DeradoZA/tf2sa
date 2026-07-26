@@ -1,0 +1,96 @@
+.progression-card {
+	margin: 0 0 1rem;
+	padding: 1rem 1.25rem 0.5rem;
+}
+
+.chart-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.chart-title {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 500;
+}
+
+.chart-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+
+	// Material form fields reserve room for hint text; this toolbar has none, so
+	// reclaim it rather than letting it push the chart down.
+	.stat-select,
+	.class-select {
+		min-width: 13rem;
+		margin-bottom: -1.25rem;
+	}
+
+	.class-select {
+		min-width: 10rem;
+	}
+}
+
+.chart-wrapper {
+	height: clamp(20rem, 45vh, 32rem);
+	width: 100%;
+	// Darker than the card (#424242) it sits in: validated (dataviz palette
+	// validator, --mode dark --surface #262626) so every categorical slot clears the
+	// 3:1 contrast obligation. At the card's own surface, 5 of 6 slots fail it.
+	background: #262626;
+	border-radius: 4px;
+}
+
+.no-data {
+	opacity: 0.7;
+	font-style: italic;
+}
+
+// ngx-charts renders its own SVG, so these need ::ng-deep to reach it.
+:host ::ng-deep {
+	.line-series .line {
+		stroke-width: 3px;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	// Default grid is near-white and competes with the series on a dark background.
+	.gridline-path {
+		stroke: rgba(255, 255, 255, 0.08);
+	}
+
+	.tick text {
+		fill: rgba(255, 255, 255, 0.7);
+		font-size: 0.75rem;
+	}
+
+	// ngx-charts' AxisLabelComponent has selector g[ngx-charts-axis-label] and
+	// renders a bare, classless <svg:text> — a plain `.axis-label` class selector
+	// never matches it, which left these labels at the SVG default (black).
+	g[ngx-charts-axis-label] text {
+		fill: rgba(255, 255, 255, 0.85);
+	}
+
+	// Career-average marker: readable but clearly secondary to the series.
+	.refline-path {
+		stroke: rgba(255, 255, 255, 0.45);
+		stroke-dasharray: 6 4;
+		stroke-width: 1.5px;
+	}
+
+	.refline-label {
+		fill: rgba(255, 255, 255, 0.6);
+		font-size: 0.7rem;
+	}
+
+	// Legend text stays in normal text color — the swatch beside it (.legend-label-color)
+	// carries identity, never the text itself.
+	.legend-label-text {
+		color: rgba(255, 255, 255, 0.85);
+	}
+}

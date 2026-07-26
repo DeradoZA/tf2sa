@@ -7,6 +7,11 @@ import {
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { GetPlayersResult } from './getPlayersResult';
+import {
+	GetPlayerDetailResult,
+	ProgressionBucket,
+} from './getPlayerDetailResult';
+import { GetPlayersComparisonResult } from './getPlayersComparisonResult';
 import { environment } from 'src/environments/environment';
 import { DEFAULT_PAGE_SIZE } from '../httpConstants';
 
@@ -34,6 +39,45 @@ export class PlayersService {
 
 		return this.httpClient
 			.get<GetPlayersResult>(PLAYERS_BASE_URL, { params: params })
+			.pipe(catchError(this.handleError));
+	}
+
+	getPlayerDetail(
+		steamId: string,
+		bucket: ProgressionBucket = 'month',
+		classId = 0
+	) {
+		let params = new HttpParams();
+		params = params.append('bucket', bucket);
+		params = params.append('classId', classId.toString());
+
+		return this.httpClient
+			.get<GetPlayerDetailResult>(
+				`${PLAYERS_BASE_URL}/${steamId}/Detail`,
+				{
+					params: params,
+				}
+			)
+			.pipe(catchError(this.handleError));
+	}
+
+	/** steamIds must be non-empty and at most 100 — the backend rejects otherwise (400). */
+	getPlayersComparison(
+		steamIds: string[],
+		bucket: ProgressionBucket = 'month',
+		classId = 0,
+		period: 'recent' | 'alltime' = 'alltime'
+	) {
+		let params = new HttpParams();
+		params = params.append('steamIds', steamIds.join(','));
+		params = params.append('bucket', bucket);
+		params = params.append('classId', classId.toString());
+		params = params.append('period', period);
+
+		return this.httpClient
+			.get<GetPlayersComparisonResult>(`${PLAYERS_BASE_URL}/Compare`, {
+				params: params,
+			})
 			.pipe(catchError(this.handleError));
 	}
 

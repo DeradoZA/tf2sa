@@ -21,6 +21,18 @@ a {
 	color: white;
 }
 
+// Distinct from the plain white icon-links above (steam profile, top kills/damage):
+// this is the one link in the row meant to read as clearly clickable at a glance.
+.player-name-link {
+	color: $tf2sa-text;
+	text-decoration: underline;
+	cursor: pointer;
+
+	&:hover {
+		opacity: 0.8;
+	}
+}
+
 .table-container {
 	background-color: $tf2sa-background;
 	border-radius: 8px;

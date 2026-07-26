@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/pages/home/home.component';
-import { PlayerComponent } from './components/pages/player/player.component';
 import { PlayersComponent } from './components/pages/players/players.component';
 import { DemomanStatsComponent } from './components/pages/stats/demoman-stats/demoman-stats.component';
 import { MedicStatsComponent } from './components/pages/stats/medic-stats/medic-stats.component';
@@ -26,7 +25,14 @@ const routes: Routes = [
 		],
 	},
 	{ path: ROUTES.PLAYERS, component: PlayersComponent },
-	{ path: ROUTES.PLAYER, component: PlayerComponent },
+	{
+		// Lazy: keeps ngx-charts/d3 out of the initial bundle.
+		path: ROUTES.PLAYER,
+		loadChildren: () =>
+			import('./components/pages/player/player.module').then(
+				(m) => m.PlayerModule
+			),
+	},
 	{ path: '', redirectTo: ROUTES.HOME, pathMatch: 'full' },
 	{ path: '**', redirectTo: ROUTES.HOME },
 ];

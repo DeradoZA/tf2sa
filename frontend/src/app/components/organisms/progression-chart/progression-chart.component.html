@@ -1,0 +1,75 @@
+<mat-card class="progression-card">
+	<div class="chart-toolbar">
+		<h2 class="chart-title">Progression over time</h2>
+
+		<div class="chart-controls">
+			<mat-form-field
+				appearance="fill"
+				class="class-select"
+				*ngIf="classOptions && classOptions.length"
+			>
+				<mat-label>Class</mat-label>
+				<mat-select
+					[value]="classId"
+					(selectionChange)="onClassSelect($event.value)"
+				>
+					<mat-option
+						*ngFor="let option of classOptions"
+						[value]="option.classId"
+					>
+						{{ option.label }}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field appearance="fill" class="stat-select">
+				<mat-label>Stat</mat-label>
+				<mat-select
+					[value]="selectedStat"
+					(selectionChange)="onStatChange($event.value)"
+				>
+					<mat-option
+						*ngFor="let option of statOptions"
+						[value]="option.key"
+					>
+						{{ option.label }}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
+
+			<mat-button-toggle-group
+				[value]="bucket"
+				(change)="onBucketToggle($event.value)"
+			>
+				<mat-button-toggle value="month">Monthly</mat-button-toggle>
+				<mat-button-toggle value="week">Weekly</mat-button-toggle>
+			</mat-button-toggle-group>
+		</div>
+	</div>
+
+	<div class="chart-wrapper" *ngIf="hasData; else noData">
+		<ngx-charts-line-chart
+			[results]="chartData"
+			[scheme]="colorScheme"
+			[customColors]="customColors"
+			[xAxis]="true"
+			[yAxis]="true"
+			[showXAxisLabel]="true"
+			[showYAxisLabel]="true"
+			[xAxisLabel]="xAxisLabel"
+			[yAxisLabel]="selectedLabel"
+			[autoScale]="true"
+			[legend]="showLegend"
+			[legendPosition]="legendPosition"
+			[roundDomains]="true"
+			[showRefLines]="true"
+			[showRefLabels]="true"
+			[referenceLines]="referenceLines"
+		>
+		</ngx-charts-line-chart>
+	</div>
+
+	<ng-template #noData>
+		<p class="no-data">No games recorded for this stat yet.</p>
+	</ng-template>
+</mat-card>
