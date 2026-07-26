@@ -12,9 +12,6 @@ namespace TF2SA.Data.Analytics;
 /// </summary>
 public interface IAnalyticsStore
 {
-	/// <summary>Whether the analytics store is enabled (config-driven).</summary>
-	bool Enabled { get; }
-
 	/// <summary>
 	/// Insert a fully-populated game (with its PlayerStats/ClassStats/WeaponStats
 	/// graph) in one transaction, rolled back whole on any failure. Surrogate keys

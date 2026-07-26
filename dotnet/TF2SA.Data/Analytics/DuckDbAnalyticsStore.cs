@@ -30,20 +30,12 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 	private readonly SemaphoreSlim gate = new(1, 1);
 	private DuckDBConnection? connection;
 
-	public bool Enabled { get; }
-
 	public DuckDbAnalyticsStore(
 		IConfiguration configuration,
 		ILogger<DuckDbAnalyticsStore> logger
 	)
 	{
 		this.logger = logger;
-
-		Enabled =
-			bool.TryParse(
-				configuration["TF2SA_ANALYTICS_ENABLED"],
-				out bool enabled
-			) && enabled;
 
 		// Debug:LogDatabaseQueries defaults to false (appsettings.json) and true
 		// locally (appsettings.Development.json): logs every DuckDB SQL statement

@@ -11,8 +11,7 @@ public static class DependencyInjection
 		IConfiguration configuration
 	)
 	{
-		// DuckDB store (ADR 0008, ADR 0009) — the only database. Enabled via
-		// TF2SA_ANALYTICS_ENABLED.
+		// DuckDB store (ADR 0008, ADR 0009) — the only database.
 		services.AddSingleton<IAnalyticsStore, DuckDbAnalyticsStore>();
 	}
 }

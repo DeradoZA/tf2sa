@@ -29,15 +29,6 @@ public class GetPlayerDetailQueryHandler
 		CancellationToken cancellationToken
 	)
 	{
-		// This view exists only on the analytics store — there is no pre-aggregated
-		// MariaDB table to fall back to, unlike the leaderboard handlers.
-		if (!analyticsStore.Enabled)
-		{
-			return new DatabaseError(
-				"Analytics store is disabled; player detail is unavailable."
-			);
-		}
-
 		// Whitelisted: the bucket reaches SQL as a literal, so it must never be
 		// caller-controlled text. SteamId is a ulong, so it can only render as digits.
 		string bucket = AllowedBuckets.Contains(

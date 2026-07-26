@@ -30,15 +30,6 @@ public class GetPlayersComparisonQueryHandler
 		CancellationToken cancellationToken
 	)
 	{
-		// This view exists only on the analytics store — there is no pre-aggregated
-		// MariaDB table to fall back to, unlike the leaderboard handlers.
-		if (!analyticsStore.Enabled)
-		{
-			return new DatabaseError(
-				"Analytics store is disabled; player comparison is unavailable."
-			);
-		}
-
 		// Whitelisted: both values reach SQL as literals, so neither may be
 		// caller-controlled text. steamIds is a ulong list — a ulong can only render
 		// as digits — guarded further at the controller (parsed, count capped at 6).
