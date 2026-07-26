@@ -163,6 +163,34 @@ path (create the directory first if migrating before the first deploy of the new
 image), confirm row counts match MariaDB, then deploy — MariaDB can be decommissioned
 once the new backend is confirmed healthy against the migrated file.
 
+## One-time data backfill: player descriptions
+
+`Players.Description` (added by a schema migration, so a normal deploy adds the
+column automatically — `tf2sa-backend` runs `Schema.sql` unconditionally on its
+first connection) is populated separately, since the text itself is hand-authored
+data, not schema. `scripts/player-descriptions.sql` needs to run once against
+production after the first deploy that includes the column:
+
+```sh
+# DuckDB requires exclusive access for writes, and tf2sa-backend holds the file
+# open continuously — stop it first, run the script directly against the file,
+# then start it again. A few seconds of downtime, no data at risk (the script is
+# UPDATE-only, and this can be re-run safely if interrupted).
+sudo docker-compose stop tf2sa-backend
+
+# duckdb CLI version must match DuckDB.NET.Data.Full's pinned version
+# (dotnet/TF2SA.Data/TF2SA.Data.csproj) for file-format compatibility.
+curl -L https://github.com/duckdb/duckdb/releases/download/v1.5.3/duckdb_cli-linux-amd64.zip -o /tmp/duckdb_cli.zip
+unzip /tmp/duckdb_cli.zip -d /tmp
+/tmp/duckdb /home/ubuntu/tf2sa-data/analytics.duckdb < scripts/player-descriptions.sql
+
+sudo docker-compose start tf2sa-backend
+```
+
+Re-run this any time new players cross the 20-game threshold used when the
+descriptions were authored (see `scripts/player-narrative-facts.sql`) and you want
+them to get a hand-written description instead of the generic fallback.
+
 ## Historical note
 
 Production previously ran on **Oracle Cloud** and was migrated to **AWS EC2**. A
