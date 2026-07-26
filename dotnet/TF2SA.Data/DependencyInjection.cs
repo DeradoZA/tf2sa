@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TF2SA.Data.Analytics;
 using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Logging;
 using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
@@ -23,16 +24,29 @@ public static class DependencyInjection
 		string connectionString =
 			$"server={configuration["TF2SA_MYSQL_HOST"]};user={configuration["TF2SA_MYSQL_USR"]};password={configuration["TF2SA_MYSQL_PWD"]};database={configuration["TF2SA_MYSQL_DB"]}";
 		MySqlServerVersion serverVersion = new(new Version(10, 6, 0));
-		services.AddDbContext<TF2SADbContext>(
-			dbContextOptions =>
-				dbContextOptions
-					.UseMySql(connectionString, serverVersion)
-					// The following three options help with debugging, but should
-					// be changed or removed for production.
-					.LogTo(Console.WriteLine, LogLevel.Warning)
-		//.EnableSensitiveDataLogging()
-		//.EnableDetailedErrors(),
+
+		// Debug:LogDatabaseQueries defaults to false (appsettings.json) and true
+		// locally (appsettings.Development.json): logs SQL, parameter values, and
+		// affected row counts to the console. Off in production.
+		bool logDatabaseQueries = configuration.GetValue<bool>(
+			"Debug:LogDatabaseQueries"
 		);
+		services.AddDbContext<TF2SADbContext>(dbContextOptions =>
+		{
+			dbContextOptions
+				.UseMySql(connectionString, serverVersion)
+				.LogTo(
+					Console.WriteLine,
+					logDatabaseQueries ? LogLevel.Information : LogLevel.Warning
+				)
+				.EnableSensitiveDataLogging(logDatabaseQueries);
+			if (logDatabaseQueries)
+			{
+				dbContextOptions.AddInterceptors(
+					new SaveChangesResultLoggingInterceptor()
+				);
+			}
+		});
 
 		services.AddScoped<
 			IPlayersRepository<Player, ulong>,
