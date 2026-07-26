@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Monad;
 using TF2SA.Common.Errors;
@@ -39,7 +38,6 @@ public partial class StatisticsController : ControllerBase
 	private readonly GetMedicAllTimeQueryHandler getMedicAllTimeHandler;
 	private readonly GetOverallRecentQueryHandler getOverallRecentHandler;
 	private readonly GetOverallAllTimeQueryHandler getOverallAllTimeHandler;
-	private readonly IMapper mapper;
 
 	public StatisticsController(
 		GetScoutRecentQueryHandler getScoutRecentHandler,
@@ -51,8 +49,7 @@ public partial class StatisticsController : ControllerBase
 		GetMedicRecentQueryHandler getMedicRecentHandler,
 		GetMedicAllTimeQueryHandler getMedicAllTimeHandler,
 		GetOverallRecentQueryHandler getOverallRecentHandler,
-		GetOverallAllTimeQueryHandler getOverallAllTimeHandler,
-		IMapper mapper
+		GetOverallAllTimeQueryHandler getOverallAllTimeHandler
 	)
 	{
 		this.getScoutRecentHandler = getScoutRecentHandler;
@@ -65,6 +62,5 @@ public partial class StatisticsController : ControllerBase
 		this.getMedicAllTimeHandler = getMedicAllTimeHandler;
 		this.getOverallRecentHandler = getOverallRecentHandler;
 		this.getOverallAllTimeHandler = getOverallAllTimeHandler;
-		this.mapper = mapper;
 	}
 }

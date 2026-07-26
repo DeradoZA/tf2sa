@@ -1,11 +1,11 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Query.Queries.GetPlayerDetail;
 using TF2SA.Query.Queries.GetPlayers;
 using TF2SA.Query.Queries.GetPlayersComparison;
 using TF2SA.Web.Controllers.V1.Players.Models;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Players;
 
@@ -16,19 +16,16 @@ public class PlayersController : ControllerBase
 	private readonly GetPlayersQueryHandler getPlayersHandler;
 	private readonly GetPlayerDetailQueryHandler getPlayerDetailHandler;
 	private readonly GetPlayersComparisonQueryHandler getPlayersComparisonHandler;
-	private readonly IMapper mapper;
 
 	public PlayersController(
 		GetPlayersQueryHandler getPlayersHandler,
 		GetPlayerDetailQueryHandler getPlayerDetailHandler,
-		GetPlayersComparisonQueryHandler getPlayersComparisonHandler,
-		IMapper mapper
+		GetPlayersComparisonQueryHandler getPlayersComparisonHandler
 	)
 	{
 		this.getPlayersHandler = getPlayersHandler;
 		this.getPlayerDetailHandler = getPlayerDetailHandler;
 		this.getPlayersComparisonHandler = getPlayersComparisonHandler;
-		this.mapper = mapper;
 	}
 
 	[HttpGet]
@@ -56,10 +53,7 @@ public class PlayersController : ControllerBase
 		{
 			return BadRequest(result.Left.Message);
 		}
-		GetPlayersHttpResult playersHttpResult =
-			mapper.Map<GetPlayersHttpResult>(result.Right);
-
-		return Ok(playersHttpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	/// <summary>
@@ -87,7 +81,7 @@ public class PlayersController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		return Ok(mapper.Map<GetPlayerDetailHttpResult>(result.Right));
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	// Matches the largest page-size option on the leaderboards (frontend
@@ -157,6 +151,6 @@ public class PlayersController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		return Ok(mapper.Map<GetPlayersComparisonHttpResult>(result.Right));
+		return Ok(result.Right.ToHttpResult());
 	}
 }

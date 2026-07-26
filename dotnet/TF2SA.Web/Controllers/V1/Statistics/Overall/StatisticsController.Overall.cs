@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Overall;
 using TF2SA.Query.Queries.Statistics.Overall.GetOverallAllTime;
 using TF2SA.Query.Queries.Statistics.Overall.GetOverallRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Overall;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -39,10 +40,7 @@ public partial class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetOverallStatsHttpResult httpResult =
-			mapper.Map<GetOverallStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -76,9 +74,6 @@ public partial class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetOverallStatsHttpResult httpResult =
-			mapper.Map<GetOverallStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }

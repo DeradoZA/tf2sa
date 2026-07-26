@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Scout;
 using TF2SA.Query.Queries.Statistics.Scout.GetScoutAllTime;
 using TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Scout;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -39,10 +40,7 @@ public partial class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetScoutStatsHttpResult httpResult =
-			mapper.Map<GetScoutStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -74,9 +72,6 @@ public partial class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetScoutStatsHttpResult httpResult =
-			mapper.Map<GetScoutStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }

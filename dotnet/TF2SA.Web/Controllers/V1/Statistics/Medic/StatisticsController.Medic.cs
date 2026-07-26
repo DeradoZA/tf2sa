@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Medic;
 using TF2SA.Query.Queries.Statistics.Medic.GetMedicAllTime;
 using TF2SA.Query.Queries.Statistics.Medic.GetMedicRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Medic;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -39,10 +40,7 @@ public partial class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetMedicStatsHttpResult httpResult =
-			mapper.Map<GetMedicStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -74,9 +72,6 @@ public partial class StatisticsController : ControllerBase
 			return BadRequest(result.Left.Message);
 		}
 
-		GetMedicStatsHttpResult httpResult =
-			mapper.Map<GetMedicStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }
