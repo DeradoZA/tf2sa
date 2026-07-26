@@ -6,31 +6,26 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
 
 namespace TF2SA.Data.Analytics;
 
 /// <summary>
-/// DuckDB-backed analytics store (ADR 0008). <see cref="RefreshAsync"/> copies the
-/// raw tables from MariaDB (via DuckDB's mysql scanner) into a columnar DuckDB file
-/// and installs the leaderboard macros; <see cref="GetPageAsync"/> serves paged,
-/// sorted, filtered reads of a board. The file is a derived, rebuildable cache —
-/// MariaDB stays the system of record. One connection is shared and access is
-/// serialized (single writer at refresh, fast reads), which suits this scale.
+/// DuckDB-backed store (ADR 0008, ADR 0009). Schema.sql creates the raw tables and
+/// sequences (idempotent — a no-op once they exist); Leaderboards.sql/PlayerDetail.sql
+/// install the read macros. Ingestion writes land directly in the raw tables via
+/// InsertGameAsync/UpsertPlayersAsync/UpdatePlayersAsync, so a write is immediately
+/// visible to every read — there is no refresh step and no second database. One
+/// connection is shared and access is serialized (a semaphore, not connection
+/// pooling), which suits this scale and incidentally makes the player-upsert race a
+/// concurrent EF ingestion used to hit impossible: every write, from every log, now
+/// goes through the same single queue.
 /// </summary>
 public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 {
-	private static readonly string[] RawTables =
-	{
-		"Players",
-		"Games",
-		"PlayerStats",
-		"ClassStats"
-	};
-
 	private readonly ILogger<DuckDbAnalyticsStore> logger;
 	private readonly string duckDbPath;
-	private readonly string mysqlAttach;
 	private readonly bool logDatabaseQueries;
 	private readonly SemaphoreSlim gate = new(1, 1);
 	private DuckDBConnection? connection;
@@ -60,44 +55,71 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		duckDbPath =
 			configuration["TF2SA_DUCKDB_PATH"]
 			?? Path.Combine(Path.GetTempPath(), "tf2sa-analytics.duckdb");
-
-		string host = Escape(configuration["TF2SA_MYSQL_HOST"] ?? "localhost");
-		string port = Escape(configuration["TF2SA_MYSQL_PORT"] ?? "3306");
-		string user = Escape(configuration["TF2SA_MYSQL_USR"] ?? "root");
-		string password = Escape(configuration["TF2SA_MYSQL_PWD"] ?? "");
-		string database = Escape(configuration["TF2SA_MYSQL_DB"] ?? "tf2sa_db");
-		mysqlAttach =
-			$"host={host} port={port} user={user} password={password} database={database}";
 	}
 
-	// ---- refresh ----------------------------------------------------------
+	// ---- writes -------------------------------------------------------------
 
-	public async Task<OptionStrict<Error>> RefreshAsync(
+	public async Task<OptionStrict<Error>> InsertGameAsync(
+		GameWrite game,
 		CancellationToken cancellationToken
 	)
 	{
-		if (!Enabled)
-		{
-			logger.LogInformation(
-				"Analytics store disabled; skipping DuckDB refresh."
-			);
-			return OptionStrict<Error>.Nothing;
-		}
-
 		await gate.WaitAsync(cancellationToken);
 		try
 		{
-			Rebuild(cancellationToken);
-			return OptionStrict<Error>.Nothing;
-		}
-		catch (OperationCanceledException)
-		{
-			throw;
+			DuckDBConnection conn = Connection();
+			DbTransaction transaction = conn.BeginTransaction();
+			try
+			{
+				InsertGameRow(conn, game);
+				foreach (PlayerStatWrite playerStat in game.PlayerStats)
+				{
+					long playerStatsId = NextVal(conn, "seq_playerstats");
+					InsertPlayerStatRow(
+						conn,
+						game.GameId,
+						playerStatsId,
+						playerStat
+					);
+					foreach (ClassStatWrite classStat in playerStat.ClassStats)
+					{
+						long classStatsId = NextVal(conn, "seq_classstats");
+						InsertClassStatRow(
+							conn,
+							playerStatsId,
+							classStatsId,
+							classStat
+						);
+						foreach (
+							WeaponStatWrite weaponStat in classStat.WeaponStats
+						)
+						{
+							long weaponStatsId = NextVal(
+								conn,
+								"seq_weaponstats"
+							);
+							InsertWeaponStatRow(
+								conn,
+								classStatsId,
+								weaponStatsId,
+								weaponStat
+							);
+						}
+					}
+				}
+				transaction.Commit();
+				return OptionStrict<Error>.Nothing;
+			}
+			catch
+			{
+				transaction.Rollback();
+				throw;
+			}
 		}
 		catch (Exception e)
 		{
 			return new DatabaseError(
-				$"DuckDB analytics refresh failed: {e.Message}"
+				$"Failed to insert game {game.GameId}: {e.Message}"
 			);
 		}
 		finally
@@ -106,45 +128,249 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		}
 	}
 
-	private void Rebuild(CancellationToken cancellationToken)
+	public async Task<OptionStrict<Error>> UpsertPlayersAsync(
+		IEnumerable<PlayerWrite> players,
+		CancellationToken cancellationToken
+	)
 	{
-		logger.LogInformation(
-			"Refreshing DuckDB analytics store at {path} from MariaDB.",
-			duckDbPath
-		);
-
-		DuckDBConnection conn = Connection();
-		Execute(conn, "INSTALL mysql; LOAD mysql;");
-		Execute(conn, $"ATTACH '{mysqlAttach}' AS maria (TYPE mysql, READ_ONLY);");
+		await gate.WaitAsync(cancellationToken);
 		try
 		{
-			foreach (string table in RawTables)
+			DuckDBConnection conn = Connection();
+			foreach (PlayerWrite player in players)
 			{
-				cancellationToken.ThrowIfCancellationRequested();
-				Execute(
+				ExecuteParameterized(
 					conn,
-					$"CREATE OR REPLACE TABLE {table} AS SELECT * FROM maria.{table};"
+					@"INSERT INTO Players
+						(SteamID, PlayerName, LocalCountryCode, ProfileUrl, Avatar,
+						 AvatarMedium, AvatarFull, AvatarHash, RealName)
+					  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+					  ON CONFLICT (SteamID) DO NOTHING",
+					new object?[]
+					{
+						player.SteamId,
+						player.PlayerName,
+						player.LocalCountryCode,
+						player.ProfileUrl,
+						player.Avatar,
+						player.AvatarMedium,
+						player.AvatarFull,
+						player.AvatarHash,
+						player.RealName,
+					}
 				);
 			}
+			return OptionStrict<Error>.Nothing;
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError($"Failed to upsert players: {e.Message}");
 		}
 		finally
 		{
-			Execute(conn, "DETACH maria;");
+			gate.Release();
 		}
-
-		LoadViews(conn);
-
-		logger.LogInformation(
-			"DuckDB analytics refresh complete: {counts}.",
-			string.Join(
-				", ",
-				RawTables.Select(
-					t =>
-						$"{t}={ScalarLong(conn, $"SELECT COUNT(*) FROM {t}")}"
-				)
-			)
-		);
 	}
+
+	public async Task<OptionStrict<Error>> UpdatePlayersAsync(
+		IEnumerable<PlayerWrite> updatedPlayers,
+		CancellationToken cancellationToken
+	)
+	{
+		await gate.WaitAsync(cancellationToken);
+		try
+		{
+			DuckDBConnection conn = Connection();
+
+			// First-match-wins on a duplicate SteamId, mirroring the .FirstOrDefault()
+			// the EF method this replaces used — never throws on a duplicate key.
+			Dictionary<ulong, PlayerWrite> updatedBySteamId = updatedPlayers
+				.GroupBy(p => p.SteamId)
+				.ToDictionary(g => g.Key, g => g.First());
+
+			PropertyInfo[] idProps = typeof(PlayerIdRow).GetProperties(
+				BindingFlags.Public | BindingFlags.Instance
+			);
+			List<PlayerIdRow> allPlayers = Query<PlayerIdRow>(
+				conn,
+				"SELECT SteamID FROM Players",
+				idProps
+			);
+
+			foreach (PlayerIdRow player in allPlayers)
+			{
+				updatedBySteamId.TryGetValue(
+					player.SteamId,
+					out PlayerWrite? updated
+				);
+
+				// Faithfully preserves PlayersRepository.UpdatePlayers' exact
+				// behaviour (see known-issues.md): a player absent from this batch
+				// has every profile column nulled out, and AvatarHash is set from
+				// the incoming record's Avatar — not its AvatarHash — a pre-existing
+				// copy-paste bug, not something this port introduced.
+				ExecuteParameterized(
+					conn,
+					@"UPDATE Players SET
+						Avatar = ?, AvatarFull = ?, AvatarHash = ?, AvatarMedium = ?,
+						LocalCountryCode = ?, PlayerName = ?, RealName = ?, ProfileUrl = ?
+					  WHERE SteamID = ?",
+					new object?[]
+					{
+						updated?.Avatar,
+						updated?.AvatarFull,
+						updated?.Avatar,
+						updated?.AvatarMedium,
+						updated?.LocalCountryCode,
+						updated?.PlayerName,
+						updated?.RealName,
+						updated?.ProfileUrl,
+						player.SteamId,
+					}
+				);
+			}
+			return OptionStrict<Error>.Nothing;
+		}
+		catch (Exception e)
+		{
+			return new DatabaseError($"Error updating players: {e.Message}");
+		}
+		finally
+		{
+			gate.Release();
+		}
+	}
+
+	private static void InsertGameRow(DuckDBConnection conn, GameWrite g) =>
+		ExecuteParameterized(
+			conn,
+			@"INSERT INTO Games
+				(GameID, IsValidStats, InvalidStatsReason, Version, RedScore, BlueScore,
+				 Duration, Map, IsSupplemental, HasRealDamage, HasWeaponDamage, HasAccuracy,
+				 HasHP, HasHPReal, HasHeadshots, HasHeadshotsHit, HasBackstabs,
+				 HasCapturePointsCaptured, HasSentriesBuilt, HasDamageTaken, HasAirshots,
+				 HasHealsReceived, HasIntelCaptures, HasADScoring, Notifications, Title,
+				 Date, UploaderID, UploaderName, UploaderInfo, Success)
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			new object?[]
+			{
+				g.GameId,
+				g.IsValidStats,
+				g.InvalidStatsReason,
+				g.Version,
+				g.RedScore,
+				g.BlueScore,
+				g.Duration,
+				g.Map,
+				g.IsSupplemental,
+				g.HasRealDamage,
+				g.HasWeaponDamage,
+				g.HasAccuracy,
+				g.HasHp,
+				g.HasHpReal,
+				g.HasHeadshots,
+				g.HasHeadshotsHit,
+				g.HasBackstabs,
+				g.HasCapturePointsCaptured,
+				g.HasSentriesBuilt,
+				g.HasDamageTaken,
+				g.HasAirshots,
+				g.HasHealsReceived,
+				g.HasIntelCaptures,
+				g.HasAdScoring,
+				g.Notifications,
+				g.Title,
+				g.Date,
+				g.UploaderId,
+				g.UploaderName,
+				g.UploaderInfo,
+				g.Success,
+			}
+		);
+
+	private static void InsertPlayerStatRow(
+		DuckDBConnection conn,
+		uint gameId,
+		long playerStatsId,
+		PlayerStatWrite ps
+	) =>
+		ExecuteParameterized(
+			conn,
+			@"INSERT INTO PlayerStats
+				(PlayerStatsID, GameID, SteamID, TeamID, DamageTaken, HealsReceived,
+				 LongestKillStreak, Airshots, Ubers, Drops, Medkits, MedkitsHP, Backstabs,
+				 Headshots, HeadshotsHit, SentriesBuilt, Heals, CapturePointsCaptured, IntelCaptures)
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			new object?[]
+			{
+				playerStatsId,
+				gameId,
+				ps.SteamId,
+				ps.TeamId,
+				ps.DamageTaken,
+				ps.HealsReceived,
+				ps.LongestKillStreak,
+				ps.Airshots,
+				ps.Ubers,
+				ps.Drops,
+				ps.Medkits,
+				ps.MedkitsHp,
+				ps.Backstabs,
+				ps.Headshots,
+				ps.HeadshotsHit,
+				ps.SentriesBuilt,
+				ps.Heals,
+				ps.CapturePointsCaptured,
+				ps.IntelCaptures,
+			}
+		);
+
+	private static void InsertClassStatRow(
+		DuckDBConnection conn,
+		long playerStatsId,
+		long classStatsId,
+		ClassStatWrite cs
+	) =>
+		ExecuteParameterized(
+			conn,
+			@"INSERT INTO ClassStats
+				(ClassStatsID, PlayerStatsID, ClassID, Kills, Assists, Deaths, Damage, Playtime)
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			new object?[]
+			{
+				classStatsId,
+				playerStatsId,
+				cs.ClassId,
+				cs.Kills,
+				cs.Assists,
+				cs.Deaths,
+				cs.Damage,
+				cs.Playtime,
+			}
+		);
+
+	private static void InsertWeaponStatRow(
+		DuckDBConnection conn,
+		long classStatsId,
+		long weaponStatsId,
+		WeaponStatWrite ws
+	) =>
+		ExecuteParameterized(
+			conn,
+			@"INSERT INTO WeaponStats
+				(WeaponStatsID, ClassStatsID, WeaponName, Kills, Damage, Shots, Hits)
+			  VALUES (?, ?, ?, ?, ?, ?, ?)",
+			new object?[]
+			{
+				weaponStatsId,
+				classStatsId,
+				ws.WeaponName,
+				ws.Kills,
+				ws.Damage,
+				ws.Shots,
+				ws.Hits,
+			}
+		);
 
 	// ---- paged reads ------------------------------------------------------
 
@@ -167,18 +393,17 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 
 		// Whitelisted sort: only a real property is orderable (DuckDB resolves the
 		// identifier case-insensitively to the board column). Fall back to default.
-		PropertyInfo? sortProp = props.FirstOrDefault(
-			p => p.Name.Equals(sort, StringComparison.OrdinalIgnoreCase)
+		PropertyInfo? sortProp = props.FirstOrDefault(p =>
+			p.Name.Equals(sort, StringComparison.OrdinalIgnoreCase)
 		);
 		string sortUsed = sortProp is not null ? sort : defaultSortKey;
 		string sortColumn = (
 			sortProp
-			?? props.First(
-				p =>
-					p.Name.Equals(
-						defaultSortKey,
-						StringComparison.OrdinalIgnoreCase
-					)
+			?? props.First(p =>
+				p.Name.Equals(
+					defaultSortKey,
+					StringComparison.OrdinalIgnoreCase
+				)
 			)
 		).Name;
 		string direction = sortOrder.Equals(
@@ -189,10 +414,9 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 			: "DESC";
 
 		// Whitelisted filter: only a string property (e.g. PlayerName) is filterable.
-		PropertyInfo? filterProp = props.FirstOrDefault(
-			p =>
-				p.Name.Equals(filterField, StringComparison.OrdinalIgnoreCase)
-				&& p.PropertyType == typeof(string)
+		PropertyInfo? filterProp = props.FirstOrDefault(p =>
+			p.Name.Equals(filterField, StringComparison.OrdinalIgnoreCase)
+			&& p.PropertyType == typeof(string)
 		);
 		bool applyFilter =
 			filterProp is not null && !string.IsNullOrWhiteSpace(filterValue);
@@ -207,8 +431,10 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		try
 		{
 			DuckDBConnection conn = Connection();
-			int total = (int)
-				ScalarLong(conn, $"SELECT COUNT(*) FROM {boardCall} {where}");
+			int total = (int)ScalarLong(
+				conn,
+				$"SELECT COUNT(*) FROM {boardCall} {where}"
+			);
 			List<T> rows = Query<T>(
 				conn,
 				$"SELECT * FROM {boardCall} {where} "
@@ -276,16 +502,12 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 			connection = new DuckDBConnection($"Data Source={duckDbPath}");
 			connection.Open();
 
-			// Reload the view definitions from the assembly on first use, so a
-			// deploy that changes them takes effect without waiting for a refresh
-			// (which only runs when an ingestion cycle finds new logs). Skipped when
-			// the raw tables are absent — DuckDB resolves table references when a
-			// macro is created, so a fresh file must be populated by a refresh first,
-			// which loads them itself.
-			if (RawTablesExist(connection))
-			{
-				LoadViews(connection);
-			}
+			// Idempotent: creates the raw tables/sequences on a fresh file, no-ops
+			// against an existing one. Then (re)install the macros — this also
+			// covers a deploy that changed their SQL taking effect on first use,
+			// without any refresh cycle to wait for (there is no refresh anymore).
+			Execute(connection, LoadEmbeddedSql("Schema.sql"));
+			LoadViews(connection);
 		}
 		return connection;
 	}
@@ -294,15 +516,6 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 	{
 		Execute(conn, LoadEmbeddedSql("Leaderboards.sql"));
 		Execute(conn, LoadEmbeddedSql("PlayerDetail.sql"));
-	}
-
-	private bool RawTablesExist(DuckDBConnection conn)
-	{
-		string names = string.Join(", ", RawTables.Select(t => $"'{t}'"));
-		return ScalarLong(
-				conn,
-				$"SELECT COUNT(*) FROM duckdb_tables() WHERE table_name IN ({names})"
-			) == RawTables.Length;
 	}
 
 	private List<T> Query<T>(
@@ -403,6 +616,39 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		}
 	}
 
+	/// <summary>
+	/// Executes a parameterized statement — always used for writes, never string
+	/// interpolation, since (unlike the read-side macros, which only interpolate
+	/// internally-whitelisted identifiers) this persists real user-influenced text:
+	/// player names, map names, log titles. Positional <c>?</c> placeholders, bound
+	/// in argument order.
+	/// </summary>
+	private static void ExecuteParameterized(
+		DuckDBConnection conn,
+		string sql,
+		object?[] parameters
+	)
+	{
+		using DuckDBCommand command = conn.CreateCommand();
+		command.CommandText = sql;
+		foreach (object? value in parameters)
+		{
+			command.Parameters.Add(new DuckDBParameter(value ?? DBNull.Value));
+		}
+		command.ExecuteNonQuery();
+	}
+
+	/// <summary>
+	/// Fetches the next value of a sequence — sequenceName is always one of the
+	/// three literals declared in Schema.sql, never caller/user input.
+	/// </summary>
+	private static long NextVal(DuckDBConnection conn, string sequenceName)
+	{
+		using DuckDBCommand command = conn.CreateCommand();
+		command.CommandText = $"SELECT nextval('{sequenceName}')";
+		return (long)command.ExecuteScalar()!;
+	}
+
 	private long ScalarLong(DuckDBConnection conn, string sql)
 	{
 		if (logDatabaseQueries)
@@ -424,15 +670,13 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		Assembly assembly = typeof(DuckDbAnalyticsStore).Assembly;
 		string name = assembly
 			.GetManifestResourceNames()
-			.First(
-				n => n.EndsWith(endsWith, StringComparison.OrdinalIgnoreCase)
+			.First(n =>
+				n.EndsWith(endsWith, StringComparison.OrdinalIgnoreCase)
 			);
 		using Stream stream = assembly.GetManifestResourceStream(name)!;
 		using StreamReader reader = new(stream);
 		return reader.ReadToEnd();
 	}
-
-	private static string Escape(string value) => value.Replace("'", "''");
 
 	private static string EscapeLike(string value) =>
 		value

@@ -25,7 +25,6 @@ public static class DependencyInjection
 			ILogIngestionRepositoryUpdater,
 			LogIngestionRepositoryUpdater
 		>();
-		services.AddScoped<IStatisticsUpdater, StatisticsUpdater>();
 		services.AddHttpServices(configuration);
 		services.AddHostedService<StatsETLServiceRunner>();
 	}
