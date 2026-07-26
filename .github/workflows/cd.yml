@@ -7,10 +7,6 @@ on:
   workflow_dispatch:
 
 env:
-  TF2SA_MYSQL_HOST: ${{ secrets.TF2SA_MYSQL_HOST }}
-  TF2SA_MYSQL_USR: ${{ secrets.TF2SA_MYSQL_USR }}
-  TF2SA_MYSQL_PWD: ${{ secrets.TF2SA_MYSQL_PWD }}
-  TF2SA_MYSQL_DB: ${{ secrets.TF2SA_MYSQL_DB }}
   TF2SA_STEAM_API_KEY: ${{ secrets.TF2SA_STEAM_API_KEY }}
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}

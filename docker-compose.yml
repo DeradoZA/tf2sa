@@ -8,36 +8,22 @@ volumes:
   tf2sa-web:
 
 services:
-  tf2sa-db:
-    image: danielcoetzee/tf2sa-db
-    container_name: tf2sa-db
-    restart: unless-stopped
-    networks:
-      - tf2sa-net
-    build:
-      context: scripts/mariadb
-      dockerfile: Dockerfile.tf2sa-db
-    environment:
-      - MARIADB_DATABASE=${TF2SA_MYSQL_DB}
-      - MARIADB_USER=${TF2SA_MYSQL_USR}
-      - MARIADB_PASSWORD=${TF2SA_MYSQL_PWD}
-
   tf2sa-backend:
     image: danielcoetzee/tf2sa-backend
     container_name: tf2sa-backend
     restart: unless-stopped
-    depends_on:
-      - tf2sa-db
     networks:
       - tf2sa-net
     build:
       context: dotnet
       dockerfile: Dockerfile.tf2sa-backend
+    volumes:
+      # Bind mount, not a named volume: `docker-compose down -v` only removes
+      # volumes declared below, so the database survives it. See
+      # docs/architecture/deployment.md and scripts/backup-duckdb.sh.
+      - /home/ubuntu/tf2sa-data:/data
     environment:
-      - TF2SA_MYSQL_HOST=tf2sa-db
-      - TF2SA_MYSQL_DB=${TF2SA_MYSQL_DB}
-      - TF2SA_MYSQL_USR=${TF2SA_MYSQL_USR}
-      - TF2SA_MYSQL_PWD=${TF2SA_MYSQL_PWD}
+      - TF2SA_DUCKDB_PATH=/data/analytics.duckdb
       - TF2SA_STEAM_API_KEY=${TF2SA_STEAM_API_KEY}
 
   tf2sa-frontend:
