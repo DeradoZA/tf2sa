@@ -1,0 +1,55 @@
+<mat-card class="splits-card">
+	<mat-card-header>
+		<mat-card-title>Per-map splits</mat-card-title>
+	</mat-card-header>
+
+	<mat-card-content>
+		<table mat-table [dataSource]="mapSplits" class="splits-table">
+			<ng-container matColumnDef="map">
+				<th mat-header-cell *matHeaderCellDef>Map</th>
+				<td mat-cell *matCellDef="let row">{{ row.map }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="numberOfGames">
+				<th mat-header-cell *matHeaderCellDef>Games</th>
+				<td mat-cell *matCellDef="let row">{{ row.numberOfGames }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="wins">
+				<th mat-header-cell *matHeaderCellDef>Wins</th>
+				<td mat-cell *matCellDef="let row">{{ row.wins }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="winPercentage">
+				<th mat-header-cell *matHeaderCellDef>Win %</th>
+				<td mat-cell *matCellDef="let row">
+					{{ row.winPercentage ?? "-" }}
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="averageDpm">
+				<th mat-header-cell *matHeaderCellDef>DPM</th>
+				<td mat-cell *matCellDef="let row">
+					{{ row.averageDpm ?? "-" }}
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="averageKills">
+				<th mat-header-cell *matHeaderCellDef>Kills</th>
+				<td mat-cell *matCellDef="let row">
+					{{ row.averageKills ?? "-" }}
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="averageDeaths">
+				<th mat-header-cell *matHeaderCellDef>Deaths</th>
+				<td mat-cell *matCellDef="let row">
+					{{ row.averageDeaths ?? "-" }}
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+		</table>
+	</mat-card-content>
+</mat-card>

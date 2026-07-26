@@ -60,6 +60,7 @@ public static class HttpMappingExtensions
 			SteamId = summary.SteamId.ToString(),
 			PlayerName = summary.PlayerName,
 			Avatar = summary.Avatar,
+			Description = summary.Description,
 			NumberOfGames = summary.NumberOfGames,
 			Wins = summary.Wins,
 			Draws = summary.Draws,
@@ -104,6 +105,60 @@ public static class HttpMappingExtensions
 			AverageDeaths = split.AverageDeaths,
 		};
 
+	public static PlayerMapSplitHttpResult ToHttpResult(
+		this PlayerMapSplitDomain split
+	) =>
+		new()
+		{
+			Map = split.Map,
+			NumberOfGames = split.NumberOfGames,
+			Wins = split.Wins,
+			WinPercentage = split.WinPercentage,
+			AverageDpm = split.AverageDpm,
+			AverageKills = split.AverageKills,
+			AverageDeaths = split.AverageDeaths,
+		};
+
+	public static PlayerWeaponSplitHttpResult ToHttpResult(
+		this PlayerWeaponSplitDomain split
+	) =>
+		new()
+		{
+			WeaponName = split.WeaponName,
+			NumberOfGames = split.NumberOfGames,
+			TotalKills = split.TotalKills,
+			TotalDamage = split.TotalDamage,
+			Accuracy = split.Accuracy,
+		};
+
+	public static PlayerSynergyHttpResult ToHttpResult(
+		this PlayerSynergyDomain synergy
+	) =>
+		new()
+		{
+			SteamId = synergy.SteamId.ToString(),
+			PlayerName = synergy.PlayerName,
+			Avatar = synergy.Avatar,
+			NumberOfGames = synergy.NumberOfGames,
+			Wins = synergy.Wins,
+			WinPercentage = synergy.WinPercentage,
+		};
+
+	public static MedicDepthHttpResult ToHttpResult(
+		this MedicDepthDomain depth
+	) =>
+		new()
+		{
+			NumberOfGames = depth.NumberOfGames,
+			AverageAdvantagesLost = depth.AverageAdvantagesLost,
+			AverageBiggestAdvantageLost = depth.AverageBiggestAdvantageLost,
+			AverageUberLength = depth.AverageUberLength,
+			AverageTimeToBuild = depth.AverageTimeToBuild,
+			AverageTimeBeforeUsing = depth.AverageTimeBeforeUsing,
+			AverageDeathsWithin20sAfterUber =
+				depth.AverageDeathsWithin20sAfterUber,
+		};
+
 	public static GetPlayerDetailHttpResult ToHttpResult(
 		this GetPlayerDetailResult result
 	) =>
@@ -114,6 +169,13 @@ public static class HttpMappingExtensions
 			ClassId = result.ClassId,
 			Progression = result.Progression.Select(p => p.ToHttpResult()),
 			ClassSplits = result.ClassSplits.Select(c => c.ToHttpResult()),
+			MapSplits = result.MapSplits.Select(m => m.ToHttpResult()),
+			WeaponSplits = result.WeaponSplits.Select(w => w.ToHttpResult()),
+			TopTeammates = result.TopTeammates.Select(s => s.ToHttpResult()),
+			ToughestOpponents = result.ToughestOpponents.Select(s =>
+				s.ToHttpResult()
+			),
+			MedicDepth = result.MedicDepth?.ToHttpResult(),
 		};
 
 	public static PlayerComparisonHttpResult ToHttpResult(

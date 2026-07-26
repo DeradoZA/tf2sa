@@ -10,4 +10,11 @@ public class GetPlayerDetailHttpResult
 	public int ClassId { get; set; }
 	public IEnumerable<PlayerProgressionPointHttpResult>? Progression { get; set; }
 	public IEnumerable<PlayerClassSplitHttpResult>? ClassSplits { get; set; }
+	public IEnumerable<PlayerMapSplitHttpResult>? MapSplits { get; set; }
+	public IEnumerable<PlayerWeaponSplitHttpResult>? WeaponSplits { get; set; }
+	public IEnumerable<PlayerSynergyHttpResult>? TopTeammates { get; set; }
+	public IEnumerable<PlayerSynergyHttpResult>? ToughestOpponents { get; set; }
+
+	/// <summary>Null when the player has no medic uber-depth data on record.</summary>
+	public MedicDepthHttpResult? MedicDepth { get; set; }
 }

@@ -291,8 +291,10 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 			@"INSERT INTO PlayerStats
 				(PlayerStatsID, GameID, SteamID, TeamID, DamageTaken, HealsReceived,
 				 LongestKillStreak, Airshots, Ubers, Drops, Medkits, MedkitsHP, Backstabs,
-				 Headshots, HeadshotsHit, SentriesBuilt, Heals, CapturePointsCaptured, IntelCaptures)
-			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				 Headshots, HeadshotsHit, SentriesBuilt, Heals, CapturePointsCaptured, IntelCaptures,
+				 AdvantagesLost, BiggestAdvantageLost, DeathsWith9599Uber, DeathsWithin20sAfterUber,
+				 AvgTimeBeforeHealing, AvgTimeToBuild, AvgTimeBeforeUsing, AvgUberLength)
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			new object?[]
 			{
 				playerStatsId,
@@ -314,6 +316,14 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 				ps.Heals,
 				ps.CapturePointsCaptured,
 				ps.IntelCaptures,
+				ps.AdvantagesLost,
+				ps.BiggestAdvantageLost,
+				ps.DeathsWith9599Uber,
+				ps.DeathsWithin20sAfterUber,
+				ps.AvgTimeBeforeHealing,
+				ps.AvgTimeToBuild,
+				ps.AvgTimeBeforeUsing,
+				ps.AvgUberLength,
 			}
 		);
 

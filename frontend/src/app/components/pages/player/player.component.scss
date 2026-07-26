@@ -4,6 +4,13 @@
 	margin: 0 auto;
 }
 
+.player-description {
+	margin: 0.5rem 0;
+	max-width: 60rem;
+	line-height: 1.5;
+	opacity: 0.85;
+}
+
 .summary-card {
 	margin: 0.5rem 0 1rem;
 	padding: 0.75rem 1.25rem;
@@ -34,4 +41,3 @@
 		opacity: 0.65;
 	}
 }
-

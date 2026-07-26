@@ -20,6 +20,10 @@
 			[isPlaceholder]="!summary.avatar"
 		></app-stats-header>
 
+		<p *ngIf="summary.description" class="player-description">
+			{{ summary.description }}
+		</p>
+
 		<mat-card class="summary-card">
 			<div class="summary-row">
 				<div class="summary-stat">
@@ -70,5 +74,71 @@
 		<app-player-class-splits-table
 			[classSplits]="detail!.classSplits"
 		></app-player-class-splits-table>
+
+		<app-player-map-splits-table
+			*ngIf="detail!.mapSplits.length"
+			[mapSplits]="detail!.mapSplits"
+		></app-player-map-splits-table>
+
+		<app-player-weapon-splits-table
+			*ngIf="detail!.weaponSplits.length"
+			[weaponSplits]="detail!.weaponSplits"
+		></app-player-weapon-splits-table>
+
+		<app-player-synergy-table
+			*ngIf="detail!.topTeammates.length"
+			title="Best teammates"
+			[rows]="detail!.topTeammates"
+		></app-player-synergy-table>
+
+		<app-player-synergy-table
+			*ngIf="detail!.toughestOpponents.length"
+			title="Toughest opponents"
+			[rows]="detail!.toughestOpponents"
+		></app-player-synergy-table>
+
+		<mat-card *ngIf="detail!.medicDepth as medicDepth" class="summary-card">
+			<mat-card-header>
+				<mat-card-title>Medic depth</mat-card-title>
+			</mat-card-header>
+			<div class="summary-row">
+				<div class="summary-stat">
+					<span class="value">{{
+						medicDepth.averageUberLength ?? "-"
+					}}</span>
+					<span class="label">Avg. uber length (s)</span>
+				</div>
+				<div class="summary-stat">
+					<span class="value">{{
+						medicDepth.averageTimeToBuild ?? "-"
+					}}</span>
+					<span class="label">Avg. time to build (s)</span>
+				</div>
+				<div class="summary-stat">
+					<span class="value">{{
+						medicDepth.averageTimeBeforeUsing ?? "-"
+					}}</span>
+					<span class="label">Avg. time held before use (s)</span>
+				</div>
+				<div class="summary-stat">
+					<span class="value">{{
+						medicDepth.averageAdvantagesLost ?? "-"
+					}}</span>
+					<span class="label">Advantages lost / game</span>
+				</div>
+				<div class="summary-stat">
+					<span class="value">{{
+						medicDepth.averageBiggestAdvantageLost ?? "-"
+					}}</span>
+					<span class="label">Biggest advantage lost</span>
+				</div>
+				<div class="summary-stat">
+					<span class="value">{{
+						medicDepth.averageDeathsWithin20sAfterUber ?? "-"
+					}}</span>
+					<span class="label">Deaths within 20s of uber</span>
+				</div>
+			</div>
+		</mat-card>
 	</ng-container>
 </div>

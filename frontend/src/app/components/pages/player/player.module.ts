@@ -8,6 +8,9 @@ import { MatTableModule } from '@angular/material/table';
 import { PlayerComponent } from './player.component';
 import { ProgressionChartModule } from '../../organisms/progression-chart/progression-chart.module';
 import { PlayerClassSplitsTableComponent } from '../../organisms/player-class-splits-table/player-class-splits-table.component';
+import { PlayerMapSplitsTableComponent } from '../../organisms/player-map-splits-table/player-map-splits-table.component';
+import { PlayerWeaponSplitsTableComponent } from '../../organisms/player-weapon-splits-table/player-weapon-splits-table.component';
+import { PlayerSynergyTableComponent } from '../../organisms/player-synergy-table/player-synergy-table.component';
 import { SharedComponentsModule } from '../../shared-components.module';
 
 const routes: Routes = [{ path: '', component: PlayerComponent }];
@@ -18,7 +21,13 @@ const routes: Routes = [{ path: '', component: PlayerComponent }];
  * page, and eager-loading them pushed the app past its bundle budget.
  */
 @NgModule({
-	declarations: [PlayerComponent, PlayerClassSplitsTableComponent],
+	declarations: [
+		PlayerComponent,
+		PlayerClassSplitsTableComponent,
+		PlayerMapSplitsTableComponent,
+		PlayerWeaponSplitsTableComponent,
+		PlayerSynergyTableComponent,
+	],
 	imports: [
 		CommonModule,
 		RouterModule.forChild(routes),

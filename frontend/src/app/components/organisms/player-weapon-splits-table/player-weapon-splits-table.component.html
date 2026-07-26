@@ -1,0 +1,39 @@
+<mat-card class="splits-card">
+	<mat-card-header>
+		<mat-card-title>Weapon accuracy</mat-card-title>
+	</mat-card-header>
+
+	<mat-card-content>
+		<table mat-table [dataSource]="weaponSplits" class="splits-table">
+			<ng-container matColumnDef="weaponName">
+				<th mat-header-cell *matHeaderCellDef>Weapon</th>
+				<td mat-cell *matCellDef="let row">{{ row.weaponName }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="numberOfGames">
+				<th mat-header-cell *matHeaderCellDef>Games</th>
+				<td mat-cell *matCellDef="let row">{{ row.numberOfGames }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="totalKills">
+				<th mat-header-cell *matHeaderCellDef>Kills</th>
+				<td mat-cell *matCellDef="let row">{{ row.totalKills }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="totalDamage">
+				<th mat-header-cell *matHeaderCellDef>Damage</th>
+				<td mat-cell *matCellDef="let row">{{ row.totalDamage }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="accuracy">
+				<th mat-header-cell *matHeaderCellDef>Accuracy</th>
+				<td mat-cell *matCellDef="let row">
+					{{ row.accuracy !== null ? row.accuracy + "%" : "-" }}
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+		</table>
+	</mat-card-content>
+</mat-card>

@@ -62,6 +62,17 @@ public class PlayerStatWrite
 	public uint? Heals { get; set; }
 	public byte? CapturePointsCaptured { get; set; }
 	public byte? IntelCaptures { get; set; }
+
+	// Medic uber-depth fields (logs.tf's per-player medic_stats block) — null for
+	// non-medic players and for logs where logs.tf didn't compute them.
+	public ushort? AdvantagesLost { get; set; }
+	public ushort? BiggestAdvantageLost { get; set; }
+	public byte? DeathsWith9599Uber { get; set; }
+	public byte? DeathsWithin20sAfterUber { get; set; }
+	public double? AvgTimeBeforeHealing { get; set; }
+	public double? AvgTimeToBuild { get; set; }
+	public double? AvgTimeBeforeUsing { get; set; }
+	public double? AvgUberLength { get; set; }
 	public List<ClassStatWrite> ClassStats { get; set; } = new();
 }
 

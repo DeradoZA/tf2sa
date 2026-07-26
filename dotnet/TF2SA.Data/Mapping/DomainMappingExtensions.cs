@@ -290,6 +290,7 @@ public static class DomainMappingExtensions
 			SteamId = row.SteamId,
 			PlayerName = row.PlayerName,
 			Avatar = row.Avatar,
+			Description = row.Description,
 			NumberOfGames = row.NumberOfGames,
 			Wins = row.Wins,
 			Draws = row.Draws,
@@ -332,5 +333,53 @@ public static class DomainMappingExtensions
 			AverageKills = row.AverageKills,
 			AverageAssists = row.AverageAssists,
 			AverageDeaths = row.AverageDeaths,
+		};
+
+	public static PlayerMapSplitDomain ToDomain(this PlayerMapSplitRow row) =>
+		new()
+		{
+			Map = row.Map,
+			NumberOfGames = row.NumberOfGames,
+			Wins = row.Wins,
+			WinPercentage = row.WinPercentage,
+			AverageDpm = row.AverageDpm,
+			AverageKills = row.AverageKills,
+			AverageDeaths = row.AverageDeaths,
+		};
+
+	public static PlayerWeaponSplitDomain ToDomain(
+		this PlayerWeaponSplitRow row
+	) =>
+		new()
+		{
+			WeaponName = row.WeaponName,
+			NumberOfGames = row.NumberOfGames,
+			TotalKills = row.TotalKills,
+			TotalDamage = row.TotalDamage,
+			Accuracy = row.Accuracy,
+		};
+
+	public static PlayerSynergyDomain ToDomain(this PlayerSynergyRow row) =>
+		new()
+		{
+			SteamId = row.SteamId,
+			PlayerName = row.PlayerName,
+			Avatar = row.Avatar,
+			NumberOfGames = row.NumberOfGames,
+			Wins = row.Wins,
+			WinPercentage = row.WinPercentage,
+		};
+
+	public static MedicDepthDomain ToDomain(this MedicDepthRow row) =>
+		new()
+		{
+			NumberOfGames = row.NumberOfGames,
+			AverageAdvantagesLost = row.AverageAdvantagesLost,
+			AverageBiggestAdvantageLost = row.AverageBiggestAdvantageLost,
+			AverageUberLength = row.AverageUberLength,
+			AverageTimeToBuild = row.AverageTimeToBuild,
+			AverageTimeBeforeUsing = row.AverageTimeBeforeUsing,
+			AverageDeathsWithin20sAfterUber =
+				row.AverageDeathsWithin20sAfterUber,
 		};
 }

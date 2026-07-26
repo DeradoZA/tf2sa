@@ -192,6 +192,15 @@ public class LogIngestionRepositoryUpdater : ILogIngestionRepositoryUpdater
 			Heals = (uint?)ps.Heals,
 			CapturePointsCaptured = (byte?)ps.CapturePointsCaptured,
 			IntelCaptures = (byte?)ps.IntelCaptures,
+			AdvantagesLost = (ushort?)ps.MedicStats?.AdvantagesLost,
+			BiggestAdvantageLost = (ushort?)ps.MedicStats?.BiggestAdvantageLost,
+			DeathsWith9599Uber = (byte?)ps.MedicStats?.DeathsWith95To99Uber,
+			DeathsWithin20sAfterUber = (byte?)
+				ps.MedicStats?.DeathsWitin20sAfterUber,
+			AvgTimeBeforeHealing = ps.MedicStats?.AverageTimeBeforeHealing,
+			AvgTimeToBuild = ps.MedicStats?.AverageTimeToBuild,
+			AvgTimeBeforeUsing = ps.MedicStats?.AverageTimeBeforeUsing,
+			AvgUberLength = ps.MedicStats?.AverageUberLength,
 			ClassStats = ps.ClassStats?.Select(MapClassStat).ToList() ?? new(),
 		};
 

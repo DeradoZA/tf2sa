@@ -6,6 +6,7 @@ public class PlayerSummaryHttpResult
 	public string SteamId { get; set; } = string.Empty;
 	public string? PlayerName { get; set; }
 	public string? Avatar { get; set; }
+	public string? Description { get; set; }
 	public int NumberOfGames { get; set; }
 	public int Wins { get; set; }
 	public int Draws { get; set; }
