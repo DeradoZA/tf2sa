@@ -1,6 +1,6 @@
-﻿namespace TF2SA.Data.Entities.MariaDb;
+namespace TF2SA.Data.Analytics.Rows;
 
-public partial class DemomanAllTime
+public partial class SoldierRecent
 {
 	public ulong SteamId { get; set; }
 	public string? PlayerName { get; set; }

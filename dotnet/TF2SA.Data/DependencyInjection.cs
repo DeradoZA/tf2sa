@@ -8,7 +8,6 @@ using TF2SA.Data.Logging;
 using TF2SA.Data.Mapping;
 using TF2SA.Data.Repositories.Base;
 using TF2SA.Data.Repositories.MariaDb;
-using TF2SA.Data.Repositories.MariaDb.Statistics;
 using TF2SA.Data.Services.Base;
 using TF2SA.Data.Services.Mariadb;
 
@@ -62,47 +61,6 @@ public static class DependencyInjection
 		>();
 		services.AddScoped<IGamesRepository<Game, uint>, GamesRepository>();
 		services.AddScoped<IStatsService<ulong>, StatsService>();
-
-		services.AddScoped<
-			IStatsRepository<ScoutRecent>,
-			ScoutRecentStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<ScoutAllTime>,
-			ScoutAllTimeStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<SoldierRecent>,
-			SoldierRecentStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<SoldierAllTime>,
-			SoldierAllTimeStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<DemomanRecent>,
-			DemomanRecentStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<DemomanAllTime>,
-			DemomanAllTimeStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<MedicRecent>,
-			MedicRecentStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<MedicAllTime>,
-			MedicAllTimeStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<OverallStatsRecent>,
-			OverallRecentStatsRepository
-		>();
-		services.AddScoped<
-			IStatsRepository<OverallStatsAllTime>,
-			OverallAllTimeStatsRepository
-		>();
 
 		services.AddAutoMapper(typeof(GameMappingProfile));
 

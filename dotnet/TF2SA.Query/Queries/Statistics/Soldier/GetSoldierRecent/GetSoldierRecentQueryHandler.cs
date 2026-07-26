@@ -1,13 +1,11 @@
 using AutoMapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Analytics;
-using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Query.Queries.Statistics.Soldier.GetSoldierRecent;
 
@@ -18,17 +16,14 @@ public class GetSoldierRecentQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<SoldierRecent> repository;
 	private readonly IAnalyticsStore analyticsStore;
 
 	public GetSoldierRecentQueryHandler(
 		IMapper mapper,
-		IStatsRepository<SoldierRecent> repository,
 		IAnalyticsStore analyticsStore
 	)
 	{
 		this.mapper = mapper;
-		this.repository = repository;
 		this.analyticsStore = analyticsStore;
 	}
 
@@ -39,77 +34,30 @@ public class GetSoldierRecentQueryHandler
 	{
 		try
 		{
-			if (analyticsStore.Enabled)
-			{
-				StatsPage<SoldierRecent> page =
-					await analyticsStore.GetPageAsync<SoldierRecent>(
-						"class_board(2, 5, 1)",
-						"averageDpm",
-						request.Sort,
-						request.SortOrder,
-						request.FilterField,
-						request.FilterValue,
-						request.Offset,
-						request.Count,
-						cancellationToken
-					);
-				IEnumerable<SoldierStatDomain> mappedPlayers =
-					mapper.Map<List<SoldierStatDomain>>(page.Rows);
-				return new GetSoldierStatsResult(
-					page.Total,
-					mappedPlayers.Count(),
-					request.Offset,
-					page.SortUsed,
-					page.SortOrderUsed,
-					page.FilterFieldUsed,
-					page.FilterValueUsed,
-					mappedPlayers
-				);
-			}
-
-			IQueryable<SoldierRecent> allQueryable =
-				repository.GetAllQueryable();
-
-			IQueryable<SoldierRecent> filteredQueryable =
-				repository.ApplyFilter(
-					allQueryable,
-					request.FilterField,
-					request.FilterValue,
-					out string filterFieldUsed,
-					out string filterValueUsed
-				);
-
-			int totalCount = await filteredQueryable.CountAsync(
-				cancellationToken: cancellationToken
-			);
-
-			IOrderedQueryable<SoldierRecent> filteredSortedQueryable =
-				repository.ApplySort(
-					filteredQueryable,
+			StatsPage<SoldierRecent> page =
+				await analyticsStore.GetPageAsync<SoldierRecent>(
+					"class_board(2, 5, 1)",
+					"averageDpm",
 					request.Sort,
 					request.SortOrder,
-					out string sortFieldUsed,
-					out string sortOrderUsed
+					request.FilterField,
+					request.FilterValue,
+					request.Offset,
+					request.Count,
+					cancellationToken
 				);
-
-			List<SoldierRecent> entities = await filteredSortedQueryable
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
-
-			IEnumerable<SoldierStatDomain> domainMappedPlayers = mapper.Map<
+			IEnumerable<SoldierStatDomain> mappedPlayers = mapper.Map<
 				List<SoldierStatDomain>
-			>(entities);
-
+			>(page.Rows);
 			return new GetSoldierStatsResult(
-				totalCount,
-				domainMappedPlayers.Count(),
+				page.Total,
+				mappedPlayers.Count(),
 				request.Offset,
-				sortFieldUsed,
-				sortOrderUsed,
-				filterFieldUsed,
-				filterValueUsed,
-				domainMappedPlayers
+				page.SortUsed,
+				page.SortOrderUsed,
+				page.FilterFieldUsed,
+				page.FilterValueUsed,
+				mappedPlayers
 			);
 		}
 		catch (Exception e)

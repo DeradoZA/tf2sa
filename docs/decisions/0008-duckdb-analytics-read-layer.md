@@ -1,6 +1,7 @@
 # 8. Embedded DuckDB analytics read layer
 
-- **Status:** Accepted
+- **Status:** Accepted; fully implemented (2026-07-26 — see Phase 3 in
+  [architecture/analytics-store.md](../architecture/analytics-store.md))
 - **Date:** 2026-07-10
 
 ## Context

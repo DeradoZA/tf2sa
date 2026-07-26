@@ -1,14 +1,12 @@
 using AutoMapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Analytics;
-using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
 
@@ -19,17 +17,14 @@ public class GetScoutRecentQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<ScoutRecent> repository;
 	private readonly IAnalyticsStore analyticsStore;
 
 	public GetScoutRecentQueryHandler(
 		IMapper mapper,
-		IStatsRepository<ScoutRecent> repository,
 		IAnalyticsStore analyticsStore
 	)
 	{
 		this.mapper = mapper;
-		this.repository = repository;
 		this.analyticsStore = analyticsStore;
 	}
 
@@ -40,77 +35,30 @@ public class GetScoutRecentQueryHandler
 	{
 		try
 		{
-			if (analyticsStore.Enabled)
-			{
-				StatsPage<ScoutRecent> page =
-					await analyticsStore.GetPageAsync<ScoutRecent>(
-						"class_board(1, 5, 1)",
-						"averageDpm",
-						request.Sort,
-						request.SortOrder,
-						request.FilterField,
-						request.FilterValue,
-						request.Offset,
-						request.Count,
-						cancellationToken
-					);
-				IEnumerable<ScoutStatDomain> mappedScouts =
-					mapper.Map<List<ScoutStatDomain>>(page.Rows);
-				return new GetScoutStatsResult(
-					page.Total,
-					mappedScouts.Count(),
-					request.Offset,
-					page.SortUsed,
-					page.SortOrderUsed,
-					page.FilterFieldUsed,
-					page.FilterValueUsed,
-					mappedScouts
-				);
-			}
-
-			IQueryable<ScoutRecent> scoutRecentAllQueryable =
-				repository.GetAllQueryable();
-
-			IQueryable<ScoutRecent> filteredQueryable = repository.ApplyFilter(
-				scoutRecentAllQueryable,
-				request.FilterField,
-				request.FilterValue,
-				out string filterFieldUsed,
-				out string filterValueUsed
-			);
-
-			int totalCount = await filteredQueryable.CountAsync(
-				cancellationToken: cancellationToken
-			);
-
-			IOrderedQueryable<ScoutRecent> filteredSortedQueryable =
-				repository.ApplySort(
-					filteredQueryable,
+			StatsPage<ScoutRecent> page =
+				await analyticsStore.GetPageAsync<ScoutRecent>(
+					"class_board(1, 5, 1)",
+					"averageDpm",
 					request.Sort,
 					request.SortOrder,
-					out string sortFieldUsed,
-					out string sortOrderUsed
+					request.FilterField,
+					request.FilterValue,
+					request.Offset,
+					request.Count,
+					cancellationToken
 				);
-
-			List<ScoutRecent> scoutRecentEntities =
-				await filteredSortedQueryable
-					.Skip(request.Offset)
-					.Take(request.Count)
-					.ToListAsync(cancellationToken: cancellationToken);
-
-			IEnumerable<ScoutStatDomain> scouts = mapper.Map<
+			IEnumerable<ScoutStatDomain> mappedScouts = mapper.Map<
 				List<ScoutStatDomain>
-			>(scoutRecentEntities);
-
+			>(page.Rows);
 			return new GetScoutStatsResult(
-				totalCount,
-				scouts.Count(),
+				page.Total,
+				mappedScouts.Count(),
 				request.Offset,
-				sortFieldUsed,
-				sortOrderUsed,
-				filterFieldUsed,
-				filterValueUsed,
-				scouts
+				page.SortUsed,
+				page.SortOrderUsed,
+				page.FilterFieldUsed,
+				page.FilterValueUsed,
+				mappedScouts
 			);
 		}
 		catch (Exception e)

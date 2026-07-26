@@ -1,6 +1,6 @@
-﻿namespace TF2SA.Data.Entities.MariaDb;
+namespace TF2SA.Data.Analytics.Rows;
 
-public partial class ScoutAllTime
+public partial class OverallStatsRecent
 {
 	public ulong SteamId { get; set; }
 	public string? PlayerName { get; set; }
@@ -14,6 +14,9 @@ public partial class ScoutAllTime
 	public float? AverageKills { get; set; }
 	public float? AverageAssists { get; set; }
 	public float? AverageDeaths { get; set; }
+	public float? AverageAirshots { get; set; }
+	public float? AverageHeadshots { get; set; }
+	public float? AverageBackstabs { get; set; }
 	public float? AverageDamageTakenPm { get; set; }
 	public float? AverageHealsReceivedPm { get; set; }
 	public float? AverageMedKitsHp { get; set; }
@@ -22,4 +25,6 @@ public partial class ScoutAllTime
 	public uint? TopKillsGameId { get; set; }
 	public ushort? TopDamage { get; set; }
 	public uint? TopDamageGameId { get; set; }
+	public ushort? TopAirshots { get; set; }
+	public uint? TopAirshotsGameId { get; set; }
 }

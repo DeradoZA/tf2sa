@@ -303,13 +303,12 @@ entirely.)
 `ILIKE` filter, and `LIMIT`/`OFFSET`, then maps rows onto the EF stat entity `T` by
 case-insensitive column name (DuckDB identifiers are case-insensitive, so the entity
 property names resolve to the board columns; only real properties are sortable/
-filterable — the injection guard). The 10 MediatR query handlers now branch on
-`IAnalyticsStore.Enabled`: **when analytics is enabled they read from DuckDB; when
-disabled they keep the EF-over-pre-agg-tables path** (the parallel run — Phase 3
-removes the EF branch, the pre-agg tables, and the procs). The HTTP/JSON contract is
-unchanged either way. A single DuckDB connection is shared and access is serialized
-with a semaphore (single writer at refresh, fast reads), which suits this scale;
-connection pooling is a later optimization if read concurrency demands it.
+filterable — the injection guard). At the time of the Phase 2 validation below, the 10
+MediatR query handlers branched on `IAnalyticsStore.Enabled` (analytics on: DuckDB;
+off: the EF-over-pre-agg-tables path) — that branch was retired in Phase 3, see below.
+A single DuckDB connection is shared and access is serialized with a semaphore (single
+writer at refresh, fast reads), which suits this scale; connection pooling is a later
+optimization if read concurrency demands it.
 
 **Phase 2 validation.** Driving the real store against a live MariaDB: for every one
 of the 10 boards, `GetPageAsync` (top-13 by the board's default sort) returned the
@@ -317,6 +316,33 @@ same player set and the same descending stat sequence as the corresponding Maria
 pre-agg table (what the EF path serves), with matching totals; the player-name filter
 and paging (disjoint pages) behaved correctly. Full solution builds under
 `/warnaserror` with the read path in place and all unit tests pass.
+
+### Phase 3 — EF branch, pre-agg tables and procs removed (2026-07-26)
+
+DuckDB is now the only read path for the 10 leaderboards; the parallel run is over.
+
+- The 10 query handlers no longer branch on `IAnalyticsStore.Enabled` — each calls
+  `GetPageAsync` directly. Parity was re-verified by diffing all 10 endpoints' full
+  JSON responses (default sort, a custom sort, a name filter, an invalid sort field)
+  captured immediately before and after the branch was deleted: identical, aside from
+  a pre-existing, code-path-independent nondeterminism already present in the merged
+  Phase 2 store — ties in the board's sort column, and ties in a "top game" `arg_max`,
+  can resolve to a different row across runs because neither has a secondary sort key.
+  Confirmed pre-existing by re-querying the same live connection twice in a row and
+  seeing the same tied rows reorder with no code change at all in between.
+- The 10 pre-aggregated entity classes (`ScoutAllTime`, `MedicRecent`, …) still exist —
+  they are `GetPageAsync<T>`'s row-mapping targets — but moved from
+  `TF2SA.Data/Entities/MariaDb/` to `TF2SA.Data/Analytics/Rows/` and out of
+  `TF2SADbContext`, since they no longer back a real table and `scaffold.sh --force`
+  (ADR 0004) would otherwise treat their old location as fair game to regenerate away.
+- Removed: the 10 `IStatsRepository<T>` implementations and the generic base
+  (`TF2SA.Data/Repositories/MariaDb/Statistics/`), `IStatsAggregationRepository`
+  (already unused before this), `StatisticsUpdater`'s stored-proc invocation loop (it
+  now only calls `RefreshAsync`), and the 10 `update_*_stats.sql` scripts plus their
+  `CREATE TABLE` blocks in `create_stats_schema.sql`.
+- EF Core's remaining footprint is now just the write path: `GamesRepository` and
+  `PlayersRepository` (insert/update on ingestion), plus `PlayersRepository`'s read for
+  the player-list endpoint, which has no DuckDB equivalent yet.
 
 ### Configuration
 

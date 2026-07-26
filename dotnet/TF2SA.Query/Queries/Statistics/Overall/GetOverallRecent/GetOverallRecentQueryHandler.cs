@@ -1,13 +1,11 @@
 using AutoMapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Analytics;
-using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
 
 namespace TF2SA.Query.Queries.Statistics.Overall.GetOverallRecent;
 
@@ -18,17 +16,14 @@ public class GetOverallRecentQueryHandler
 	>
 {
 	private readonly IMapper mapper;
-	private readonly IStatsRepository<OverallStatsRecent> repository;
 	private readonly IAnalyticsStore analyticsStore;
 
 	public GetOverallRecentQueryHandler(
 		IMapper mapper,
-		IStatsRepository<OverallStatsRecent> repository,
 		IAnalyticsStore analyticsStore
 	)
 	{
 		this.mapper = mapper;
-		this.repository = repository;
 		this.analyticsStore = analyticsStore;
 	}
 
@@ -39,77 +34,30 @@ public class GetOverallRecentQueryHandler
 	{
 		try
 		{
-			if (analyticsStore.Enabled)
-			{
-				StatsPage<OverallStatsRecent> page =
-					await analyticsStore.GetPageAsync<OverallStatsRecent>(
-						"overall_board(10, 1)",
-						"averageDpm",
-						request.Sort,
-						request.SortOrder,
-						request.FilterField,
-						request.FilterValue,
-						request.Offset,
-						request.Count,
-						cancellationToken
-					);
-				IEnumerable<OverallStatDomain> mappedPlayers =
-					mapper.Map<List<OverallStatDomain>>(page.Rows);
-				return new GetOverallStatsResult(
-					page.Total,
-					mappedPlayers.Count(),
-					request.Offset,
-					page.SortUsed,
-					page.SortOrderUsed,
-					page.FilterFieldUsed,
-					page.FilterValueUsed,
-					mappedPlayers
-				);
-			}
-
-			IQueryable<OverallStatsRecent> allQueryable =
-				repository.GetAllQueryable();
-
-			IQueryable<OverallStatsRecent> filteredQueryable =
-				repository.ApplyFilter(
-					allQueryable,
-					request.FilterField,
-					request.FilterValue,
-					out string filterFieldUsed,
-					out string filterValueUsed
-				);
-
-			int totalCount = await filteredQueryable.CountAsync(
-				cancellationToken: cancellationToken
-			);
-
-			IOrderedQueryable<OverallStatsRecent> filteredSortedQueryable =
-				repository.ApplySort(
-					filteredQueryable,
+			StatsPage<OverallStatsRecent> page =
+				await analyticsStore.GetPageAsync<OverallStatsRecent>(
+					"overall_board(10, 1)",
+					"averageDpm",
 					request.Sort,
 					request.SortOrder,
-					out string sortFieldUsed,
-					out string sortOrderUsed
+					request.FilterField,
+					request.FilterValue,
+					request.Offset,
+					request.Count,
+					cancellationToken
 				);
-
-			List<OverallStatsRecent> entities = await filteredSortedQueryable
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
-
-			IEnumerable<OverallStatDomain> domainMappedPlayers = mapper.Map<
+			IEnumerable<OverallStatDomain> mappedPlayers = mapper.Map<
 				List<OverallStatDomain>
-			>(entities);
-
+			>(page.Rows);
 			return new GetOverallStatsResult(
-				totalCount,
-				domainMappedPlayers.Count(),
+				page.Total,
+				mappedPlayers.Count(),
 				request.Offset,
-				sortFieldUsed,
-				sortOrderUsed,
-				filterFieldUsed,
-				filterValueUsed,
-				domainMappedPlayers
+				page.SortUsed,
+				page.SortOrderUsed,
+				page.FilterFieldUsed,
+				page.FilterValueUsed,
+				mappedPlayers
 			);
 		}
 		catch (Exception e)

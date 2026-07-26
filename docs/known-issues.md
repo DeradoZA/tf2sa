@@ -48,41 +48,15 @@ deployed image publishes `TF2SA.Web`, which co-hosts the ETL as a
 readers into thinking ETL is a separate service. See
 [ADR 0006](./decisions/0006-cohosted-etl-background-service.md).
 
-### Aggregation SQL uses session-variable ranking — Medium (being retired)
-The "top game" CTEs in `scripts/mariadb/update_*_stats.sql` use MariaDB
-session-variable ranking (`@rn`/`@prev`, `LIMIT 9999999`) instead of window
-functions. It is terse, version-sensitive, and harder to maintain. Recent and
-all-time procedures are duplicated per class (10 files), so stat-definition changes
-must be applied in multiple places.
-
-> **Being addressed by [ADR 0008](./decisions/0008-duckdb-analytics-read-layer.md).**
-> The stored procedures and pre-aggregated tables are slated for removal in favour of
-> the embedded DuckDB analytics read layer, where "top game" becomes
-> `arg_max(GameID, <stat>)` and there are no per-class/per-window duplicate files.
-> The missing raw-table indexes noted below are part of the same story. This item can
-> be removed once that migration lands.
-
-### Missing secondary indexes on raw filter columns — Medium
-`scripts/mariadb/create_stats_schema.sql` defines no secondary indexes on the columns
-the aggregation filters by: `ClassStats.ClassID` and `Games.Date`. Every stored proc
-therefore full-scans on `WHERE cs.ClassID = …` and `WHERE g.Date > …`. This was a
-significant contributor to the read-latency problem that motivated the pre-aggregated
-tables in the first place. If the DuckDB migration
-([ADR 0008](./decisions/0008-duckdb-analytics-read-layer.md)) is deferred, adding
-these indexes is the cheapest partial mitigation.
-
-### DuckDB analytics read layer — implementation notes (unblocked)
-A Phase 0 spike (2026-07-10) validated the planned analytics read layer
+### Overall-board latency at peak volume — Medium (open)
+The Overall leaderboard's two-level aggregation (per-game sum, then average across
+games) measured ~0.5s at 3M `ClassStats` rows on a 2-vCPU box during the Phase 0 spike
 ([ADR 0008](./decisions/0008-duckdb-analytics-read-layer.md),
-[architecture/analytics-store.md](./architecture/analytics-store.md)): the DuckDB.NET
-native library loads on linux-x64, the MySQL scanner extension loads, and on-the-fly
-aggregation is fast (per-class boards ~single-digit ms; the Overall two-level board
-~0.5 s at 3M rows on a 2-vCPU box). DuckDB.NET 1.5.x ships only `net8.0`/`net10.0`
-assemblies; the backend's `net7.0` target could not consume it — **now unblocked**, as
-the backend is on **.NET 10** (see *End-of-life runtimes* above). Two items still to
-settle during implementation: the per-cycle **refresh (single writer)** vs. **concurrent
-API reads** coordination, and whether the **Overall board** needs a materialized
-per-game rollup or cache at peak volume.
+[architecture/analytics-store.md](./architecture/analytics-store.md)). Materializing a
+per-game rollup, or a short-TTL cache, would mitigate this if it becomes a problem in
+production; neither is implemented. The refresh-vs-concurrent-reads question from the
+same spike is settled — a single shared connection plus a semaphore, adequate at this
+scale — leaving this as the one open item from that investigation.
 
 ### Database-first entities are regenerated — Low (by design, easy to trip on)
 `DbContext`/entities are produced by `scaffold.sh --force` and will overwrite manual
