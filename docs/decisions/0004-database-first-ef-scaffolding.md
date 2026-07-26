@@ -1,6 +1,8 @@
 # 4. Database-first EF Core scaffolding
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0009](0009-drop-mariadb.md) (2026-07-26) — MariaDB
+  and EF Core were dropped entirely; there is no longer a database to scaffold from.
+  Kept for history.
 - **Date:** 2026-07-05 (documented retroactively)
 
 ## Context

@@ -5,10 +5,13 @@
 
 ## Runtime topology
 
-Production runs on a single **AWS EC2** host (Ubuntu) as five containers defined in
+Production runs on a single **AWS EC2** host (Ubuntu) as four containers defined in
 [`docker-compose.yml`](../../docker-compose.yml), on a shared `tf2sa-net` bridge
 network. The Angular build container and nginx communicate through a shared Docker
-volume (`tf2sa-web`) rather than the network.
+volume (`tf2sa-web`) rather than the network. There is no separate database
+container — DuckDB is embedded in `tf2sa-backend`
+([ADR 0009](../decisions/0009-drop-mariadb.md)) and its data file lives on a host
+bind mount.
 
 ```mermaid
 flowchart TB
@@ -18,18 +21,18 @@ flowchart TB
         direction TB
         proxy["t2sa-reverse-proxy<br/><b>nginx:latest</b><br/>:80 → 301 https, :443 TLS"]
         subgraph net["tf2sa-net (bridge)"]
-            backend["tf2sa-backend<br/><b>ASP.NET Core 10</b><br/>listens :80 (internal)"]
-            db[("tf2sa-db<br/><b>MariaDB 10.6</b>")]
+            backend["tf2sa-backend<br/><b>ASP.NET Core 10</b><br/>listens :80 (internal)<br/>embedded DuckDB"]
         end
         frontend["tf2sa-frontend<br/><b>Angular build-only</b>"]
         certbot["certbot<br/>renew every 12h"]
         webvol[["volume: tf2sa-web<br/>compiled SPA"]]
         certvol[["host: /home/ubuntu/certbot<br/>certs + ACME webroot"]]
+        datavol[["host: /home/ubuntu/tf2sa-data<br/>analytics.duckdb"]]
     end
 
     user -->|443| proxy
     proxy -->|"location /api → http://tf2sa-backend:80"| backend
-    backend -->|"server=tf2sa-db"| db
+    backend -->|"reads/writes"| datavol
     frontend -.->|writes dist to| webvol
     webvol -.->|"mounted read-only at /usr/share/nginx/html"| proxy
     certbot -.-> certvol
@@ -40,8 +43,7 @@ flowchart TB
 
 | Container | Image | Ports | Notes |
 |-----------|-------|-------|-------|
-| `tf2sa-db` | `danielcoetzee/tf2sa-db` (built from `scripts/mariadb/Dockerfile.tf2sa-db`) | internal | Seeds schema + procs at init. Random root password; app user from env. |
-| `tf2sa-backend` | `danielcoetzee/tf2sa-backend` (`dotnet/Dockerfile.tf2sa-backend`) | internal :80 | Publishes `TF2SA.Web`; runs API + co-hosted ETL. |
+| `tf2sa-backend` | `danielcoetzee/tf2sa-backend` (`dotnet/Dockerfile.tf2sa-backend`) | internal :80 | Publishes `TF2SA.Web`; runs API + co-hosted ETL + embedded DuckDB, the only database. Data file bind-mounted at `/data`. |
 | `tf2sa-frontend` | `danielcoetzee/tf2sa-frontend` (`frontend/Dockerfile.tf2sa-frontend`) | none | **Build-only** — compiles the SPA into `/out` and exits; nginx serves the volume. |
 | `t2sa-reverse-proxy` | `nginx:latest` | `80`, `443` | TLS termination, static SPA, `/api` proxy. Periodically reloads for renewed certs. |
 | `certbot` | `certbot/certbot:latest` | none | Renews Let's Encrypt certs on a 12h loop. |
@@ -72,9 +74,8 @@ setup). In CI/CD these come from GitHub Actions secrets.
 
 | Variable | Purpose |
 |----------|---------|
-| `TF2SA_MYSQL_HOST` / `_USR` / `_PWD` / `_DB` | Database connection (assembled in `TF2SA.Data/DependencyInjection.cs`). |
+| `TF2SA_DUCKDB_PATH` | Path to the DuckDB data file — the only database. `/data/analytics.duckdb` in production (bind-mounted); a temp-dir default locally if unset. |
 | `TF2SA_STEAM_API_KEY` | Steam Web API key for player enrichment. |
-| `TF2SA_ANALYTICS_ENABLED` / `TF2SA_DUCKDB_PATH` / `TF2SA_MYSQL_PORT` | Optional — the DuckDB analytics store ([analytics-store.md](./analytics-store.md)). Disabled by default; when enabled, the ETL refreshes a DuckDB cache alongside the stored procs. |
 
 The frontend's API base URL is compiled in, not env-injected:
 `frontend/src/environments/environment.ts` (`https://tf2sa.co.za/api/v1`) for
@@ -107,17 +108,60 @@ flowchart LR
   Hub, then SSHes into the EC2 host and redeploys with `docker-compose pull` +
   `down -v` + `up -d`.
 
-> **`down -v` drops volumes on each deploy.** Because MariaDB seeds its schema from
-> `docker-entrypoint-initdb.d` on a fresh volume, deployment behavior around data
-> persistence depends on how the DB data volume is provisioned on the host. Verify
-> the host's volume/persistence setup before relying on data surviving a deploy.
-> Tracked in [known-issues.md](../known-issues.md).
+> **`down -v` drops volumes on each deploy.** This no longer risks the database:
+> since [ADR 0009](../decisions/0009-drop-mariadb.md), DuckDB's data file lives on a
+> **host bind mount** (`/home/ubuntu/tf2sa-data` → `/data`), not a compose-managed
+> volume, and `down -v` only removes what's declared in `docker-compose.yml`'s
+> top-level `volumes:` block (currently just `tf2sa-web`, the compiled SPA — cheap to
+> rebuild). See [scripts/backup-duckdb.sh](../../scripts/backup-duckdb.sh) for
+> periodic backup of the data file itself, which is now load-bearing rather than a
+> rebuildable cache.
 
 ## Host provisioning
 
 `scripts/iac/iac.sh` is a minimal bootstrap that installs Docker and
 docker-compose on a fresh Ubuntu host. TLS material lives under
-`/home/ubuntu/certbot` on the host and is bind-mounted into nginx and certbot.
+`/home/ubuntu/certbot` on the host and is bind-mounted into nginx and certbot;
+DuckDB's data file lives under `/home/ubuntu/tf2sa-data` the same way. Neither
+directory needs pre-creation — Docker creates an empty one on first bind mount, and
+`tf2sa-backend` self-initializes the (empty) DuckDB schema on first connection.
+
+## One-time migration (existing deployments only)
+
+A **fresh** deployment needs no migration step — an empty `tf2sa-data` directory
+self-initializes and fills up from real ingestion. A deployment that already has
+production data in a still-running MariaDB (i.e. upgrading *through*
+[ADR 0009](../decisions/0009-drop-mariadb.md) rather than starting clean) needs a
+one-time bulk copy before cutover, run once via the DuckDB CLI against the live
+MariaDB — reusing the exact mechanism the old per-cycle refresh used
+([analytics-store.md](./analytics-store.md)):
+
+```sql
+INSTALL mysql; LOAD mysql;
+ATTACH '<production MariaDB connection>' AS maria (TYPE mysql, READ_ONLY);
+CREATE TABLE Players SELECT * FROM maria.Players;
+CREATE TABLE Games SELECT * FROM maria.Games;
+CREATE TABLE PlayerStats SELECT * FROM maria.PlayerStats;
+CREATE TABLE ClassStats SELECT * FROM maria.ClassStats;
+CREATE TABLE WeaponStats SELECT * FROM maria.WeaponStats;
+DETACH maria;
+
+-- Bootstrap the surrogate-key sequences past the copied data. This DuckDB version
+-- does not support ALTER SEQUENCE ... RESTART WITH — drop and recreate instead,
+-- then re-bind each table's DEFAULT (schema init only does this for a fresh table).
+DROP SEQUENCE seq_playerstats; DROP SEQUENCE seq_classstats; DROP SEQUENCE seq_weaponstats;
+CREATE SEQUENCE seq_playerstats START (SELECT max(PlayerStatsID) + 1 FROM PlayerStats);
+CREATE SEQUENCE seq_classstats START (SELECT max(ClassStatsID) + 1 FROM ClassStats);
+CREATE SEQUENCE seq_weaponstats START (SELECT max(WeaponStatsID) + 1 FROM WeaponStats);
+ALTER TABLE PlayerStats ALTER COLUMN PlayerStatsID SET DEFAULT nextval('seq_playerstats');
+ALTER TABLE ClassStats ALTER COLUMN ClassStatsID SET DEFAULT nextval('seq_classstats');
+ALTER TABLE WeaponStats ALTER COLUMN WeaponStatsID SET DEFAULT nextval('seq_weaponstats');
+```
+
+Run this against a file at the target `/home/ubuntu/tf2sa-data/analytics.duckdb`
+path (create the directory first if migrating before the first deploy of the new
+image), confirm row counts match MariaDB, then deploy — MariaDB can be decommissioned
+once the new backend is confirmed healthy against the migrated file.
 
 ## Historical note
 

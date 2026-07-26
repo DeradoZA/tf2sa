@@ -1,11 +1,19 @@
-# Analytics Store (DuckDB read layer)
+# Analytics Store (DuckDB)
 
-> How TF2SA serves statistics reads. An **embedded DuckDB** columnar store holds a
-> derived fact table and answers leaderboard/player queries by aggregating on the
-> fly, replacing the pre-computed leaderboard tables and stored procedures. For the
-> rationale see [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md); for the
-> raw model that feeds it see [database.md](./database.md); for how a request is
-> served see [request-flow.md](./request-flow.md).
+> How TF2SA stores and serves data. An **embedded DuckDB** columnar store is the
+> **only database** — the system of record for raw ingested rows *and* the engine
+> that answers leaderboard/player queries by aggregating on the fly, replacing both
+> the pre-computed leaderboard tables/stored procedures and, later, MariaDB itself.
+> For the rationale see [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)
+> and [ADR 0009](../decisions/0009-drop-mariadb.md); for the raw model see
+> [database.md](./database.md); for how a request is served see
+> [request-flow.md](./request-flow.md).
+>
+> This document is written in the order the migration actually happened: DuckDB
+> started as a read-only cache alongside MariaDB (Phases 0–3), then became the
+> write target too and MariaDB was dropped (Phase 4). Read top to bottom for the
+> history, or jump to [Phase 4](#phase-4--mariadb-dropped-duckdb-is-the-write-target-2026-07-26)
+> for how things work today.
 
 ## Why this exists
 
@@ -22,7 +30,11 @@ the trade: an arbitrary `GROUP BY` over a few million rows is single-digit-to-lo
 so leaderboards can be computed dynamically per request while staying fast on modest
 hardware.
 
-## System-of-record split
+## System-of-record split (historical — Phases 0–3)
+
+This section describes the design **as it stood before Phase 4**. It's kept for
+history; skip to [Phase 4](#phase-4--mariadb-dropped-duckdb-is-the-write-target-2026-07-26)
+for the current design.
 
 ```mermaid
 flowchart LR
@@ -39,15 +51,17 @@ flowchart LR
     api -->|"parametrized aggregation reads"| duck
 ```
 
-- **MariaDB — source of record (unchanged).** Raw tables `Games`, `Players`,
+- **MariaDB — source of record (at the time).** Raw tables `Games`, `Players`,
   `PlayerStats`, `ClassStats`, `WeaponStats`; ingestion; foreign keys; the
-  processed-log ledger. Row-by-row inserts are what it does well; the write path is
-  untouched.
-- **DuckDB — derived analytics cache (new).** A single `.duckdb` file (or in-memory,
-  rebuilt on startup) holding columnar copies of the raw tables. Because it is fully
-  derivable from MariaDB, it is a **rebuildable cache** — it can be regenerated at any
-  time, which also means its persistence is not load-bearing (sidestepping the
-  `docker-compose down -v` volume concern in [known-issues.md](../known-issues.md)).
+  processed-log ledger. Row-by-row inserts are what it does well; the write path was
+  untouched by Phases 0–3.
+- **DuckDB — derived analytics cache (at the time).** A single `.duckdb` file (or
+  in-memory, rebuilt on startup) holding columnar copies of the raw tables. Because
+  it was fully derivable from MariaDB, it was a **rebuildable cache** — it could be
+  regenerated at any time, which also meant its persistence wasn't load-bearing
+  (sidestepping the `docker-compose down -v` volume concern). Phase 4 changed this:
+  DuckDB is no longer derived from anything, and its persistence now matters — see
+  below.
 
 > **As implemented, the `(player, game, class)` fact table below is a logical grain,
 > not a materialized table.** `RefreshAsync` copies the four raw tables (`Players`,
@@ -344,40 +358,107 @@ DuckDB is now the only read path for the 10 leaderboards; the parallel run is ov
   `PlayersRepository` (insert/update on ingestion), plus `PlayersRepository`'s read for
   the player-list endpoint, which has no DuckDB equivalent yet.
 
+## Phase 4 — MariaDB dropped, DuckDB is the write target (2026-07-26)
+
+Same day as Phase 3, the remaining EF footprint (4 write call sites, 1 read) was
+also replaced, and MariaDB was removed entirely
+([ADR 0009](../decisions/0009-drop-mariadb.md)). This is the current design.
+
+**Schema.** `TF2SA.Data/Analytics/Schema.sql` (new embedded file, loaded alongside
+`Leaderboards.sql`/`PlayerDetail.sql`) declares the five raw tables and three
+sequences, applied idempotently (`CREATE TABLE`/`CREATE SEQUENCE ... IF NOT EXISTS`)
+on every connection open. Column names/types mirror what MariaDB held, so the
+existing macros needed **zero changes** — verified by loading them against the
+fresh schema and running a query before a single row existed, then again after a
+full real-data bulk copy.
+
+**Writes.** Three new methods on `IAnalyticsStore`:
+
+- `InsertGameAsync(GameWrite)` — the full `Game`→`PlayerStats`→`ClassStats`→`WeaponStats`
+  graph in one DuckDB transaction, rolled back whole on failure. Surrogate keys
+  (`PlayerStatsID`/`ClassStatsID`/`WeaponStatsID`) come from `nextval('seq_x')`,
+  fetched explicitly and threaded down through the graph — DuckDB has no
+  auto-increment/FK-fixup mechanism, so what EF used to do implicitly is now
+  hand-written in `DuckDbAnalyticsStore`'s row-insert helpers.
+- `UpsertPlayersAsync` — one `INSERT ... ON CONFLICT (SteamID) DO NOTHING` per
+  player. Replaces the EF select-then-insert pattern that had a commented, known
+  duplicate-key race under concurrent ingestion; closed as a side effect of every
+  write now serializing through the store's single-connection semaphore, not a
+  separate fix.
+- `UpdatePlayersAsync` — faithfully replicates `PlayersRepository.UpdatePlayers`'
+  exact behaviour, including two pre-existing quirks documented in
+  [known-issues.md](../known-issues.md) (a player absent from the Steam-refresh
+  batch gets every profile column nulled, and `AvatarHash` is set from the incoming
+  record's `Avatar`, not its `AvatarHash`).
+
+All three use parameterized `DuckDBCommand.Parameters`, never string interpolation —
+unlike the read-side macros (which only interpolate internally-whitelisted
+identifiers like a bucket name or a class ID), this path persists real
+user-influenced text: player names, map names, log titles.
+
+**`RefreshAsync` and the `mysql` scanner are deleted entirely.** There is nothing
+left to copy from — a write lands directly in the tables every macro already reads,
+so there is no more staleness window and no more per-cycle copy step.
+`StatisticsUpdater`/`IStatisticsUpdater` are deleted outright, along with their call
+site in `LogsTFIngestionHandler` — the whole class existed only to trigger that copy.
+
+**`GameLog` → row mapping is hand-written, not AutoMapper.** `LogIngestionRepositoryUpdater`
+builds `GameWrite`/`PlayerWrite` graphs directly, reproducing the same flattening of
+`LogInfo`/`Uploader` onto `Game`, the same Red/Blue score lookup by parsed `TeamId`,
+and the same numeric narrowing AutoMapper's nullable-to-non-nullable convention used
+to apply — just explicit. AutoMapper is gone from the whole backend now, not just
+this path; see [ADR 0009](../decisions/0009-drop-mariadb.md).
+
+**The player list moved off EF too.** `IAnalyticsStore.GetPlayersPageAsync` is a
+dedicated method, not routed through `GetPageAsync<T>`, because the old EF query
+filtered a single `filterString` across *two* columns (`PlayerName` OR
+`SteamID`-as-text) — a shape `GetPageAsync<T>`'s single-column filter can't express.
+
+**`IAnalyticsStore.Enabled`/`TF2SA_ANALYTICS_ENABLED` are gone.** That flag existed
+to tell handlers whether to read DuckDB or fall back to EF during the Phase 1–3
+parallel run. With no fallback left and DuckDB unconditionally the only database,
+the flag no longer gated anything real — worse, only 2 of 13 read handlers ever
+checked it, so an unset env var produced a confusing partial failure rather than a
+clean one. Removed rather than left as a dead safety switch.
+
+**Verification.** Beyond the schema/macro check above: ran a real ingestion cycle
+(100 real logs.tf games, real Steam API calls) through the new write path into a
+scratch DuckDB file, then diffed every resulting row — Games (100), PlayerStats
+(1,144), ClassStats (1,889), WeaponStats (4,051) — against MariaDB's existing stored
+data for those same (already-ingested) GameIDs. Zero mismatches on any field, across
+all four tables. Also built and ran the actual Docker image with no MariaDB
+reachable at all: it self-initialized the schema, ran a real ingestion cycle, and
+served every leaderboard/player-detail/comparison/player-list endpoint correctly.
+
+**One disclosed behaviour change, not a bug**: the player list's default sort order
+for symbol-prefixed names shifted, because MariaDB's `utf8mb4_unicode_ci` collation
+(which weights punctuation near-last) is gone — DuckDB orders `VARCHAR` by plain
+codepoint. Total player count and every other field were unaffected; confirmed by
+hand (Python's default string sort matches DuckDB's output exactly). See
+[known-issues.md](../known-issues.md).
+
 ### Configuration
 
 | Env var | Default | Meaning |
 |---------|---------|---------|
-| `TF2SA_ANALYTICS_ENABLED` | `false` | Master switch; when off, `RefreshAsync` is a no-op. |
-| `TF2SA_DUCKDB_PATH` | temp dir | Path to the `.duckdb` cache file (a rebuildable derived cache; a writable volume in prod). |
-| `TF2SA_MYSQL_PORT` | `3306` | MariaDB port for the scanner; host/user/password/db reuse the existing `TF2SA_MYSQL_*` vars. |
-
-> **Deployment note:** the first refresh runs `INSTALL mysql` which downloads the
-> extension from `extensions.duckdb.org`; the host needs outbound access (or the
-> extension pre-installed). The `.duckdb` file is a derived cache and can be rebuilt
-> from MariaDB at any time.
+| `TF2SA_DUCKDB_PATH` | temp dir | Path to the DuckDB data file — the only database, load-bearing (a host bind mount in production; see [deployment.md](./deployment.md)). |
 
 ## Risks
 
-- **Refresh vs. read concurrency** — one writer per cycle, snapshot reads; the swap
-  approach (e.g. rebuild-then-swap, or a write transaction) is settled during
-  implementation.
-- **Math parity** — the DuckDB aggregations must match the retired procs exactly
-  (win/loss/draw, per-minute normalization, thresholds, Overall class carve-outs);
-  enforced by a dual-run output diff during migration.
 - **Overall-board latency at peak volume** — see Phase 0; materialize a per-game
-  rollup or cache if it proves too slow on the production box.
+  rollup or cache if it proves too slow on the production box. The only risk from
+  the original list still open — refresh/read concurrency was settled (a single
+  connection + semaphore) and no longer applies at all post-Phase-4 (there is no
+  refresh), and math parity was proven by direct diff, both during the original
+  migration and again against real MariaDB data when the write path moved (Phase 4).
 
 ## When to update this document
 
 Update this document when:
 
-- The fact grain or columns change, or a fact table is actually materialized.
-- The set of raw tables copied by the refresh changes (e.g. adding `WeaponStats` for
-  per-weapon views).
-- The refresh trigger, cadence, or full-rebuild-vs-incremental choice changes.
+- The raw table columns change (also update [database.md](./database.md)).
+- The write path changes (new insert/update method, different transaction shape).
 - The query/parameter model for leaderboards changes (new window semantics,
   thresholds, sort/filter surface).
 - A new analytical view is added, or a new embedded `.sql` file is loaded by the store.
-- The read layer moves off DuckDB (which would
-  supersede [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)).
+- The read layer moves off DuckDB.

@@ -1,7 +1,11 @@
 # 8. Embedded DuckDB analytics read layer
 
 - **Status:** Accepted; fully implemented (2026-07-26 — see Phase 3 in
-  [architecture/analytics-store.md](../architecture/analytics-store.md))
+  [architecture/analytics-store.md](../architecture/analytics-store.md)). Its
+  "MariaDB stays system of record, DuckDB is a derived cache" framing was later
+  superseded the same day by [ADR 0009](0009-drop-mariadb.md) — MariaDB is gone and
+  DuckDB is now the system of record. The *rationale* for choosing DuckDB (columnar,
+  in-process, no separate service) is unaffected and this ADR stays as that record.
 - **Date:** 2026-07-10
 
 ## Context

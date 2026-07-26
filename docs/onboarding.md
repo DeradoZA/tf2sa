@@ -11,8 +11,11 @@
 | .NET SDK | 10.0.x | Building/testing the backend directly |
 | Node.js | 18.x | Building/serving the Angular frontend |
 | Angular CLI | 15.x (`npm i -g @angular/cli`) | Frontend dev server |
-| MariaDB | 10.6 | Database (via Docker or local) |
 | CSharpier | matches `dotnet/.csharpierrc` | Formatting C# (`dotnet tool`/IDE) |
+
+No separate database to install — DuckDB is embedded in the backend process and
+self-initializes its schema on first run
+([ADR 0009](./decisions/0009-drop-mariadb.md)).
 
 ## Environment variables
 
@@ -22,20 +25,14 @@ Docker Compose, put them in a `.env` file next to `docker-compose.yml`.
 
 | Variable | Required | Example / notes |
 |----------|----------|-----------------|
-| `TF2SA_MYSQL_HOST` | yes | `tf2sa-db` (compose) or `localhost` |
-| `TF2SA_MYSQL_USR` | yes | app DB user |
-| `TF2SA_MYSQL_PWD` | yes | app DB password |
-| `TF2SA_MYSQL_DB` | yes | `tf2sa_db` (matches `USE tf2sa_db;` in the schema) |
 | `TF2SA_STEAM_API_KEY` | yes for player enrichment | Steam Web API key |
+| `TF2SA_DUCKDB_PATH` | no | Path to the DuckDB data file. Defaults to a temp-dir file if unset — fine for local work, but set it to a stable path if you want data to survive a restart. |
 
 Example `.env`:
 
 ```dotenv
-TF2SA_MYSQL_HOST=tf2sa-db
-TF2SA_MYSQL_USR=tf2sa
-TF2SA_MYSQL_PWD=changeme
-TF2SA_MYSQL_DB=tf2sa_db
 TF2SA_STEAM_API_KEY=your-steam-web-api-key
+TF2SA_DUCKDB_PATH=./local.duckdb
 ```
 
 > Ingestion is **off by default** in `TF2SA.StatsETLService/appsettings.json`
@@ -54,25 +51,18 @@ docker compose up -d
 docker compose logs -f tf2sa-backend
 ```
 
-The database container seeds its schema and stored procedures automatically on a
-fresh volume from `scripts/mariadb/*.sql`.
+The backend self-initializes an empty DuckDB schema on first run and fills up from
+real ingestion — no seed step, no separate DB container.
 
 ## Option B — run backend and frontend directly (tighter dev loop)
 
-**Database** — start just the DB via compose, or point at a local MariaDB with the
-schema applied:
-
-```bash
-docker compose up -d tf2sa-db
-```
-
-**Backend** (API + co-hosted ETL):
+**Backend** (API + co-hosted ETL + embedded DuckDB):
 
 ```bash
 cd dotnet
 dotnet restore
 dotnet build /warnaserror           # CI builds with warnings-as-errors
-dotnet run --project TF2SA.Web      # serves the API + Swagger UI
+TF2SA_DUCKDB_PATH=./local.duckdb dotnet run --project TF2SA.Web  # serves the API + Swagger UI
 ```
 
 Swagger UI is enabled in all environments. The dev frontend expects the API at
@@ -122,10 +112,10 @@ query params. See [known-issues.md](./known-issues.md) for coverage gaps.
 
 | Task | Where to work | Notes |
 |------|---------------|-------|
-| Add a read endpoint | `TF2SA.Query` (query + handler + result) → `TF2SA.Web` (controller action + HTTP result) | Follow [ADR 0003](./decisions/0003-cqrs-read-side-with-mediatr.md) and [request-flow.md](./architecture/request-flow.md). |
-| Change how a stat is computed | `scripts/mariadb/update_*_stats.sql` | Recent **and** all-time are separate files; keep in sync. See [database.md](./architecture/database.md). |
-| Add/change a table or column | `scripts/mariadb/*.sql`, then re-run `TF2SA.Data/scaffold.sh` | DB-first; never hand-edit scaffolded entities. See [ADR 0004](./decisions/0004-database-first-ef-scaffolding.md). |
-| Change an ingested field | `scripts/mariadb`, `TF2SA.Common` models, validators, `LogIngestionRepositoryUpdater`; update [`docs/stats.md`](./stats.md) | logs.tf field mapping is documented in `stats.md`. |
+| Add a read endpoint | `TF2SA.Query` (query + handler + result) → `TF2SA.Web` (controller action + HTTP result) | Follow [ADR 0003](./decisions/0003-cqrs-read-side-with-mediatr.md) and [request-flow.md](./architecture/request-flow.md). Register the new handler directly in `TF2SA.Query/DependencyInjection.cs`. |
+| Change how a stat is computed | `TF2SA.Data/Analytics/Leaderboards.sql` or `PlayerDetail.sql` | One macro, no per-window duplicate files. See [analytics-store.md](./architecture/analytics-store.md). |
+| Add/change a table or column | `TF2SA.Data/Analytics/Schema.sql`, then the matching row POCO(s) in `TF2SA.Data/Analytics/Rows/` | Hand-maintained SQL, no scaffolding tool. See [database.md](./architecture/database.md). |
+| Change an ingested field | `TF2SA.Common` models, validators, `LogIngestionRepositoryUpdater`'s hand-written mapping; update [`docs/stats.md`](./stats.md) | logs.tf field mapping is documented in `stats.md`. |
 | Add a community uploader | `LogsTF.Uploaders` in `appsettings.json` | Config + redeploy. See [ADR 0007](./decisions/0007-curated-uploader-allowlist.md). |
 | Add a frontend page | `frontend/src/app/components/pages/...` + `routes.ts` + `app-routing.module.ts` | Atomic-design layout (molecules/organisms/pages). |
 

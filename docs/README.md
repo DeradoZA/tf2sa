@@ -14,11 +14,11 @@ this folder holds the canonical technical reference.
 | Document | Covers |
 |----------|--------|
 | [architecture/overview.md](./architecture/overview.md) | System context, container view, project dependency graph, tech-stack rationale, conventions. |
-| [architecture/ingestion-pipeline.md](./architecture/ingestion-pipeline.md) | The write path: logs.tf → validate → store → aggregate. |
-| [architecture/request-flow.md](./architecture/request-flow.md) | The read path: browser → nginx → controller → MediatR → repository → DuckDB analytics store. |
-| [architecture/database.md](./architecture/database.md) | Raw data model (MariaDB, source of record), ERD, scaffold workflow. |
-| [architecture/analytics-store.md](./architecture/analytics-store.md) | The DuckDB read layer: fact table, refresh, on-the-fly leaderboard queries. |
-| [architecture/deployment.md](./architecture/deployment.md) | Container topology, nginx/TLS, CI/CD, hosting. |
+| [architecture/ingestion-pipeline.md](./architecture/ingestion-pipeline.md) | The write path: logs.tf → validate → insert directly into DuckDB. |
+| [architecture/request-flow.md](./architecture/request-flow.md) | The read path: browser → nginx → controller → query handler → DuckDB store. |
+| [architecture/database.md](./architecture/database.md) | Raw data model (embedded DuckDB, the system of record), ERD, schema workflow. |
+| [architecture/analytics-store.md](./architecture/analytics-store.md) | The DuckDB store: schema, writes, on-the-fly leaderboard queries, migration history. |
+| [architecture/deployment.md](./architecture/deployment.md) | Container topology, nginx/TLS, CI/CD, hosting, DuckDB backup. |
 
 ## Reference
 
@@ -41,6 +41,7 @@ The *why* behind non-obvious choices lives in [decisions/](./decisions/):
 - [0006 — Co-hosted ETL background service](./decisions/0006-cohosted-etl-background-service.md)
 - [0007 — Curated uploader allowlist](./decisions/0007-curated-uploader-allowlist.md)
 - [0008 — Embedded DuckDB analytics read layer](./decisions/0008-duckdb-analytics-read-layer.md)
+- [0009 — Drop MariaDB — DuckDB becomes the system of record](./decisions/0009-drop-mariadb.md)
 
 ## Keeping docs in sync
 

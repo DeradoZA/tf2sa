@@ -1,39 +1,45 @@
 # Database
 
-> The **raw data model** — how it is defined and evolved — held in MariaDB, which is
-> the **system of record**. Leaderboard aggregation no longer lives here: it moved to
-> an embedded **DuckDB analytics read layer** ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md),
-> [analytics-store.md](./analytics-store.md)). This database is where the
-> [write path](./ingestion-pipeline.md) lands raw rows; the [read path](./request-flow.md)
-> now serves from DuckDB.
+> The data model — how it is defined and evolved — held in an embedded **DuckDB**
+> database, which is the **system of record**. There is no separate database
+> service: DuckDB runs in-process inside `tf2sa-backend`
+> ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md),
+> [ADR 0009](../decisions/0009-drop-mariadb.md)). Both the
+> [write path](./ingestion-pipeline.md) and the [read path](./request-flow.md) go
+> through the same tables — a write is immediately visible to every read.
 
 ## Engine and conventions
 
-- **MariaDB 10.6**, InnoDB, `utf8mb4` / `utf8mb4_unicode_ci` (player names contain
-  non-ASCII characters).
-- Schema and stored procedures live in [`scripts/mariadb/`](../../scripts/mariadb/)
-  and are applied at container startup: `Dockerfile.tf2sa-db` copies every `.sql`
-  file into `/docker-entrypoint-initdb.d/`, which MariaDB runs on first
-  initialization (`create_stats_schema.sql` creates tables; each
-  `update_*_stats.sql` defines one stored procedure).
-- **The SQL schema is the source of truth** for the data model. C# entities are
-  reverse-engineered from it — see [ADR 0004](../decisions/0004-database-first-ef-scaffolding.md).
+- **DuckDB**, file-backed (`TF2SA_DUCKDB_PATH`, a host bind mount in production —
+  see [deployment.md](./deployment.md)).
+- Schema lives in
+  [`TF2SA.Data/Analytics/Schema.sql`](../../dotnet/TF2SA.Data/Analytics/Schema.sql),
+  embedded into the assembly and applied idempotently (`CREATE TABLE IF NOT EXISTS`,
+  `CREATE SEQUENCE IF NOT EXISTS`) on every connection open — a fresh file
+  self-initializes; an existing one is a no-op. There is no scaffolding tool and no
+  migration history: **the SQL file is the schema**, hand-maintained directly.
+- Column names and types mirror what the schema held under MariaDB, so the
+  leaderboard/player-detail macros in
+  [`Leaderboards.sql`](../../dotnet/TF2SA.Data/Analytics/Leaderboards.sql) and
+  [`PlayerDetail.sql`](../../dotnet/TF2SA.Data/Analytics/PlayerDetail.sql) needed no
+  changes when the database moved.
 
-## What MariaDB holds
+## What DuckDB holds
 
-MariaDB holds the **raw, per-match tables only** — the source of record:
+The **raw, per-match tables** are the source of record; the same tables are what
+every leaderboard/player-detail macro aggregates on the fly:
 
 | Tables | Written by | Read by |
 |--------|-----------|---------|
-| `Games`, `Players`, `PlayerStats`, `ClassStats`, `WeaponStats` | Ingestion pipeline (row-by-row inserts) | The DuckDB refresh (which derives the analytics fact table from these) |
+| `Games`, `Players`, `PlayerStats`, `ClassStats`, `WeaponStats` | Ingestion pipeline, directly (`IAnalyticsStore.InsertGameAsync`/`UpsertPlayersAsync`/`UpdatePlayersAsync`) | Every leaderboard/player-detail/comparison/player-list query, in the same process, no refresh step in between |
 
-> **Historical note.** MariaDB previously also held a second tier of 12
-> **pre-aggregated** leaderboard tables (`{Scout,Soldier,Demoman,Medic}{Recent,AllTime}`,
-> `OverallStats{Recent,AllTime}`) rebuilt by 10 stored procedures. Those are being
-> retired in favour of on-the-fly aggregation in DuckDB — see
-> [analytics-store.md](./analytics-store.md) and
-> [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md). The API now aggregates
-> per request in the columnar read layer; it no longer reads pre-computed tables here.
+> **Historical note.** Two things used to sit between "ingested" and "queryable"
+> here and are both gone now: a second tier of 12 **pre-aggregated** leaderboard
+> tables rebuilt by 10 MariaDB stored procedures (retired — see
+> [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)), and MariaDB itself
+> as a separate database that DuckDB copied from once per ingestion cycle (retired —
+> see [ADR 0009](../decisions/0009-drop-mariadb.md)). The API aggregates per request
+> directly over these five tables; there is nothing precomputed and nothing to copy.
 
 ## Raw schema (entity-relationship)
 
@@ -65,7 +71,7 @@ erDiagram
         string LocalCountryCode
     }
     PlayerStats {
-        int PlayerStatsID PK
+        int PlayerStatsID PK "sequence-generated"
         int GameID FK
         bigint SteamID FK
         int TeamID
@@ -78,7 +84,7 @@ erDiagram
         int CapturePointsCaptured
     }
     ClassStats {
-        int ClassStatsID PK
+        int ClassStatsID PK "sequence-generated"
         int PlayerStatsID FK
         int ClassID
         int Kills
@@ -88,7 +94,7 @@ erDiagram
         int Playtime
     }
     WeaponStats {
-        int WeaponStatsID PK
+        int WeaponStatsID PK "sequence-generated"
         int ClassStatsID FK
         string WeaponName
         int Kills
@@ -98,9 +104,16 @@ erDiagram
     }
 ```
 
-Foreign keys cascade on delete/update (`fk_game_id`, `fk_player_id`,
-`fk_playerstats_id`, `fk_class_stats`), so removing a `Game` cleans up its child
-rows. The pre-rendered ERD image [`docs/erd.png`](../erd.png) is a companion view.
+Foreign keys are declared (`REFERENCES` in `Schema.sql`) and enforced by DuckDB, so
+an insert referencing a missing parent row fails rather than landing an orphan.
+`GameID` and `SteamID` are always caller-supplied (from logs.tf / Steam data), never
+generated. The three per-row-in-a-game surrogate keys
+(`PlayerStatsID`/`ClassStatsID`/`WeaponStatsID`) have no native "auto-increment" in
+DuckDB — they're assigned from DuckDB sequences (`seq_playerstats` etc.), fetched
+explicitly and threaded down through the insert graph by
+`DuckDbAnalyticsStore.InsertGameAsync` and its row-insert helpers. The pre-rendered
+ERD image [`docs/erd.png`](../erd.png) predates this and describes the shape only,
+not the current storage engine.
 
 ### What each raw table holds
 
@@ -115,58 +128,51 @@ rows. The pre-rendered ERD image [`docs/erd.png`](../erd.png) is a companion vie
 - **`ClassStats`** — one row per player per game per class played (`ClassID` maps to
   the `ClassId` enum: scout=1, soldier=2, demoman=4, medic=7, …). Per-class kills,
   assists, deaths, damage, playtime.
-- **`WeaponStats`** — one row per weapon within a `ClassStats` row.
+- **`WeaponStats`** — one row per weapon within a `ClassStats` row. Ingested but not
+  yet read by any query — see [known-issues.md](../known-issues.md).
 
 > **Data provenance:** [`docs/stats.md`](../stats.md) is the authoritative,
 > field-by-field mapping from the logs.tf JSON response to these columns, including
 > which fields are intentionally dropped and why. Consult it before adding or
 > changing an ingested field.
 
-## Aggregation lives in the analytics store
+## Aggregation lives in the same store
 
 Per-player leaderboards (per-class and overall, "recent" vs "all-time", the
-min-games threshold, win/loss/draw, averages, and "top game" highlights) are
-**computed on the fly in the DuckDB analytics read layer**, from a derived fact
-table built out of these raw tables. The "recent" window and the games threshold are
-**query parameters** there, not schema. See
-[analytics-store.md](./analytics-store.md) for the fact-table grain, the refresh
-strategy, and the query patterns.
+min-games threshold, win/loss/draw, averages, and "top game" highlights), player
+detail, and comparison are all **computed on the fly** from these five tables by
+parametrized DuckDB macros. The "recent" window and the games threshold are **query
+parameters**, not schema. See [analytics-store.md](./analytics-store.md) for the
+macros, the write path, and the query patterns.
 
-The 10 pre-aggregated tables and the 10 `scripts/mariadb/update_*_stats.sql` stored
-procedures that formerly produced them are being removed as part of that migration
-([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)).
+## How to change the schema
 
-## How to change the schema (the scaffold workflow)
+There is no scaffolding step and no ORM to keep in sync — the workflow is:
 
-The **raw** tables remain database-first. The workflow is:
+1. Edit `TF2SA.Data/Analytics/Schema.sql` directly (add a column, a table, a
+   sequence).
+2. Update the row POCOs in `TF2SA.Data/Analytics/Rows/` (or the `*Write` types) that
+   the change affects — these are hand-written, not generated, and map to columns by
+   case-insensitive name.
+3. Update the write path (`DuckDbAnalyticsStore.InsertGameAsync` and its row-insert
+   helpers, or `LogIngestionRepositoryUpdater`'s `GameLog` → `GameWrite` mapping) if
+   the change affects ingestion.
+4. Update [`docs/stats.md`](../stats.md) if ingested fields changed, and any
+   leaderboard/player-detail macro in [analytics-store.md](./analytics-store.md)
+   that should surface the new column.
 
-1. Edit the schema SQL in `scripts/mariadb/create_stats_schema.sql`.
-2. Apply it to your database (re-init the DB container, or run the SQL manually).
-3. Re-generate the EF Core entities and `DbContext` by running
-   `TF2SA.Data/scaffold.sh` (uses `dotnet ef dbcontext scaffold` against the live
-   DB, `--force`, restricted to the listed **raw** tables).
-4. Update `TF2SADbContext` registrations / repositories / mappings as needed for
-   new entities.
-5. Update [`docs/stats.md`](../stats.md) if ingested fields changed, and refresh the
-   DuckDB fact-table projection in [analytics-store.md](./analytics-store.md) if a
-   new raw column should surface in leaderboards.
-
-> The analytics read layer is **not** part of this scaffold workflow — it queries the
-> raw tables directly via DuckDB and has no scaffolded EF entities. Changing a
-> leaderboard means editing a query, not the schema (see
-> [analytics-store.md](./analytics-store.md)).
-
-**Do not hand-edit the scaffolded entities or the generated parts of
-`TF2SADbContext`** — `scaffold.sh --force` overwrites them.
+A schema change to an **existing production deployment** also needs the one-time
+migration step described in [deployment.md](./deployment.md) if it changes column
+types or adds a `NOT NULL` column without a default — `CREATE TABLE IF NOT EXISTS`
+only helps a table that doesn't exist yet; it does not alter one that does.
 
 ## When to update this document
 
 Update this document when:
 
 - A raw table, column, key, or foreign-key relationship is added/removed/changed.
-- The scaffold workflow or the set of scaffolded (raw) tables changes.
 - The DB engine or version changes.
 
 Aggregation concerns — the recent-window length, the min-games threshold, stat
-definitions, and the fact-table shape — now live in
+definitions, and the macro shapes — now live in
 [analytics-store.md](./analytics-store.md); update that document instead.
