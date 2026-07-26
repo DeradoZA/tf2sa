@@ -21,16 +21,18 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetOverallStatsResult> result = await mediator.Send(
-			new GetOverallRecentQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetOverallStatsResult> result =
+			await getOverallRecentHandler.Handle(
+				new GetOverallRecentQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
@@ -56,16 +58,18 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetOverallStatsResult> result = await mediator.Send(
-			new GetOverallAllTimeQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetOverallStatsResult> result =
+			await getOverallAllTimeHandler.Handle(
+				new GetOverallAllTimeQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{

@@ -1,5 +1,4 @@
 using AutoMapper;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Monad;
@@ -13,7 +12,6 @@ using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 namespace TF2SA.Query.Queries.GetPlayers;
 
 public class GetPlayersQueryHandler
-	: IRequestHandler<GetPlayersQuery, EitherStrict<Error, GetPlayersResult>>
 {
 	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
 	private readonly IMapper mapper;
@@ -65,7 +63,7 @@ public class GetPlayersQueryHandler
 				Count = players.Count(),
 				Sort = sortUsed,
 				SortOrder = sortOrderUsed,
-				FilterString = filterStringUsed
+				FilterString = filterStringUsed,
 			};
 		}
 		catch (Exception e)

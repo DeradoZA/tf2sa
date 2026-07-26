@@ -1,11 +1,9 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
 namespace TF2SA.Query.Queries.GetPlayerDetail;
 
 public class GetPlayerDetailQuery
-	: IRequest<EitherStrict<Error, GetPlayerDetailResult>>
 {
 	public GetPlayerDetailQuery(ulong steamId, string bucket, int classId)
 	{

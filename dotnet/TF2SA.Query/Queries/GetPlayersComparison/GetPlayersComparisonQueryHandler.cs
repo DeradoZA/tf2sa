@@ -1,4 +1,3 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
@@ -9,10 +8,6 @@ using TF2SA.Data.Errors;
 namespace TF2SA.Query.Queries.GetPlayersComparison;
 
 public class GetPlayersComparisonQueryHandler
-	: IRequestHandler<
-		GetPlayersComparisonQuery,
-		EitherStrict<Error, GetPlayersComparisonResult>
-	>
 {
 	private static readonly string[] AllowedBuckets = { "week", "month" };
 	private const string DefaultBucket = "month";
@@ -89,8 +84,7 @@ public class GetPlayersComparisonQueryHandler
 					cancellationToken
 				);
 
-			List<PlayerComparisonDomain> players = rows
-				.GroupBy(r => r.SteamId)
+			List<PlayerComparisonDomain> players = rows.GroupBy(r => r.SteamId)
 				.Select(g => new PlayerComparisonDomain
 				{
 					SteamId = g.Key,
@@ -124,7 +118,10 @@ public class GetPlayersComparisonQueryHandler
 				players.Select(p => p.SteamId)
 			);
 			players.AddRange(
-				missing.Select(id => new PlayerComparisonDomain { SteamId = id })
+				missing.Select(id => new PlayerComparisonDomain
+				{
+					SteamId = id,
+				})
 			);
 
 			return new GetPlayersComparisonResult(

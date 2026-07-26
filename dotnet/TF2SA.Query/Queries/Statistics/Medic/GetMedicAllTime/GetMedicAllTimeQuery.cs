@@ -1,12 +1,9 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
 namespace TF2SA.Query.Queries.Statistics.Medic.GetMedicAllTime;
 
-public class GetMedicAllTimeQuery
-	: FetchPlayersQueryRequest,
-		IRequest<EitherStrict<Error, GetMedicStatsResult>>
+public class GetMedicAllTimeQuery : FetchPlayersQueryRequest
 {
 	public GetMedicAllTimeQuery(
 		int count,
@@ -15,5 +12,6 @@ public class GetMedicAllTimeQuery
 		string sortOrder,
 		string filterField,
 		string filterValue
-	) : base(count, offset, sort, sortOrder, filterField, filterValue) { }
+	)
+		: base(count, offset, sort, sortOrder, filterField, filterValue) { }
 }

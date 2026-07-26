@@ -1,11 +1,9 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
 namespace TF2SA.Query.Queries.GetPlayersComparison;
 
 public class GetPlayersComparisonQuery
-	: IRequest<EitherStrict<Error, GetPlayersComparisonResult>>
 {
 	public GetPlayersComparisonQuery(
 		IReadOnlyList<ulong> steamIds,

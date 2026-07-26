@@ -1,5 +1,4 @@
 using AutoMapper;
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
@@ -10,10 +9,6 @@ using TF2SA.Data.Errors;
 namespace TF2SA.Query.Queries.Statistics.Overall.GetOverallAllTime;
 
 public class GetOverallAllTimeQueryHandler
-	: IRequestHandler<
-		GetOverallAllTimeQuery,
-		EitherStrict<Error, GetOverallStatsResult>
-	>
 {
 	private readonly IMapper mapper;
 	private readonly IAnalyticsStore analyticsStore;

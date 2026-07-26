@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Monad;
 using TF2SA.Common.Errors;
@@ -14,12 +13,21 @@ namespace TF2SA.Web.Controllers.V1.Players;
 [Route("v1/[controller]")]
 public class PlayersController : ControllerBase
 {
-	private readonly IMediator mediator;
+	private readonly GetPlayersQueryHandler getPlayersHandler;
+	private readonly GetPlayerDetailQueryHandler getPlayerDetailHandler;
+	private readonly GetPlayersComparisonQueryHandler getPlayersComparisonHandler;
 	private readonly IMapper mapper;
 
-	public PlayersController(IMediator mediator, IMapper mapper)
+	public PlayersController(
+		GetPlayersQueryHandler getPlayersHandler,
+		GetPlayerDetailQueryHandler getPlayerDetailHandler,
+		GetPlayersComparisonQueryHandler getPlayersComparisonHandler,
+		IMapper mapper
+	)
 	{
-		this.mediator = mediator;
+		this.getPlayersHandler = getPlayersHandler;
+		this.getPlayerDetailHandler = getPlayerDetailHandler;
+		this.getPlayersComparisonHandler = getPlayersComparisonHandler;
 		this.mapper = mapper;
 	}
 
@@ -32,9 +40,17 @@ public class PlayersController : ControllerBase
 		[FromQuery] string? filterString = ""
 	)
 	{
-		EitherStrict<Error, GetPlayersResult> result = await mediator.Send(
-			new GetPlayersQuery(count, offset, sort!, sortOrder!, filterString!)
-		);
+		EitherStrict<Error, GetPlayersResult> result =
+			await getPlayersHandler.Handle(
+				new GetPlayersQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterString!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
@@ -60,9 +76,11 @@ public class PlayersController : ControllerBase
 		[FromQuery] int classId = 0
 	)
 	{
-		EitherStrict<Error, GetPlayerDetailResult> result = await mediator.Send(
-			new GetPlayerDetailQuery(steamId, bucket ?? "month", classId)
-		);
+		EitherStrict<Error, GetPlayerDetailResult> result =
+			await getPlayerDetailHandler.Handle(
+				new GetPlayerDetailQuery(steamId, bucket ?? "month", classId),
+				default
+			);
 
 		if (result.IsLeft)
 		{
@@ -87,7 +105,9 @@ public class PlayersController : ControllerBase
 	/// fewer.
 	/// </summary>
 	[HttpGet("Compare")]
-	public async Task<ActionResult<GetPlayersComparisonHttpResult>> GetPlayersComparison(
+	public async Task<
+		ActionResult<GetPlayersComparisonHttpResult>
+	> GetPlayersComparison(
 		[FromQuery] string steamIds,
 		[FromQuery] string? bucket = "month",
 		[FromQuery] int classId = 0,
@@ -96,7 +116,8 @@ public class PlayersController : ControllerBase
 	{
 		string[] rawIds = steamIds.Split(
 			',',
-			StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+			StringSplitOptions.RemoveEmptyEntries
+				| StringSplitOptions.TrimEntries
 		);
 
 		if (rawIds.Length == 0)
@@ -120,14 +141,16 @@ public class PlayersController : ControllerBase
 			parsedIds.Add(parsedId);
 		}
 
-		EitherStrict<Error, GetPlayersComparisonResult> result = await mediator.Send(
-			new GetPlayersComparisonQuery(
-				parsedIds,
-				bucket ?? "month",
-				classId,
-				period ?? "alltime"
-			)
-		);
+		EitherStrict<Error, GetPlayersComparisonResult> result =
+			await getPlayersComparisonHandler.Handle(
+				new GetPlayersComparisonQuery(
+					parsedIds,
+					bucket ?? "month",
+					classId,
+					period ?? "alltime"
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{

@@ -1,5 +1,4 @@
 using AutoMapper;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
@@ -11,10 +10,6 @@ using TF2SA.Data.Errors;
 namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutAllTime;
 
 public class GetScoutAllTimeQueryHandler
-	: IRequestHandler<
-		GetScoutAllTimeQuery,
-		EitherStrict<Error, GetScoutStatsResult>
-	>
 {
 	private readonly IMapper mapper;
 	private readonly IAnalyticsStore analyticsStore;
