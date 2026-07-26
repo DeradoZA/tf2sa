@@ -73,15 +73,13 @@ ordering, caught by the pre-cutover endpoint diff.
 - **Angular 15** is still out of support — a frontend upgrade path is not yet
   documented.
 
-### CD pipeline still targets .NET 7 — Medium (open)
-`.github/workflows/cd.yml` still does `setup-dotnet` with `dotnet-version: "7.0.x"`,
-unlike `ci.yml` (which only runs `docker compose build`, so it never exercises the
-SDK version directly) and unlike the Docker images themselves (already on
-`sdk:10.0`). Since `global.json` pins `10.0.100` with `rollForward: latestMinor`
-(same-major-only), a `dotnet restore`/`build`/`test` step in `cd.yml` run with only
-the .NET 7 SDK installed would fail outright — this has not surfaced yet because
-`cd.yml` only runs on push to `main`, which hasn't happened since the .NET 10
-upgrade. Update the `actions/setup-dotnet` version alongside the next push to `main`.
+### CD pipeline still targets .NET 7 — ✅ resolved (2026-07-26)
+Was: `.github/workflows/cd.yml` did `setup-dotnet` with `dotnet-version: "7.0.x"`,
+which would have failed outright the first time `cd.yml` ran after the .NET 10
+upgrade (`global.json` pins `10.0.100` with `rollForward: latestMinor`, same-major
+only). Fixed ahead of the first post-upgrade push to `main`, alongside the new-stats
+work in this branch — `setup-dotnet` now requests `10.0.x`, matching the Docker
+images (already on `sdk:10.0`) and `global.json`.
 
 ## Architecture / maintainability
 
