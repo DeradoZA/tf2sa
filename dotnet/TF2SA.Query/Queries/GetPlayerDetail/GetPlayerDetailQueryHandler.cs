@@ -1,10 +1,10 @@
-using AutoMapper;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Analytics;
 using TF2SA.Data.Analytics.PlayerDetail;
 using TF2SA.Data.Errors;
+using TF2SA.Data.Mapping;
 
 namespace TF2SA.Query.Queries.GetPlayerDetail;
 
@@ -17,15 +17,10 @@ public class GetPlayerDetailQueryHandler
 	// only the classes with their own board (Scout/Soldier/Demoman/Medic).
 	private static readonly int[] AllowedClassIds = { 0, 1, 2, 4, 7 };
 
-	private readonly IMapper mapper;
 	private readonly IAnalyticsStore analyticsStore;
 
-	public GetPlayerDetailQueryHandler(
-		IMapper mapper,
-		IAnalyticsStore analyticsStore
-	)
+	public GetPlayerDetailQueryHandler(IAnalyticsStore analyticsStore)
 	{
-		this.mapper = mapper;
 		this.analyticsStore = analyticsStore;
 	}
 
@@ -94,11 +89,11 @@ public class GetPlayerDetailQueryHandler
 				);
 
 			return new GetPlayerDetailResult(
-				mapper.Map<PlayerSummaryDomain>(summaryRow),
+				summaryRow.ToDomain(),
 				bucket,
 				classId,
-				mapper.Map<List<PlayerProgressionPointDomain>>(progressionRows),
-				mapper.Map<List<PlayerClassSplitDomain>>(classSplitRows)
+				progressionRows.Select(r => r.ToDomain()),
+				classSplitRows.Select(r => r.ToDomain())
 			);
 		}
 		catch (Exception e)

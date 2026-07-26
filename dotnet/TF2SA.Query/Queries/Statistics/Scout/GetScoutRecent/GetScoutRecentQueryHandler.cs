@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
@@ -6,20 +5,16 @@ using TF2SA.Common.Models.Core;
 using TF2SA.Data.Analytics;
 using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
+using TF2SA.Data.Mapping;
 
 namespace TF2SA.Query.Queries.Statistics.Scout.GetScoutRecent;
 
 public class GetScoutRecentQueryHandler
 {
-	private readonly IMapper mapper;
 	private readonly IAnalyticsStore analyticsStore;
 
-	public GetScoutRecentQueryHandler(
-		IMapper mapper,
-		IAnalyticsStore analyticsStore
-	)
+	public GetScoutRecentQueryHandler(IAnalyticsStore analyticsStore)
 	{
-		this.mapper = mapper;
 		this.analyticsStore = analyticsStore;
 	}
 
@@ -42,9 +37,9 @@ public class GetScoutRecentQueryHandler
 					request.Count,
 					cancellationToken
 				);
-			IEnumerable<ScoutStatDomain> mappedScouts = mapper.Map<
-				List<ScoutStatDomain>
-			>(page.Rows);
+			IEnumerable<ScoutStatDomain> mappedScouts = page.Rows.Select(r =>
+				r.ToDomain()
+			);
 			return new GetScoutStatsResult(
 				page.Total,
 				mappedScouts.Count(),

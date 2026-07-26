@@ -1,24 +1,19 @@
-using AutoMapper;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
 using TF2SA.Data.Analytics;
 using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
+using TF2SA.Data.Mapping;
 
 namespace TF2SA.Query.Queries.Statistics.Overall.GetOverallRecent;
 
 public class GetOverallRecentQueryHandler
 {
-	private readonly IMapper mapper;
 	private readonly IAnalyticsStore analyticsStore;
 
-	public GetOverallRecentQueryHandler(
-		IMapper mapper,
-		IAnalyticsStore analyticsStore
-	)
+	public GetOverallRecentQueryHandler(IAnalyticsStore analyticsStore)
 	{
-		this.mapper = mapper;
 		this.analyticsStore = analyticsStore;
 	}
 
@@ -41,9 +36,9 @@ public class GetOverallRecentQueryHandler
 					request.Count,
 					cancellationToken
 				);
-			IEnumerable<OverallStatDomain> mappedPlayers = mapper.Map<
-				List<OverallStatDomain>
-			>(page.Rows);
+			IEnumerable<OverallStatDomain> mappedPlayers = page.Rows.Select(r =>
+				r.ToDomain()
+			);
 			return new GetOverallStatsResult(
 				page.Total,
 				mappedPlayers.Count(),
