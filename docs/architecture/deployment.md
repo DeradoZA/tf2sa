@@ -126,19 +126,72 @@ DuckDB's data file lives under `/home/ubuntu/tf2sa-data` the same way. Neither
 directory needs pre-creation — Docker creates an empty one on first bind mount, and
 `tf2sa-backend` self-initializes the (empty) DuckDB schema on first connection.
 
-## One-time migration (existing deployments only)
+## Cutover checklist: merging ADR 0009 to `main` for the first time
 
-A **fresh** deployment needs no migration step — an empty `tf2sa-data` directory
-self-initializes and fills up from real ingestion. A deployment that already has
-production data in a still-running MariaDB (i.e. upgrading *through*
-[ADR 0009](../decisions/0009-drop-mariadb.md) rather than starting clean) needs a
-one-time bulk copy before cutover, run once via the DuckDB CLI against the live
-MariaDB — reusing the exact mechanism the old per-cycle refresh used
-([analytics-store.md](./analytics-store.md)):
+`main` has **not yet** received the ADR 0008/0009 work (DuckDB, .NET 10, dropping
+EF Core/MariaDB/MediatR/AutoMapper) as of 2026-07-26 — it's all sat on
+`improve-docs-and-ai-readiness`. Production is still running the old .NET 7 /
+MariaDB stack. Merging that branch to `main` is therefore not a routine deploy —
+it's the actual cutover, and `cd.yml`'s automated redeploy does **neither of the two
+things you'd want it to do**:
+
+- It does **not** copy any data from MariaDB into DuckDB. There is no code path for
+  this anywhere in the app or pipeline — it's a manual, one-time operation.
+- It does **not** cleanly stop the old `tf2sa-db` container. `docker-compose down`
+  only touches containers for services **currently defined in the compose file**;
+  once `tf2sa-db` is deleted from `docker-compose.yml` (as the new version does),
+  Compose treats its still-running container as an orphan and leaves it alone
+  unless `--remove-orphans` is passed, which the deploy script doesn't do.
+
+Skip the steps below and the live site comes up with a **completely empty**
+database immediately after deploy — `/home/ubuntu/tf2sa-data` doesn't exist yet, so
+Docker creates it empty on first bind mount and `tf2sa-backend` self-initializes an
+empty schema. Not a crash, just every player/game silently gone from the site until
+fixed. The one mitigating fact: since `tf2sa-db` isn't cleanly removed either, the
+real data isn't destroyed by this — just stranded — but the checklist below avoids
+the outage rather than relying on that.
+
+### 1. Back up MariaDB (cheap insurance before touching anything)
+
+```sh
+ssh ubuntu@<EC2_HOST>
+sudo docker exec tf2sa-db mysqldump -u "$TF2SA_MYSQL_USR" -p"$TF2SA_MYSQL_PWD" "$TF2SA_MYSQL_DB" \
+  > ~/mariadb-backup-$(date +%Y%m%d).sql
+```
+
+### 2. Bulk-copy MariaDB into a DuckDB file at the *future* bind-mount path
+
+`tf2sa-db` has no port published to the host (only reachable from other containers
+on `tf2sa-net`), so run the DuckDB CLI from a throwaway container joined to that
+same network rather than from the host shell directly:
+
+```sh
+sudo mkdir -p /home/ubuntu/tf2sa-data
+
+# Confirm the actual network name — the compose project prefix can vary by setup.
+docker network ls --filter name=tf2sa-net --format '{{.Name}}'
+
+docker run --rm -it \
+  --network <network-name-from-above> \
+  -v /home/ubuntu/tf2sa-data:/data \
+  ubuntu:24.04 bash -c '
+    apt-get update -qq && apt-get install -yqq curl unzip >/dev/null
+    curl -sL https://github.com/duckdb/duckdb/releases/download/v1.5.3/duckdb_cli-linux-amd64.zip -o /tmp/duckdb.zip
+    unzip -q /tmp/duckdb.zip -d /usr/local/bin
+    duckdb /data/analytics.duckdb
+  '
+```
+
+(`v1.5.3` must match whatever `DuckDB.NET.Data.Full` is pinned to in
+`dotnet/TF2SA.Data/TF2SA.Data.csproj` — check before running if this doc is stale.)
+Inside the interactive prompt that opens, run — `tf2sa-db` resolves via the
+network's built-in DNS, matching how `tf2sa-backend` itself currently reaches it via
+`TF2SA_MYSQL_HOST=tf2sa-db`:
 
 ```sql
 INSTALL mysql; LOAD mysql;
-ATTACH '<production MariaDB connection>' AS maria (TYPE mysql, READ_ONLY);
+ATTACH 'host=tf2sa-db port=3306 user=<TF2SA_MYSQL_USR> password=<TF2SA_MYSQL_PWD> database=<TF2SA_MYSQL_DB>'
+  AS maria (TYPE mysql, READ_ONLY);
 CREATE TABLE Players SELECT * FROM maria.Players;
 CREATE TABLE Games SELECT * FROM maria.Games;
 CREATE TABLE PlayerStats SELECT * FROM maria.PlayerStats;
@@ -158,10 +211,41 @@ ALTER TABLE ClassStats ALTER COLUMN ClassStatsID SET DEFAULT nextval('seq_classs
 ALTER TABLE WeaponStats ALTER COLUMN WeaponStatsID SET DEFAULT nextval('seq_weaponstats');
 ```
 
-Run this against a file at the target `/home/ubuntu/tf2sa-data/analytics.duckdb`
-path (create the directory first if migrating before the first deploy of the new
-image), confirm row counts match MariaDB, then deploy — MariaDB can be decommissioned
-once the new backend is confirmed healthy against the migrated file.
+### 3. Confirm row counts match MariaDB before going further
+
+```sh
+docker run --rm -v /home/ubuntu/tf2sa-data:/data ubuntu:24.04 \
+  /usr/local/bin/duckdb /data/analytics.duckdb -c \
+  "SELECT 'Players', COUNT(*) FROM Players UNION ALL SELECT 'Games', COUNT(*) FROM Games;"
+```
+
+Compare against `SELECT COUNT(*) FROM Players;` / `Games` run against MariaDB
+directly (`sudo docker exec tf2sa-db mysql -u ... -e "SELECT COUNT(*) FROM Games;"`).
+
+### 4. Merge `improve-docs-and-ai-readiness` to `main`
+
+This triggers `cd.yml`, which builds, tests, pushes images, and redeploys. The new
+`tf2sa-backend` starts, connects to the already-populated
+`/home/ubuntu/tf2sa-data/analytics.duckdb` from step 2, and serves real data
+immediately — no empty-database window.
+
+### 5. Clean up the orphaned `tf2sa-db` container, once the new backend is confirmed healthy
+
+```sh
+sudo docker stop tf2sa-db
+sudo docker rm tf2sa-db
+sudo docker rmi danielcoetzee/tf2sa-db
+```
+
+If `docker-compose down -v` logged a network-removal warning during the deploy
+(likely, since `tf2sa-db` was still attached to `tf2sa-net` at that point), it's
+benign — `docker-compose up -d` reuses the existing network by name rather than
+failing when creation is skipped.
+
+### 6. Backfill player descriptions
+
+See "One-time data backfill: player descriptions" below — same idea, run once
+after step 4 confirms the new backend is healthy.
 
 ## One-time data backfill: player descriptions
 
