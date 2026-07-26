@@ -457,6 +457,68 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 		}
 	}
 
+	public async Task<StatsPage<PlayerRow>> GetPlayersPageAsync(
+		string sort,
+		string sortOrder,
+		string filterString,
+		int offset,
+		int count,
+		CancellationToken cancellationToken
+	)
+	{
+		string sortColumn = sort switch
+		{
+			"steamId" => "SteamID",
+			_ => "PlayerName",
+		};
+		string sortUsed = sortColumn == "SteamID" ? "steamId" : "playerName";
+		string direction = sortOrder.Equals("desc", StringComparison.Ordinal)
+			? "DESC"
+			: "ASC";
+
+		bool applyFilter = !string.IsNullOrWhiteSpace(filterString);
+		string escaped = applyFilter ? EscapeLike(filterString) : string.Empty;
+		string where = applyFilter
+			? $"WHERE PlayerName ILIKE '%{escaped}%' ESCAPE '\\' "
+				+ $"OR CAST(SteamID AS VARCHAR) ILIKE '%{escaped}%' ESCAPE '\\'"
+			: string.Empty;
+
+		int take = Math.Max(count, 0);
+		int skip = Math.Max(offset, 0);
+
+		await gate.WaitAsync(cancellationToken);
+		try
+		{
+			DuckDBConnection conn = Connection();
+			int total = (int)ScalarLong(
+				conn,
+				$"SELECT COUNT(*) FROM Players {where}"
+			);
+			PropertyInfo[] props = typeof(PlayerRow).GetProperties(
+				BindingFlags.Public | BindingFlags.Instance
+			);
+			List<PlayerRow> rows = Query<PlayerRow>(
+				conn,
+				$"SELECT * FROM Players {where} "
+					+ $"ORDER BY {sortColumn} {direction} LIMIT {take} OFFSET {skip}",
+				props
+			);
+			return new StatsPage<PlayerRow>
+			{
+				Rows = rows,
+				Total = total,
+				SortUsed = sortUsed,
+				SortOrderUsed = direction.ToLowerInvariant(),
+				FilterFieldUsed = string.Empty,
+				FilterValueUsed = applyFilter ? filterString : string.Empty,
+			};
+		}
+		finally
+		{
+			gate.Release();
+		}
+	}
+
 	// ---- whole-view reads -------------------------------------------------
 
 	public async Task<IReadOnlyList<T>> GetAllAsync<T>(

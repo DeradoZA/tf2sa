@@ -1,28 +1,19 @@
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
+using TF2SA.Data.Analytics;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Extensions;
-using TF2SA.Data.Repositories.Base;
-using PlayerEntity = TF2SA.Data.Entities.MariaDb.Player;
 
 namespace TF2SA.Query.Queries.GetPlayers;
 
 public class GetPlayersQueryHandler
 {
-	private readonly IPlayersRepository<PlayerEntity, ulong> playersRepository;
-	private readonly IMapper mapper;
+	private readonly IAnalyticsStore analyticsStore;
 
-	public GetPlayersQueryHandler(
-		IPlayersRepository<PlayerEntity, ulong> playersRepository,
-		IMapper mapper
-	)
+	public GetPlayersQueryHandler(IAnalyticsStore analyticsStore)
 	{
-		this.playersRepository = playersRepository;
-		this.mapper = mapper;
+		this.analyticsStore = analyticsStore;
 	}
 
 	public async Task<EitherStrict<Error, GetPlayersResult>> Handle(
@@ -30,40 +21,29 @@ public class GetPlayersQueryHandler
 		CancellationToken cancellationToken
 	)
 	{
-		IEnumerable<Player> players;
-		int playerCount;
-
 		try
 		{
-			playerCount = await playersRepository
-				.GetAllQueryable()
-				.ApplyFilter(request.FilterString, out string _)
-				.CountAsync(cancellationToken: cancellationToken);
-
-			List<PlayerEntity> playersEntities = await playersRepository
-				.GetAllQueryable()
-				.ApplyFilter(request.FilterString, out string filterStringUsed)
-				.ApplySort(
+			StatsPage<PlayerRow> page =
+				await analyticsStore.GetPlayersPageAsync(
 					request.Sort,
 					request.SortOrder,
-					out string sortUsed,
-					out string sortOrderUsed
-				)
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
+					request.FilterString,
+					request.Offset,
+					request.Count,
+					cancellationToken
+				);
 
-			players = mapper.Map<List<Player>>(playersEntities);
+			List<Player> players = page.Rows.Select(ToPlayer).ToList();
 
 			return new GetPlayersResult
 			{
-				TotalResults = playerCount,
+				TotalResults = page.Total,
 				Players = players,
 				Offset = request.Offset,
-				Count = players.Count(),
-				Sort = sortUsed,
-				SortOrder = sortOrderUsed,
-				FilterString = filterStringUsed,
+				Count = players.Count,
+				Sort = page.SortUsed,
+				SortOrder = page.SortOrderUsed,
+				FilterString = page.FilterValueUsed,
 			};
 		}
 		catch (Exception e)
@@ -71,4 +51,18 @@ public class GetPlayersQueryHandler
 			return new DatabaseError(e.Message);
 		}
 	}
+
+	private static Player ToPlayer(PlayerRow row) =>
+		new()
+		{
+			SteamId = row.SteamId,
+			PlayerName = row.PlayerName,
+			LocalCountryCode = row.LocalCountryCode,
+			ProfileUrl = row.ProfileUrl,
+			Avatar = row.Avatar,
+			AvatarMedium = row.AvatarMedium,
+			AvatarFull = row.AvatarFull,
+			AvatarHash = row.AvatarHash,
+			RealName = row.RealName,
+		};
 }

@@ -70,6 +70,22 @@ public interface IAnalyticsStore
 		where T : class, new();
 
 	/// <summary>
+	/// Read a page of the Players table. Sort is one of "playerName"/"steamId"
+	/// (case-sensitive — matches the EF sort this replaces exactly) and
+	/// filterString substring-matches PlayerName <b>or</b> SteamID-as-text (an OR
+	/// across two columns) — the reason this has its own method rather than going
+	/// through <see cref="GetPageAsync{T}"/>, which only filters a single column.
+	/// </summary>
+	Task<StatsPage<PlayerRow>> GetPlayersPageAsync(
+		string sort,
+		string sortOrder,
+		string filterString,
+		int offset,
+		int count,
+		CancellationToken cancellationToken
+	);
+
+	/// <summary>
 	/// Read every row of a view (e.g. <c>player_progression(76561…, 'month')</c>),
 	/// mapped onto <typeparamref name="T"/> by case-insensitive column name. For views
 	/// that are already complete and ordered — no paging, sorting, or filtering is
