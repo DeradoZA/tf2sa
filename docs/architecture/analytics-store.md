@@ -44,12 +44,20 @@ flowchart LR
   processed-log ledger. Row-by-row inserts are what it does well; the write path is
   untouched.
 - **DuckDB — derived analytics cache (new).** A single `.duckdb` file (or in-memory,
-  rebuilt on startup) holding the fact table below. Because it is fully derivable
-  from MariaDB, it is a **rebuildable cache** — it can be regenerated at any time,
-  which also means its persistence is not load-bearing (sidestepping the
+  rebuilt on startup) holding columnar copies of the raw tables. Because it is fully
+  derivable from MariaDB, it is a **rebuildable cache** — it can be regenerated at any
+  time, which also means its persistence is not load-bearing (sidestepping the
   `docker-compose down -v` volume concern in [known-issues.md](../known-issues.md)).
 
-## The fact table — grain `(player, game, class)`
+> **As implemented, the `(player, game, class)` fact table below is a logical grain,
+> not a materialized table.** `RefreshAsync` copies the four raw tables (`Players`,
+> `Games`, `PlayerStats`, `ClassStats`) and each macro performs the join itself in a
+> CTE. The grain is still the right way to reason about what the views compute — and
+> materializing it remains an available optimization (see
+> [Phase 0](#phase-0-validation-2026-07-10)) — but no `fact` table exists in the store
+> today.
+
+## The fact grain — `(player, game, class)`
 
 One row per `ClassStats` row, pre-joined up through `PlayerStats` → `Games` →
 `Players`. This single grain supports **every** current leaderboard and the planned
@@ -151,14 +159,66 @@ Only the data access is swapped:
 
 ## Views this unlocks
 
-Beyond the existing leaderboards, the fact table supports (built incrementally):
+Beyond the leaderboards, the same tables support (built incrementally):
 
-- **Player detail** — `WHERE SteamID = :id`: a player's games, per-class splits, and
-  bests; wires up the currently-stub `player.component.html`.
-- **Progression over time** — group by a time bucket (week/month) to chart a
-  player's stat trend.
-- **Per-map** — `GROUP BY Map` for map-specific leaderboards/splits.
-- **Per-weapon** — from the `PlayerGameWeaponStats` fact table.
+- **Player detail — built.** `player_summary(steamid)` and
+  `player_class_splits(steamid)` in
+  [`TF2SA.Data/Analytics/PlayerDetail.sql`](../../dotnet/TF2SA.Data/Analytics/PlayerDetail.sql),
+  served by `GET v1/Players/{steamId}/Detail`. See
+  [Per-player views](#per-player-views-player-detail--progression) below.
+- **Progression over time — built.** `players_progression_overall(steamids,
+  bucketpart, recentonly)` and `players_progression_class(steamids, bucketpart,
+  classid, recentonly)`, bucketed by week or month, in the same file. Both take a
+  **list** of SteamIDs, so the same macro serves the single-player endpoint and the
+  multi-player `GET v1/Players/Compare` used by the leaderboard graph views.
+- **Per-map** — `GROUP BY Map` for map-specific leaderboards/splits. `Games.Map` is
+  already copied into DuckDB, so this needs no refresh change.
+- **Per-weapon** — needs a `PlayerGameWeaponStats` fact table **and** `WeaponStats`
+  added to the store's `RawTables` (it is not copied from MariaDB today).
+
+## Per-player views (player detail + progression)
+
+[`PlayerDetail.sql`](../../dotnet/TF2SA.Data/Analytics/PlayerDetail.sql) is a second
+embedded SQL file, loaded alongside `Leaderboards.sql`, holding four macros
+parametrized by SteamID. One MediatR query (`GetPlayerDetail`) calls summary,
+progression and class splits together, so the page loads in one request and the
+frontend's stat selector re-renders from data it already has.
+
+- **Airshots is a per-game field, not per-class.** `players_progression_class`
+  therefore returns `NULL` for classes that cannot airshot, rather than attributing
+  a projectile class's airshots to the scout row of a player who swapped mid-game.
+- **Career averages come from `player_summary`, not from the buckets.** Re-deriving
+  them client-side by weighting bucket averages on game count disagrees with the true
+  figure: a bucket's count includes medic games whose damage is absent from its
+  average, and each bucket is already rounded.
+
+- **DPM is defined identically to `overall_board`** (per-game sum over non-medic
+  classes, then averaged across games), so a player's headline DPM matches their
+  leaderboard row exactly.
+- **These views carry no parity obligation**, so unlike the class/medic boards they use
+  real `AVG(Assists)` rather than replicating the stored procs' `AVG(Kills)` bug.
+- **`player_summary` ends in `HAVING COUNT(...) > 0`** so an unknown SteamID yields
+  zero rows rather than a single all-NULL row (a bare aggregate always returns one),
+  which is what lets the handler distinguish "no such player" and return a null summary.
+- **The bucket parameter is named `bucketpart`, not `bucket`** — a macro parameter
+  shadows a column alias case-insensitively, so `bucket` would break `ORDER BY Bucket`.
+- **Bucketing is pinned to UTC** (`to_timestamp(g.Date) AT TIME ZONE 'UTC'`), which
+  also yields a naive `TIMESTAMP`; without it bucket boundaries move with the server's
+  local timezone.
+- Reads go through `IAnalyticsStore.GetAllAsync`/`GetSingleAsync` — whole-view reads
+  with no paging/sort/filter, as opposed to `GetPageAsync`'s leaderboard shape. The
+  SteamID is bound as a `ulong` at the controller, so it cannot carry SQL; the bucket
+  is whitelisted to `week`/`month` in the handler.
+
+### View definitions are reloaded on connection open
+
+Macros are installed by `RefreshAsync`, but a refresh only runs when an ingestion cycle
+finds **new logs** — so after deploying changed SQL to a store that already has data,
+the macros would otherwise stay stale indefinitely. `DuckDbAnalyticsStore.Connection()`
+therefore reloads both SQL files on first use, guarded by a check that the raw tables
+exist (DuckDB resolves table references when a macro is *created*, so macros cannot be
+installed against an empty file — a fresh file is handled by the refresh, which loads
+them itself).
 
 ## Consistency & hardware
 
@@ -286,9 +346,12 @@ and paging (disjoint pages) behaved correctly. Full solution builds under
 
 Update this document when:
 
-- The fact-table grain or columns change, or a new fact table is added.
+- The fact grain or columns change, or a fact table is actually materialized.
+- The set of raw tables copied by the refresh changes (e.g. adding `WeaponStats` for
+  per-weapon views).
 - The refresh trigger, cadence, or full-rebuild-vs-incremental choice changes.
 - The query/parameter model for leaderboards changes (new window semantics,
   thresholds, sort/filter surface).
-- A new analytical view is added, or the read layer moves off DuckDB (which would
+- A new analytical view is added, or a new embedded `.sql` file is loaded by the store.
+- The read layer moves off DuckDB (which would
   supersede [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md)).
