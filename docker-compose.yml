@@ -25,6 +25,7 @@ services:
     environment:
       - TF2SA_DUCKDB_PATH=/data/analytics.duckdb
       - TF2SA_STEAM_API_KEY=${TF2SA_STEAM_API_KEY}
+      - ASPNETCORE_URLS=http://+:80
 
   tf2sa-frontend:
     image: danielcoetzee/tf2sa-frontend
