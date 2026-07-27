@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Demoman;
 using TF2SA.Query.Queries.Statistics.Demoman.GetDemomanAllTime;
 using TF2SA.Query.Queries.Statistics.Demoman.GetDemomanRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Demoman;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -21,26 +22,25 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetDemomanStatsResult> result = await mediator.Send(
-			new GetDemomanRecentQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetDemomanStatsResult> result =
+			await getDemomanRecentHandler.Handle(
+				new GetDemomanRecentQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetDemomanStatsHttpResult httpResult =
-			mapper.Map<GetDemomanStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -56,25 +56,24 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetDemomanStatsResult> result = await mediator.Send(
-			new GetDemomanAllTimeQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetDemomanStatsResult> result =
+			await getDemomanAllTimeHandler.Handle(
+				new GetDemomanAllTimeQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetDemomanStatsHttpResult httpResult =
-			mapper.Map<GetDemomanStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }

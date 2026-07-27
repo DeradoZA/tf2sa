@@ -9,9 +9,10 @@
 TF2SA (Team Fortress 2 — South Africa) is a **player-performance statistics
 platform** for the South African competitive TF2 community, served at
 `tf2sa.co.za`. It periodically ingests match logs from the public
-[logs.tf](https://logs.tf) API, stores them in MariaDB, aggregates per-class and
-overall leaderboards, enriches player identities from the Steam Web API, and
-presents ranked leaderboards through an Angular single-page application.
+[logs.tf](https://logs.tf) API, stores them in an embedded DuckDB database,
+aggregates per-class and overall leaderboards on the fly, enriches player identities
+from the Steam Web API, and presents ranked leaderboards through an Angular
+single-page application.
 
 ## Why it exists
 
@@ -46,7 +47,7 @@ the two in sync when the high-level structure changes.
 
 ## Container view (C4 level 2)
 
-The system runs as five containers orchestrated by
+The system runs as four containers orchestrated by
 [`docker-compose.yml`](../../docker-compose.yml). See
 [deployment.md](./deployment.md) for the runtime and networking detail.
 
@@ -57,10 +58,10 @@ flowchart TB
     subgraph host["Docker host (AWS EC2)"]
         proxy["t2sa-reverse-proxy<br/><b>nginx</b><br/>TLS, static files, /api proxy"]
         frontend["tf2sa-frontend<br/><b>Angular 15 (build-only)</b><br/>emits static SPA to shared volume"]
-        backend["tf2sa-backend<br/><b>ASP.NET Core 7</b><br/>REST API + co-hosted ETL worker"]
-        db[("tf2sa-db<br/><b>MariaDB 10.6</b><br/>raw + aggregated tables, stored procs")]
+        backend["tf2sa-backend<br/><b>ASP.NET Core 10</b><br/>REST API + co-hosted ETL worker<br/>+ embedded DuckDB — the only database"]
         certbot["certbot<br/>Let's Encrypt renewal"]
         vol[["shared volume<br/>compiled SPA"]]
+        data[["bind mount: /home/ubuntu/tf2sa-data<br/>analytics.duckdb"]]
     end
 
     logstf["logs.tf API"]
@@ -70,7 +71,7 @@ flowchart TB
     frontend -.->|writes build output| vol
     vol -.->|served by| proxy
     proxy -->|/api| backend
-    backend -->|EF Core / SQL| db
+    backend -->|reads/writes| data
     backend -->|HTTPS/JSON| logstf
     backend -->|HTTPS/JSON| steam
     certbot -.->|certs| proxy
@@ -79,30 +80,41 @@ flowchart TB
 > **Key non-obvious fact:** the ETL ingestion worker is **not** a separate
 > container. It runs as an ASP.NET Core `BackgroundService` **inside the
 > `tf2sa-backend` process**, alongside the REST API. See
-> [ADR 0006](../decisions/0006-cohosted-etl-background-service.md).
+> [ADR 0006](../decisions/0006-cohosted-etl-background-service.md). **DuckDB** is
+> likewise **embedded** in that same process (a library, not a service — no
+> container of its own, no separate database container at all); see
+> [ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md),
+> [ADR 0009](../decisions/0009-drop-mariadb.md), and
+> [analytics-store.md](./analytics-store.md).
 
 ## The two data paths
 
-TF2SA has a clear **write path** (ingestion) and **read path** (serving), which
-meet only at the database.
+TF2SA has a clear **write path** (ingestion) and **read path** (serving), which meet
+at the same DuckDB tables — a write is immediately visible to every read, since
+there is no separate database or refresh step between them.
 
 | Path | Trigger | Flow | Deep dive |
 |------|---------|------|-----------|
-| **Write (ingestion)** | Timer inside backend (`IngestionIntervalSeconds`, default 3600s) | logs.tf → validate → insert raw rows → run aggregation stored procs → refresh leaderboard tables | [ingestion-pipeline.md](./ingestion-pipeline.md) |
-| **Read (serving)** | User HTTP request | Angular → nginx → controller → MediatR query → repository → EF Core → leaderboard tables | [request-flow.md](./request-flow.md) |
+| **Write (ingestion)** | Timer inside backend (`IngestionIntervalSeconds`, default 3600s) | logs.tf → validate → insert directly into DuckDB | [ingestion-pipeline.md](./ingestion-pipeline.md) |
+| **Read (serving)** | User HTTP request | Angular → nginx → controller → query handler → parametrized aggregation over DuckDB | [request-flow.md](./request-flow.md) |
+
+DuckDB is the **only** database — both the system of record for raw ingested data
+and the engine that aggregates it into leaderboards on the fly
+([ADR 0009](../decisions/0009-drop-mariadb.md),
+[analytics-store.md](./analytics-store.md)).
 
 ## .NET solution structure
 
-The backend is a `net7.0` solution ([`dotnet/dotnet.sln`](../../dotnet/dotnet.sln))
+The backend is a `net10.0` solution ([`dotnet/dotnet.sln`](../../dotnet/dotnet.sln))
 of eight projects in a strict layered dependency graph. Dependencies point
 inward/downward only.
 
 ```mermaid
 flowchart TD
     Web["TF2SA.Web<br/><i>API controllers, Swagger, CORS, composition root</i>"]
-    Query["TF2SA.Query<br/><i>CQRS read side (MediatR)</i>"]
+    Query["TF2SA.Query<br/><i>CQRS-lite read side (direct DI dispatch)</i>"]
     ETL["TF2SA.StatsETLService<br/><i>ingestion pipeline + BackgroundService</i>"]
-    Data["TF2SA.Data<br/><i>EF Core, entities, repositories, stored-proc callers</i>"]
+    Data["TF2SA.Data<br/><i>embedded DuckDB store — the only database</i>"]
     Http["TF2SA.Http<br/><i>HTTP client, logs.tf + Steam clients</i>"]
     Common["TF2SA.Common<br/><i>domain + logs.tf models, errors, constants</i>"]
     Bench["TF2SA.Benchmarks<br/><i>BenchmarkDotNet</i>"]
@@ -127,10 +139,10 @@ flowchart TD
 |---------|----------------|
 | `TF2SA.Common` | Domain models, logs.tf response models (`GameLogModel`, `LogListModel`), `Player`/class stat domains, constants (`ClassId`, `TeamId`), `Error` base type. References SteamKit2. |
 | `TF2SA.Http` | HTTP client abstraction (`IHttpClient`/`TF2SAHttpClient`), JSON serialization, typed clients for logs.tf (`LogsTFService`) and Steam (`SteamService`). |
-| `TF2SA.Data` | EF Core `DbContext` (scaffolded from the live DB — see [ADR 0004](../decisions/0004-database-first-ef-scaffolding.md)), entities, repositories, stored-proc callers, AutoMapper profiles. Uses Pomelo MySQL provider. |
-| `TF2SA.Query` | Read side. One MediatR query + handler per leaderboard (class × recent/all-time) plus players. See [ADR 0003](../decisions/0003-cqrs-read-side-with-mediatr.md). |
-| `TF2SA.StatsETLService` | The ingestion pipeline (fetch → validate → insert → aggregate) and the `StatsETLServiceRunner` hosted service. Also contains an **unused** standalone Worker `Program.cs`. |
-| `TF2SA.Web` | Versioned API controllers (`v1`), Swagger, CORS, forwarded-headers config. Composition root that wires ETL + queries and is the deployed entrypoint. |
+| `TF2SA.Data` | The embedded DuckDB store ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md), [ADR 0009](../decisions/0009-drop-mariadb.md)) — schema, reads, and writes, plus hand-written row-to-domain mapping (`Mapping/DomainMappingExtensions.cs`). No ORM: this project *is* the data-access layer. |
+| `TF2SA.Query` | Read side. One query + handler per leaderboard (class × recent/all-time) plus player detail/comparison/list. See [ADR 0003](../decisions/0003-cqrs-read-side-with-mediatr.md). |
+| `TF2SA.StatsETLService` | The ingestion pipeline (fetch → validate → insert) and the `StatsETLServiceRunner` hosted service. Also contains an **unused** standalone Worker `Program.cs`. |
+| `TF2SA.Web` | Versioned API controllers (`v1`), Swagger, CORS, forwarded-headers config, hand-written domain-to-HTTP-result mapping (`Mapping/HttpMappingExtensions.cs`). Composition root that wires ETL + queries and is the deployed entrypoint. |
 | `TF2SA.Benchmarks` | BenchmarkDotNet micro-benchmarks (e.g. player model). |
 | `TF2SA.Tests.Unit` | xUnit unit tests with Moq and AutoFixture; coverage via coverlet → Coveralls. |
 
@@ -138,18 +150,16 @@ flowchart TD
 
 | Concern | Choice | Notes |
 |---------|--------|-------|
-| Backend runtime | .NET 7 / ASP.NET Core | Single process serves API + hosts ETL. **.NET 7 is end-of-life** — see [known-issues.md](../known-issues.md). |
-| ORM / DB access | EF Core 7 + Pomelo MySQL | Database-first scaffolding; the DB schema is the source of truth ([ADR 0004](../decisions/0004-database-first-ef-scaffolding.md)). |
-| Aggregation | MariaDB stored procedures | Heavy leaderboard math runs in SQL, not C# ([ADR 0005](../decisions/0005-sql-stored-procedures-for-aggregation.md)). |
-| Read side | MediatR (CQRS-lite) | Thin controllers delegate to query handlers ([ADR 0003](../decisions/0003-cqrs-read-side-with-mediatr.md)). |
+| Backend runtime | .NET 10 (LTS) / ASP.NET Core | Single process serves API + hosts ETL. Upgraded from the EOL .NET 7 on 2026-07-10. |
+| Database | Embedded **DuckDB** (columnar) — the only database | Both the system of record for raw ingested rows and the engine that aggregates them into leaderboards on the fly, in-process — no separate service, no ORM ([ADR 0008](../decisions/0008-duckdb-analytics-read-layer.md), [ADR 0009](../decisions/0009-drop-mariadb.md), [analytics-store.md](./analytics-store.md)). Replaced MariaDB + EF Core entirely, and before that, MariaDB stored procedures ([ADR 0005](../decisions/0005-sql-stored-procedures-for-aggregation.md), superseded). |
+| Read side | Direct DI dispatch (CQRS-lite) | Thin controllers delegate to query handlers, injected directly — no mediator library ([ADR 0003](../decisions/0003-cqrs-read-side-with-mediatr.md)). |
 | Error handling | `csharp-monad` (`EitherStrict`/`OptionStrict`) | Errors are returned as values across boundaries, not thrown ([ADR 0002](../decisions/0002-functional-error-handling-with-monads.md)). |
 | Validation | FluentValidation | Applied to logs.tf game logs during ingestion. |
-| Mapping | AutoMapper | Entities ↔ domain ↔ HTTP result models. |
+| Mapping | Hand-written extension methods | Row ↔ domain ↔ HTTP result — `DomainMappingExtensions`/`HttpMappingExtensions`. No mapping library; every pair is a flat, explicit copy. |
 | External data | logs.tf API, Steam Web API | Match logs and player profile enrichment. |
 | Frontend | Angular 15 + Angular Material | Atomic-design components; RxJS server-driven tables. **Angular 15 is end-of-life** — see [known-issues.md](../known-issues.md). |
-| Database | MariaDB 10.6 | Schema + procs seeded at container init. |
 | Reverse proxy / TLS | nginx + certbot (Let's Encrypt) | Serves SPA static files, proxies `/api`. |
-| Packaging | Docker + Docker Compose | Five-container topology. |
+| Packaging | Docker + Docker Compose | Four-container topology; DuckDB's data file is a host bind mount, not a container. |
 | CI/CD | GitHub Actions | CI builds images on PR; CD builds/tests/pushes and deploys to EC2 over SSH. |
 
 ## Conventions worth knowing before you touch the code
@@ -158,13 +168,16 @@ flowchart TD
   error) or `OptionStrict<Error>` (error or nothing). Check `IsLeft`/`HasValue`
   before using the result. Don't reintroduce exception-based control flow across
   layer boundaries.
-- **The database schema is authoritative.** Entities in `TF2SA.Data/Entities/MariaDb`
-  are **generated** by `scaffold.sh` from the live DB. Change SQL first, then
-  re-scaffold — hand-edits get overwritten. See [database.md](./database.md).
-- **Leaderboard math lives in SQL.** To change how a stat is computed, edit the
-  relevant `scripts/mariadb/update_*_stats.sql` procedure, not C#.
-- **Read side is CQRS.** Adding an endpoint usually means a new MediatR query +
-  handler + result model + a thin controller action.
+- **The DuckDB schema is hand-maintained SQL, not generated.** It lives in
+  `TF2SA.Data/Analytics/Schema.sql`, applied idempotently (`CREATE TABLE IF NOT
+  EXISTS`) on every connection open. There is no scaffolding tool and nothing to
+  regenerate — edit the SQL directly. See [database.md](./database.md).
+- **Leaderboard math lives in the analytics store.** To change how a stat is
+  computed — or the recent-window length or the games threshold — edit the DuckDB
+  aggregation query, not the schema. There are no per-class/per-window tables or
+  stored procedures to keep in sync ([analytics-store.md](./analytics-store.md)).
+- **Read side is CQRS-lite.** Adding an endpoint usually means a new query +
+  handler + result model + a thin controller action, registered directly in DI.
 - **Formatting is enforced.** C# uses [CSharpier](../../dotnet/.csharpierrc) (tabs,
   width 80); the frontend uses Prettier. CI builds with `/warnaserror`.
 
@@ -176,7 +189,8 @@ Update this overview when any of the following change:
   between projects changes.
 - A container is added/removed, or the split of responsibilities between containers
   changes (e.g. the ETL worker is extracted into its own container).
-- A core cross-cutting convention changes (error handling, CQRS, database-first).
+- A core cross-cutting convention changes (error handling, CQRS, the DuckDB schema
+  workflow).
 - A major technology or its version is swapped (e.g. .NET or Angular upgrade).
 
 For deeper changes, update the corresponding topic document as well, and keep the

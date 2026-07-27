@@ -1,12 +1,9 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
 namespace TF2SA.Query.Queries.Statistics.Demoman.GetDemomanAllTime;
 
-public class GetDemomanAllTimeQuery
-	: FetchPlayersQueryRequest,
-		IRequest<EitherStrict<Error, GetDemomanStatsResult>>
+public class GetDemomanAllTimeQuery : FetchPlayersQueryRequest
 {
 	public GetDemomanAllTimeQuery(
 		int count,
@@ -15,5 +12,6 @@ public class GetDemomanAllTimeQuery
 		string sortOrder,
 		string filterField,
 		string filterValue
-	) : base(count, offset, sort, sortOrder, filterField, filterValue) { }
+	)
+		: base(count, offset, sort, sortOrder, filterField, filterValue) { }
 }

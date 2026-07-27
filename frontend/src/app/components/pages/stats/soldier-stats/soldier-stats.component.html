@@ -27,6 +27,15 @@
 			<mat-button-toggle value="recent">Recent</mat-button-toggle>
 			<mat-button-toggle value="alltime">All-Time</mat-button-toggle>
 		</mat-button-toggle-group>
+		<mat-button-toggle-group
+			aria-label="View"
+			value="table"
+			[(value)]="viewMode"
+			(change)="onViewModeChange($event.value)"
+		>
+			<mat-button-toggle value="table">Table</mat-button-toggle>
+			<mat-button-toggle value="graph">Graph</mat-button-toggle>
+		</mat-button-toggle-group>
 		<mat-form-field style="margin-bottom: -1em">
 			<mat-label>Search</mat-label>
 			<input
@@ -40,7 +49,7 @@
 			/>
 		</mat-form-field>
 	</div>
-	<div class="player-table">
+	<div class="player-table" [hidden]="viewMode !== 'table'">
 		<table
 			mat-table
 			[dataSource]="playersResult.players"
@@ -50,6 +59,19 @@
 			matSortDirection="desc"
 			matSortStart="desc"
 		>
+			<ng-container matColumnDef="select">
+				<th mat-header-cell *matHeaderCellDef></th>
+				<td mat-cell style="width: 48px" *matCellDef="let element">
+					<mat-checkbox
+						[checked]="!hiddenPlayerIds.has(element.steamId)"
+						(change)="toggleHidden(element.steamId)"
+						[attr.aria-label]="
+							'Show ' + element.playerName + ' on graph'
+						"
+					></mat-checkbox>
+				</td>
+			</ng-container>
+
 			<ng-container matColumnDef="profilePicture">
 				<th mat-header-cell *matHeaderCellDef>#</th>
 				<td
@@ -86,7 +108,12 @@
 					Name
 				</th>
 				<td mat-cell style="width: 150px" *matCellDef="let element">
-					{{ element.playerName }}
+					<a
+						class="player-name-link"
+						[routerLink]="['/players', element.steamId]"
+					>
+						{{ element.playerName }}
+					</a>
 				</td>
 			</ng-container>
 
@@ -248,8 +275,30 @@
 			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 		</table>
 	</div>
+	<ng-container *ngIf="viewMode === 'graph'">
+		<app-error-banner
+			*ngIf="graphErrorMessage"
+			[errorMessage]="graphErrorMessage"
+		></app-error-banner>
+		<app-error-banner
+			*ngIf="!graphErrorMessage && graphLoaded && visibleSeries.length === 0"
+			errorMessage="All players hidden — check at least one to see the graph."
+		></app-error-banner>
+		<mat-progress-bar
+			*ngIf="!graphLoaded"
+			mode="indeterminate"
+			color="accent"
+		></mat-progress-bar>
+		<app-lazy-progression-chart
+			*ngIf="graphLoaded && visibleSeries.length > 0"
+			[series]="visibleSeries"
+			[bucket]="'month'"
+		></app-lazy-progression-chart>
+	</ng-container>
+
 	<mat-paginator
 		[length]="playersResult.totalResults"
 		[pageSize]="pageSize"
+		[pageSizeOptions]="pageSizeOptions"
 	></mat-paginator>
 </div>

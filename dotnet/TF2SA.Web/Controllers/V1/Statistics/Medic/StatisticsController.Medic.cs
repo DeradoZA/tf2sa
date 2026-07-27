@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Medic;
 using TF2SA.Query.Queries.Statistics.Medic.GetMedicAllTime;
 using TF2SA.Query.Queries.Statistics.Medic.GetMedicRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Medic;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -21,26 +22,25 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetMedicStatsResult> result = await mediator.Send(
-			new GetMedicRecentQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetMedicStatsResult> result =
+			await getMedicRecentHandler.Handle(
+				new GetMedicRecentQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetMedicStatsHttpResult httpResult =
-			mapper.Map<GetMedicStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -54,25 +54,24 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetMedicStatsResult> result = await mediator.Send(
-			new GetMedicAllTimeQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetMedicStatsResult> result =
+			await getMedicAllTimeHandler.Handle(
+				new GetMedicAllTimeQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetMedicStatsHttpResult httpResult =
-			mapper.Map<GetMedicStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }

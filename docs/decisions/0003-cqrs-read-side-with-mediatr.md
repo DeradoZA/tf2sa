@@ -1,6 +1,6 @@
 # 3. CQRS read side with MediatR
 
-- **Status:** Accepted
+- **Status:** Accepted; MediatR itself later removed (2026-07-26) — see Update below
 - **Date:** 2026-07-05 (documented retroactively)
 
 ## Context
@@ -36,3 +36,13 @@ read-side-only application of the pattern.
   This is accepted for clarity and consistency.
 - Because only reads use MediatR, don't assume a symmetric command bus exists on the
   write side — see [ingestion-pipeline.md](../architecture/ingestion-pipeline.md).
+
+## Update (2026-07-26): MediatR itself removed
+
+MediatR was providing nothing beyond 1:1 request-to-handler dispatch here — no
+pipeline behaviours, no notifications, no streaming, across all 13 query/handler
+pairs. It was removed: each handler is now injected directly (`services
+.AddScoped<GetScoutRecentQueryHandler>()`) and controllers call `handler.Handle(query,
+ct)` instead of `mediator.Send(query)`. The **CQRS-lite pattern this ADR decided —
+one query object, one handler, a thin controller — is unchanged**; only the dispatch
+mechanism moved from a mediator to direct DI. Every consequence above still holds.

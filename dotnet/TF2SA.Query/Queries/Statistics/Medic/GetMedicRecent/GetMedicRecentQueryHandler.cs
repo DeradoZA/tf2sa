@@ -1,31 +1,20 @@
-using AutoMapper;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
-using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Analytics;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
+using TF2SA.Data.Mapping;
 
 namespace TF2SA.Query.Queries.Statistics.Medic.GetMedicRecent;
 
 public class GetMedicRecentQueryHandler
-	: IRequestHandler<
-		GetMedicRecentQuery,
-		EitherStrict<Error, GetMedicStatsResult>
-	>
 {
-	private readonly IMapper mapper;
-	private readonly IStatsRepository<MedicRecent> repository;
+	private readonly IAnalyticsStore analyticsStore;
 
-	public GetMedicRecentQueryHandler(
-		IMapper mapper,
-		IStatsRepository<MedicRecent> repository
-	)
+	public GetMedicRecentQueryHandler(IAnalyticsStore analyticsStore)
 	{
-		this.mapper = mapper;
-		this.repository = repository;
+		this.analyticsStore = analyticsStore;
 	}
 
 	public async Task<EitherStrict<Error, GetMedicStatsResult>> Handle(
@@ -35,47 +24,30 @@ public class GetMedicRecentQueryHandler
 	{
 		try
 		{
-			IQueryable<MedicRecent> allQueryable = repository.GetAllQueryable();
-
-			IQueryable<MedicRecent> filteredQueryable = repository.ApplyFilter(
-				allQueryable,
-				request.FilterField,
-				request.FilterValue,
-				out string filterFieldUsed,
-				out string filterValueUsed
-			);
-
-			int totalCount = await filteredQueryable.CountAsync(
-				cancellationToken: cancellationToken
-			);
-
-			IOrderedQueryable<MedicRecent> filteredSortedQueryable =
-				repository.ApplySort(
-					filteredQueryable,
+			StatsPage<MedicRecent> page =
+				await analyticsStore.GetPageAsync<MedicRecent>(
+					"medic_board(5, 1)",
+					"averageHealsPm",
 					request.Sort,
 					request.SortOrder,
-					out string sortFieldUsed,
-					out string sortOrderUsed
+					request.FilterField,
+					request.FilterValue,
+					request.Offset,
+					request.Count,
+					cancellationToken
 				);
-
-			List<MedicRecent> entities = await filteredSortedQueryable
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
-
-			IEnumerable<MedicStatDomain> domainMappedPlayers = mapper.Map<
-				List<MedicStatDomain>
-			>(entities);
-
+			IEnumerable<MedicStatDomain> mappedPlayers = page.Rows.Select(r =>
+				r.ToDomain()
+			);
 			return new GetMedicStatsResult(
-				totalCount,
-				domainMappedPlayers.Count(),
+				page.Total,
+				mappedPlayers.Count(),
 				request.Offset,
-				sortFieldUsed,
-				sortOrderUsed,
-				filterFieldUsed,
-				filterValueUsed,
-				domainMappedPlayers
+				page.SortUsed,
+				page.SortOrderUsed,
+				page.FilterFieldUsed,
+				page.FilterValueUsed,
+				mappedPlayers
 			);
 		}
 		catch (Exception e)

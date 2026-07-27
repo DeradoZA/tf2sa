@@ -160,3 +160,7 @@ cython_debug/
 #.idea/
 
 scripts/mariadb/update_procs.sql
+
+# Local DuckDB analytics cache (derived from MariaDB, rebuildable)
+*.duckdb
+*.duckdb.wal

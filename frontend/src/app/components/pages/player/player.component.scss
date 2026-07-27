@@ -1,0 +1,43 @@
+.player-page {
+	padding: 1rem 1.5rem 2rem;
+	max-width: 96rem;
+	margin: 0 auto;
+}
+
+.player-description {
+	margin: 0.5rem 0;
+	max-width: 60rem;
+	line-height: 1.5;
+	opacity: 0.85;
+}
+
+.summary-card {
+	margin: 0.5rem 0 1rem;
+	padding: 0.75rem 1.25rem;
+}
+
+.summary-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2.5rem;
+	align-items: baseline;
+}
+
+.summary-stat {
+	display: flex;
+	flex-direction: column;
+
+	.value {
+		font-size: 1.5rem;
+		font-weight: 600;
+		line-height: 1.2;
+		white-space: nowrap;
+	}
+
+	.label {
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		opacity: 0.65;
+	}
+}

@@ -33,3 +33,12 @@
 .demo-row-is-clicked {
 	font-weight: bold;
 }
+
+.player-link {
+	color: inherit;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}

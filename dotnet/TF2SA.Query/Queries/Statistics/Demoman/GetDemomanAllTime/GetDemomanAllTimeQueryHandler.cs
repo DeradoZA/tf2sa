@@ -1,31 +1,20 @@
-using AutoMapper;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Monad;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.Core;
-using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Analytics;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
+using TF2SA.Data.Mapping;
 
 namespace TF2SA.Query.Queries.Statistics.Demoman.GetDemomanAllTime;
 
 public class GetDemomanAllTimeQueryHandler
-	: IRequestHandler<
-		GetDemomanAllTimeQuery,
-		EitherStrict<Error, GetDemomanStatsResult>
-	>
 {
-	private readonly IMapper mapper;
-	private readonly IStatsRepository<DemomanAllTime> repository;
+	private readonly IAnalyticsStore analyticsStore;
 
-	public GetDemomanAllTimeQueryHandler(
-		IMapper mapper,
-		IStatsRepository<DemomanAllTime> repository
-	)
+	public GetDemomanAllTimeQueryHandler(IAnalyticsStore analyticsStore)
 	{
-		this.mapper = mapper;
-		this.repository = repository;
+		this.analyticsStore = analyticsStore;
 	}
 
 	public async Task<EitherStrict<Error, GetDemomanStatsResult>> Handle(
@@ -35,49 +24,30 @@ public class GetDemomanAllTimeQueryHandler
 	{
 		try
 		{
-			IQueryable<DemomanAllTime> allQueryable =
-				repository.GetAllQueryable();
-
-			IQueryable<DemomanAllTime> filteredQueryable =
-				repository.ApplyFilter(
-					allQueryable,
-					request.FilterField,
-					request.FilterValue,
-					out string filterFieldUsed,
-					out string filterValueUsed
-				);
-
-			int totalCount = await filteredQueryable.CountAsync(
-				cancellationToken: cancellationToken
-			);
-
-			IOrderedQueryable<DemomanAllTime> filteredSortedQueryable =
-				repository.ApplySort(
-					filteredQueryable,
+			StatsPage<DemomanAllTime> page =
+				await analyticsStore.GetPageAsync<DemomanAllTime>(
+					"class_board(4, 20, 0)",
+					"averageDpm",
 					request.Sort,
 					request.SortOrder,
-					out string sortFieldUsed,
-					out string sortOrderUsed
+					request.FilterField,
+					request.FilterValue,
+					request.Offset,
+					request.Count,
+					cancellationToken
 				);
-
-			List<DemomanAllTime> entities = await filteredSortedQueryable
-				.Skip(request.Offset)
-				.Take(request.Count)
-				.ToListAsync(cancellationToken: cancellationToken);
-
-			IEnumerable<DemomanStatDomain> domainMappedPlayers = mapper.Map<
-				List<DemomanStatDomain>
-			>(entities);
-
+			IEnumerable<DemomanStatDomain> mappedPlayers = page.Rows.Select(r =>
+				r.ToDomain()
+			);
 			return new GetDemomanStatsResult(
-				totalCount,
-				domainMappedPlayers.Count(),
+				page.Total,
+				mappedPlayers.Count(),
 				request.Offset,
-				sortFieldUsed,
-				sortOrderUsed,
-				filterFieldUsed,
-				filterValueUsed,
-				domainMappedPlayers
+				page.SortUsed,
+				page.SortOrderUsed,
+				page.FilterFieldUsed,
+				page.FilterValueUsed,
+				mappedPlayers
 			);
 		}
 		catch (Exception e)

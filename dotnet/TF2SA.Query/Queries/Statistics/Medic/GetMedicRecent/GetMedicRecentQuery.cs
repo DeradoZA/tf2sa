@@ -1,12 +1,9 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
 namespace TF2SA.Query.Queries.Statistics.Medic.GetMedicRecent;
 
-public class GetMedicRecentQuery
-	: FetchPlayersQueryRequest,
-		IRequest<EitherStrict<Error, GetMedicStatsResult>>
+public class GetMedicRecentQuery : FetchPlayersQueryRequest
 {
 	public GetMedicRecentQuery(
 		int count,
@@ -15,5 +12,6 @@ public class GetMedicRecentQuery
 		string sortOrder,
 		string filterField,
 		string filterValue
-	) : base(count, offset, sort, sortOrder, filterField, filterValue) { }
+	)
+		: base(count, offset, sort, sortOrder, filterField, filterValue) { }
 }

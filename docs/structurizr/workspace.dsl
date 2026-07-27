@@ -6,11 +6,11 @@ workspace {
         tf2saGamer = person "TF2SA Gamer" "Player who would like to analyze their performance in TF2SA competitve games."
 
         tf2saStatsSystem = softwareSystem "TF2SA Stats System" "A player statistics platform for South African TF2 Games. Handles the ingestion and presentation." {
-			db = container "Database" "MariaDB"
+			db = container "Database" "Embedded DuckDB — reads and writes, no separate service"
 
 			tf2saWebApi = container "TF2SA Web API" "ASP.NET Core Web Application" {
-				repositories = component "Repositories" "Entity-Framework driven data repositories" {
-					this -> db "Queries" "SQL"
+				repositories = component "Analytics Store" "IAnalyticsStore — DuckDB reads and writes, no ORM" {
+					this -> db "Queries and writes" "SQL"
 				}
 				playersQueryHandlers = component "Players Query Handlers" "CQRS Query Handlers" {
 					this -> repositories "Reads"

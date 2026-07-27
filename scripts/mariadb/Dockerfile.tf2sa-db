@@ -1,7 +1,0 @@
-FROM mariadb:10.6
-
-ENV MARIADB_RANDOM_ROOT_PASSWORD=yes
-ENV MARIADB_MYSQL_LOCALHOST_USER=yes
-
-COPY . ./
-COPY . /docker-entrypoint-initdb.d/

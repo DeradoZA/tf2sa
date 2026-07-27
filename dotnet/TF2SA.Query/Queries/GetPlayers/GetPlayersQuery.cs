@@ -1,10 +1,9 @@
-using MediatR;
 using Monad;
 using TF2SA.Common.Errors;
 
 namespace TF2SA.Query.Queries.GetPlayers;
 
-public class GetPlayersQuery : IRequest<EitherStrict<Error, GetPlayersResult>>
+public class GetPlayersQuery
 {
 	public int Count { get; set; } = 20;
 	public int Offset { get; set; } = 0;
@@ -26,7 +25,8 @@ public class GetPlayersQuery : IRequest<EitherStrict<Error, GetPlayersResult>>
 		string sortBy,
 		string sortOrder,
 		string filterString
-	) : this(count, offset)
+	)
+		: this(count, offset)
 	{
 		Sort = sortBy;
 		SortOrder = sortOrder;

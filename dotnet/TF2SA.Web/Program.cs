@@ -1,7 +1,6 @@
-using TF2SA.StatsETLService;
 using Microsoft.AspNetCore.HttpOverrides;
 using TF2SA.Query;
-using TF2SA.Web.Mapping;
+using TF2SA.StatsETLService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +11,6 @@ builder.Services.AddStatsETLService(builder.Configuration);
 builder.Services.AddQueries(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(HttpMappingProfile));
 
 var app = builder.Build();
 
@@ -21,7 +19,7 @@ app.UseForwardedHeaders(
 	new ForwardedHeadersOptions
 	{
 		ForwardedHeaders =
-			ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+			ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
 	}
 );
 
@@ -40,21 +38,20 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
-app.UseCors(
-	options =>
-		options
-			.WithOrigins(
-				"http://localhost:4200",
-				"https://localhost:4200",
-				"http://localhost",
-				"https://localhost",
-				"http://129.151.174.184",
-				"https://129.151.174.184",
-				"http://tf2sa.co.za",
-				"https://tf2sa.co.za"
-			)
-			.AllowAnyMethod()
-			.AllowAnyHeader()
+app.UseCors(options =>
+	options
+		.WithOrigins(
+			"http://localhost:4200",
+			"https://localhost:4200",
+			"http://localhost",
+			"https://localhost",
+			"http://129.151.174.184",
+			"https://129.151.174.184",
+			"http://tf2sa.co.za",
+			"https://tf2sa.co.za"
+		)
+		.AllowAnyMethod()
+		.AllowAnyHeader()
 );
 
 app.UseAuthorization();

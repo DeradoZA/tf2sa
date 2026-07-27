@@ -12,9 +12,9 @@ assistant-specific instruction.
 ## What this project is (30 seconds)
 
 TF2SA ingests Team Fortress 2 match logs from the logs.tf API for a curated South
-African community, aggregates per-class and overall leaderboards in MariaDB, and
-serves them via an ASP.NET Core 7 API and an Angular 15 SPA. Full overview:
-[docs/architecture/overview.md](docs/architecture/overview.md).
+African community, aggregates per-class and overall leaderboards on the fly in an
+embedded DuckDB database, and serves them via an ASP.NET Core 10 API and an Angular
+15 SPA. Full overview: [docs/architecture/overview.md](docs/architecture/overview.md).
 
 ## Orient yourself here first
 
@@ -35,15 +35,18 @@ These trip up newcomers and automated changes most often:
 1. **Errors are values, not exceptions.** Return and check `EitherStrict<Error, T>`
    / `OptionStrict<Error>` across boundaries. Don't add exception-based control flow
    at layer boundaries. ([ADR 0002](docs/decisions/0002-functional-error-handling-with-monads.md))
-2. **The database is the source of truth; the ORM is generated.** EF Core entities
-   and `DbContext` are scaffolded from SQL by `dotnet/TF2SA.Data/scaffold.sh`.
-   **Never hand-edit scaffolded entities** — change `scripts/mariadb/*.sql`, apply
-   it, then re-scaffold. ([ADR 0004](docs/decisions/0004-database-first-ef-scaffolding.md))
-3. **Leaderboard math lives in SQL stored procedures**
-   (`scripts/mariadb/update_*_stats.sql`), not C#. Recent and all-time are separate
-   files per class — keep them in sync. ([ADR 0005](docs/decisions/0005-sql-stored-procedures-for-aggregation.md))
-4. **The read side is CQRS-lite (MediatR).** A new endpoint = query + handler +
-   result model + a thin controller action. ([ADR 0003](docs/decisions/0003-cqrs-read-side-with-mediatr.md))
+2. **DuckDB is the only database, and there's no ORM.** The schema is hand-maintained
+   SQL in `TF2SA.Data/Analytics/Schema.sql`, applied idempotently on every connection
+   open — no scaffolding tool, nothing generated, nothing to overwrite your edits.
+   ([ADR 0009](docs/decisions/0009-drop-mariadb.md))
+3. **Leaderboard aggregation is computed on the fly** by parametrized DuckDB macros
+   in `Leaderboards.sql`/`PlayerDetail.sql`, not pre-computed tables — no per-class/
+   per-window files to keep in sync. ([ADR 0008](docs/decisions/0008-duckdb-analytics-read-layer.md),
+   [analytics-store.md](docs/architecture/analytics-store.md))
+4. **The read side is CQRS-lite, dispatched directly via DI.** A new endpoint =
+   query + handler + result model + a thin controller action, registered in
+   `TF2SA.Query/DependencyInjection.cs`. No mediator library.
+   ([ADR 0003](docs/decisions/0003-cqrs-read-side-with-mediatr.md))
 5. **The ETL worker runs inside the backend process**, not as a separate service.
    ([ADR 0006](docs/decisions/0006-cohosted-etl-background-service.md))
 6. **Respect the layering:** `Web → Query/ETL → Data → Http → Common`. No cycles, no
@@ -56,18 +59,16 @@ These trip up newcomers and automated changes most often:
 | Task | Canonical guidance |
 |------|--------------------|
 | Add/modify a read endpoint | [request-flow.md](docs/architecture/request-flow.md) + [ADR 0003](docs/decisions/0003-cqrs-read-side-with-mediatr.md) |
-| Change how a stat is computed | [database.md](docs/architecture/database.md) (edit the `update_*_stats.sql` procs) |
-| Add/change a table or column | [database.md — scaffold workflow](docs/architecture/database.md#how-to-change-the-schema-the-scaffold-workflow) |
+| Change how a stat is computed | [analytics-store.md](docs/architecture/analytics-store.md) (edit `Leaderboards.sql`/`PlayerDetail.sql`) |
+| Add/change a table or column | [database.md — how to change the schema](docs/architecture/database.md#how-to-change-the-schema) |
 | Change an ingested field | [ingestion-pipeline.md](docs/architecture/ingestion-pipeline.md) + [docs/stats.md](docs/stats.md) |
 | Add a community uploader | [ADR 0007](docs/decisions/0007-curated-uploader-allowlist.md) (`LogsTF.Uploaders` config) |
 | Build / run / test | [onboarding.md](docs/onboarding.md) |
 
 ## Working agreement
 
-- **Verify before asserting.** This repo is database-first and has generated code;
-  confirm a file is not scaffolded before editing it, and check the actual code
-  rather than assuming. If a doc and the code disagree, trust the code and flag the
-  drift.
+- **Verify before asserting.** Check the actual code rather than assuming. If a doc
+  and the code disagree, trust the code and flag the drift.
 - **Keep docs in sync.** Each architecture doc lists when it must be updated; honor
   those triggers in the same change. Record material decisions as a new ADR.
 - **Don't duplicate knowledge into assistant files.** Put durable knowledge in

@@ -8,6 +8,17 @@
 	max-height: 60px;
 }
 
+// The Steam-icon fallback (icons8-steam-circled.svg) has no fill baked in, so as a
+// plain <img> it renders at the SVG default — literal black — and nearly vanishes
+// against the dark page background. A light circular backdrop keeps it readable
+// without touching the SVG itself.
+.stats-header > img.placeholder {
+	background: #f5f5f5;
+	border-radius: 50%;
+	padding: 6px;
+	box-sizing: border-box;
+}
+
 .stats-header > h1 {
 	margin: 8px;
 }

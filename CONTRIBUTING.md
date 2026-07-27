@@ -33,21 +33,26 @@ TF2SA is **issue-driven** and trunk-based around `main`.
 - **Respect the layering.** Dependencies flow inward: `Web → Query/ETL → Data →
   Http → Common`. Don't introduce cycles or upward references. See the dependency
   graph in [overview.md](docs/architecture/overview.md#net-solution-structure).
-- **Read side is CQRS.** New endpoints = MediatR query + handler + result model +
-  thin controller action. See
+- **Read side is CQRS-lite.** New endpoints = query + handler + result model +
+  thin controller action, registered directly in `TF2SA.Query/DependencyInjection.cs`
+  (no mediator library). See
   [ADR 0003](docs/decisions/0003-cqrs-read-side-with-mediatr.md).
 - **Thread `CancellationToken`s** through async work.
 
 ### Database
-- **Database-first.** The SQL in `scripts/mariadb/` is the source of truth. Change
-  SQL, apply it, then re-run [`TF2SA.Data/scaffold.sh`](dotnet/TF2SA.Data/scaffold.sh)
-  to regenerate entities. **Never hand-edit scaffolded entities** — they get
-  overwritten. See [ADR 0004](docs/decisions/0004-database-first-ef-scaffolding.md).
-- **Aggregation lives in stored procedures.** Recent and all-time are separate files
-  per class — keep them in sync. See
-  [database.md](docs/architecture/database.md).
+- **DuckDB is the only database; there's no ORM.** The schema is hand-maintained SQL
+  in [`TF2SA.Data/Analytics/Schema.sql`](dotnet/TF2SA.Data/Analytics/Schema.sql),
+  applied idempotently on every connection open. Edit it directly — there's nothing
+  generated and nothing to overwrite your changes. See
+  [ADR 0009](docs/decisions/0009-drop-mariadb.md).
+- **Aggregation lives in DuckDB macros.** One macro per board in
+  [`Leaderboards.sql`](dotnet/TF2SA.Data/Analytics/Leaderboards.sql)/
+  [`PlayerDetail.sql`](dotnet/TF2SA.Data/Analytics/PlayerDetail.sql) — no per-class/
+  per-window files to keep in sync. See
+  [analytics-store.md](docs/architecture/analytics-store.md).
 - If you change ingested fields, update
-  [docs/stats.md](docs/stats.md) (the logs.tf → DB field mapping).
+  [docs/stats.md](docs/stats.md) (the logs.tf → DB field mapping) and the
+  hand-written mapping in `LogIngestionRepositoryUpdater`.
 
 ### Frontend
 - **Formatting:** Prettier — `cd frontend && npm run format`.

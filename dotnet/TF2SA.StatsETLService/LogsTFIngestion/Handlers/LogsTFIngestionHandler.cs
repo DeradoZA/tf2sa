@@ -3,9 +3,9 @@ using Monad;
 using TF2SA.Common.Configuration;
 using TF2SA.Common.Errors;
 using TF2SA.Common.Models.LogsTF.LogListModel;
-using TF2SA.Data.Entities.MariaDb;
+using TF2SA.Data.Analytics;
+using TF2SA.Data.Analytics.Rows;
 using TF2SA.Data.Errors;
-using TF2SA.Data.Repositories.Base;
 using TF2SA.Http.Base.Errors;
 using TF2SA.Http.LogsTF.Service;
 using TF2SA.StatsETLService.LogsTFIngestion.Configuration;
@@ -18,29 +18,26 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 	private int count = 0;
 	private readonly LogsTFIngestionConfig logsTFIngestionConfig;
 	private readonly ILogger<LogsTFIngestionHandler> logger;
-	private readonly IGamesRepository<Game, uint> gamesRepository;
+	private readonly IAnalyticsStore analyticsStore;
 	private readonly ILogsTFService logsTFService;
 	private readonly IServiceProvider serviceProvider;
 	private readonly ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater;
-	private readonly IStatisticsUpdater statisticsUpdater;
 
 	public LogsTFIngestionHandler(
 		IOptions<LogsTFIngestionConfig> logsTFIngestionConfig,
 		ILogger<LogsTFIngestionHandler> logger,
 		ILogsTFService logsTFService,
-		IGamesRepository<Game, uint> gamesRepository,
+		IAnalyticsStore analyticsStore,
 		IServiceProvider serviceProvider,
-		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater,
-		IStatisticsUpdater statisticsUpdater
+		ILogIngestionRepositoryUpdater logIngestionRepositoryUpdater
 	)
 	{
 		this.logsTFIngestionConfig = logsTFIngestionConfig.Value;
 		this.logger = logger;
 		this.logsTFService = logsTFService;
-		this.gamesRepository = gamesRepository;
+		this.analyticsStore = analyticsStore;
 		this.serviceProvider = serviceProvider;
 		this.logIngestionRepositoryUpdater = logIngestionRepositoryUpdater;
-		this.statisticsUpdater = statisticsUpdater;
 	}
 
 	public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -105,7 +102,7 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			new ParallelOptions()
 			{
 				MaxDegreeOfParallelism = Constants.MAX_CONCURRENT_HTTP_THREADS,
-				CancellationToken = cancellationToken
+				CancellationToken = cancellationToken,
 			},
 			async (log, token) =>
 			{
@@ -132,28 +129,6 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 			logger.LogWarning("Failed to update players steam details.");
 		}
 
-		logger.LogInformation("Updating aggregated statistics.");
-		if (logsToProcess.Any() || logsTFIngestionConfig.DebugIngestion)
-		{
-			OptionStrict<Error> updateStatisticsResult =
-				await statisticsUpdater.UpdateAggregatedStatistics(
-					cancellationToken
-				);
-			if (updatePlayersResult.HasValue)
-			{
-				logger.LogWarning(
-					"Failed to update aggregated statistics with error(s): {errors}",
-					updatePlayersResult.Value.Message
-				);
-			}
-		}
-		else
-		{
-			logger.LogInformation(
-				"No new logs, not updating aggregated statistics"
-			);
-		}
-
 		return OptionStrict<Error>.Nothing;
 	}
 
@@ -170,21 +145,26 @@ internal class LogsTFIngestionHandler : ILogsTFIngestionHandler
 		List<LogListItem> allLogs = allLogsResult.Right;
 		logger.LogInformation("Fetched all logs: {count}", allLogs.Count);
 
-		List<Game> processedLogs = new();
+		List<GameIdRow> processedLogs = new();
 		try
 		{
 			// TODO repository methods should use monads and propagate cancellation tokens
 			// this will enhance error handling and we won't have to try catch everywhere
 			// propagate cancellation tokens so we can handle cancellation properly
 			// milestone: StatsETL
-			processedLogs = gamesRepository.GetAll();
+			IReadOnlyList<GameIdRow> allGameIds =
+				await analyticsStore.GetAllAsync<GameIdRow>(
+					"Games",
+					cancellationToken
+				);
+			processedLogs = allGameIds.ToList();
 			logger.LogInformation(
 				"Processed logs: {count}",
 				processedLogs.Count
 			);
 
-			int logsRemoved = allLogs.RemoveAll(
-				a => processedLogs.Where(p => p.GameId == a.Id).Any()
+			int logsRemoved = allLogs.RemoveAll(a =>
+				processedLogs.Where(p => p.GameId == a.Id).Any()
 			);
 			logger.LogInformation(
 				"{logsRemoved} logs already processed. {logToProcess} logs to process",

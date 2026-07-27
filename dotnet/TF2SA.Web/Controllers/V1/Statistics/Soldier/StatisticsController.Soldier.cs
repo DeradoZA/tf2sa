@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Soldier;
 using TF2SA.Query.Queries.Statistics.Soldier.GetSoldierAllTime;
 using TF2SA.Query.Queries.Statistics.Soldier.GetSoldierRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Soldier;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -21,26 +22,25 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetSoldierStatsResult> result = await mediator.Send(
-			new GetSoldierRecentQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetSoldierStatsResult> result =
+			await getSoldierRecentHandler.Handle(
+				new GetSoldierRecentQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetSoldierStatsHttpResult httpResult =
-			mapper.Map<GetSoldierStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -56,25 +56,24 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetSoldierStatsResult> result = await mediator.Send(
-			new GetSoldierAllTimeQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetSoldierStatsResult> result =
+			await getSoldierAllTimeHandler.Handle(
+				new GetSoldierAllTimeQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetSoldierStatsHttpResult httpResult =
-			mapper.Map<GetSoldierStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }

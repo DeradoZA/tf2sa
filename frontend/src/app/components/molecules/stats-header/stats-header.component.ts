@@ -8,4 +8,7 @@ import { Component, Input } from '@angular/core';
 export class StatsHeaderComponent {
 	@Input() title!: string;
 	@Input() imagePath!: string;
+	/** True for the Steam-icon fallback used when a player has no avatar — see the
+	 * component's own stylesheet for why that specific image needs a backdrop. */
+	@Input() isPlaceholder = false;
 }

@@ -5,6 +5,7 @@ using TF2SA.Query.Queries.Statistics.Overall;
 using TF2SA.Query.Queries.Statistics.Overall.GetOverallAllTime;
 using TF2SA.Query.Queries.Statistics.Overall.GetOverallRecent;
 using TF2SA.Web.Controllers.V1.Statistics.Overall;
+using TF2SA.Web.Mapping;
 
 namespace TF2SA.Web.Controllers.V1.Statistics;
 
@@ -21,26 +22,25 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetOverallStatsResult> result = await mediator.Send(
-			new GetOverallRecentQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetOverallStatsResult> result =
+			await getOverallRecentHandler.Handle(
+				new GetOverallRecentQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetOverallStatsHttpResult httpResult =
-			mapper.Map<GetOverallStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 
 	[HttpGet]
@@ -56,25 +56,24 @@ public partial class StatisticsController : ControllerBase
 		[FromQuery] string? filterValue = ""
 	)
 	{
-		EitherStrict<Error, GetOverallStatsResult> result = await mediator.Send(
-			new GetOverallAllTimeQuery(
-				count,
-				offset,
-				sort!,
-				sortOrder!,
-				filterField!,
-				filterValue!
-			)
-		);
+		EitherStrict<Error, GetOverallStatsResult> result =
+			await getOverallAllTimeHandler.Handle(
+				new GetOverallAllTimeQuery(
+					count,
+					offset,
+					sort!,
+					sortOrder!,
+					filterField!,
+					filterValue!
+				),
+				default
+			);
 
 		if (result.IsLeft)
 		{
 			return BadRequest(result.Left.Message);
 		}
 
-		GetOverallStatsHttpResult httpResult =
-			mapper.Map<GetOverallStatsHttpResult>(result.Right);
-
-		return Ok(httpResult);
+		return Ok(result.Right.ToHttpResult());
 	}
 }

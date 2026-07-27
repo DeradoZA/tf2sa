@@ -8,13 +8,11 @@ import { HomeComponent } from './components/pages/home/home.component';
 import { MatButtonModule } from '@angular/material/button';
 import { StatsComponent } from './components/pages/stats/stats.component';
 import { PlayersComponent } from './components/pages/players/players.component';
-import { PlayerComponent } from './components/pages/player/player.component';
 import { PlayerTableComponent } from './components/organisms/player-table/player-table.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ErrorBannerComponent } from './components/molecules/error-banner/error-banner.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -26,23 +24,21 @@ import { OverallStatsComponent } from './components/pages/stats/overall-stats/ov
 import { SoldierStatsComponent } from './components/pages/stats/soldier-stats/soldier-stats.component';
 import { DemomanStatsComponent } from './components/pages/stats/demoman-stats/demoman-stats.component';
 import { MedicStatsComponent } from './components/pages/stats/medic-stats/medic-stats.component';
-import { StatsHeaderComponent } from './components/molecules/stats-header/stats-header.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SharedComponentsModule } from './components/shared-components.module';
 @NgModule({
 	declarations: [
 		AppComponent,
 		HomeComponent,
 		StatsComponent,
 		PlayersComponent,
-		PlayerComponent,
 		PlayerTableComponent,
-		ErrorBannerComponent,
 		ScoutStatsComponent,
 		OverallStatsComponent,
 		SoldierStatsComponent,
 		DemomanStatsComponent,
 		MedicStatsComponent,
-		StatsHeaderComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -61,6 +57,8 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 		MatInputModule,
 		FormsModule,
 		MatButtonToggleModule,
+		MatCheckboxModule,
+		SharedComponentsModule,
 	],
 	providers: [],
 	bootstrap: [AppComponent],

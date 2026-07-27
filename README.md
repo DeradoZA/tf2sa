@@ -6,9 +6,10 @@
 community.** Live at **[tf2sa.co.za](https://tf2sa.co.za)**.
 
 TF2SA periodically ingests match logs from the public [logs.tf](https://logs.tf)
-API for a curated set of SA community uploaders, stores them in MariaDB, aggregates
-per-class and overall leaderboards, enriches player profiles from the Steam Web API,
-and serves ranked leaderboards through an Angular single-page app.
+API for a curated set of SA community uploaders, stores them in an embedded DuckDB
+database, aggregates per-class and overall leaderboards on the fly, enriches player
+profiles from the Steam Web API, and serves ranked leaderboards through an Angular
+single-page app.
 
 ![Leaderboards Showcase](docs/Leaderboards.png)
 
@@ -30,8 +31,7 @@ flowchart LR
     gamer["TF2SA Gamer"]
     subgraph host["AWS EC2 host (Docker Compose)"]
         proxy["nginx<br/>TLS + /api proxy"]
-        backend["ASP.NET Core 7 backend<br/>REST API + co-hosted ETL worker"]
-        db[("MariaDB 10.6<br/>raw + aggregated tables")]
+        backend["ASP.NET Core 10 backend<br/>REST API + co-hosted ETL worker<br/>embedded DuckDB — the only database"]
         spa["Angular 15 SPA<br/>(static, built)"]
     end
     logstf["logs.tf API"]
@@ -40,7 +40,6 @@ flowchart LR
     gamer -->|HTTPS| proxy
     proxy --> spa
     proxy -->|/api| backend
-    backend -->|EF Core| db
     backend -->|ingest logs| logstf
     backend -->|player profiles| steam
 ```
@@ -54,8 +53,9 @@ flowchart LR
 
 | Area | Tech |
 |------|------|
-| Backend | .NET 7 / ASP.NET Core, EF Core 7 (Pomelo MySQL), MediatR, AutoMapper, FluentValidation, `csharp-monad` |
-| Database | MariaDB 10.6 (schema + stored-procedure aggregation) |
+| Backend | .NET 10 / ASP.NET Core, FluentValidation, `csharp-monad` |
+| Database | Embedded **DuckDB** — the only database, both system of record and query engine ([ADR 0008](docs/decisions/0008-duckdb-analytics-read-layer.md), [ADR 0009](docs/decisions/0009-drop-mariadb.md)) |
+| Mapping / dispatch | Hand-written extension methods (row ↔ domain ↔ HTTP result); query handlers injected directly via DI, no mediator library |
 | Frontend | Angular 15, Angular Material, RxJS |
 | External data | logs.tf API, Steam Web API |
 | Infra | Docker Compose, nginx, certbot (Let's Encrypt), GitHub Actions, Docker Hub, AWS EC2 |
@@ -66,21 +66,21 @@ Full rationale: [docs/architecture/overview.md](docs/architecture/overview.md#te
 
 ```
 .
-├── dotnet/                     # .NET 7 solution (8 projects)
+├── dotnet/                     # .NET 10 solution (8 projects)
 │   ├── TF2SA.Common/           # domain + logs.tf models, errors, constants
 │   ├── TF2SA.Http/             # HTTP client, logs.tf + Steam clients
-│   ├── TF2SA.Data/             # EF Core (DB-first), entities, repositories, procs
-│   ├── TF2SA.Query/            # CQRS read side (MediatR)
+│   ├── TF2SA.Data/             # embedded DuckDB store — schema, reads, writes
+│   ├── TF2SA.Query/            # CQRS-lite read side (direct DI dispatch)
 │   ├── TF2SA.StatsETLService/  # ingestion pipeline + BackgroundService
 │   ├── TF2SA.Web/              # API controllers, Swagger, CORS (deployed entrypoint)
 │   ├── TF2SA.Benchmarks/       # BenchmarkDotNet
 │   └── TF2SA.Tests.Unit/       # xUnit tests
 ├── frontend/                   # Angular 15 SPA (atomic-design components)
 ├── scripts/
-│   ├── mariadb/                # schema + 10 aggregation stored procedures
+│   ├── backup-duckdb.sh        # periodic DuckDB data-file backup
 │   └── iac/                    # host bootstrap + nginx config
 ├── docs/                       # documentation (start at docs/README.md)
-├── docker-compose.yml          # 5-container topology
+├── docker-compose.yml          # 4-container topology
 └── .github/workflows/          # CI (build on PR) + CD (deploy on main)
 ```
 
@@ -89,10 +89,6 @@ Full rationale: [docs/architecture/overview.md](docs/architecture/overview.md#te
 Requires Docker + Docker Compose. Create a `.env` next to `docker-compose.yml`:
 
 ```dotenv
-TF2SA_MYSQL_HOST=tf2sa-db
-TF2SA_MYSQL_USR=tf2sa
-TF2SA_MYSQL_PWD=changeme
-TF2SA_MYSQL_DB=tf2sa_db
 TF2SA_STEAM_API_KEY=your-steam-web-api-key
 ```
 
@@ -101,10 +97,10 @@ docker compose build
 docker compose up -d
 ```
 
-The database seeds its schema and stored procedures automatically on first run. For
-a tighter dev loop (running the backend and frontend directly), env-var reference,
-and how to enable/disable ingestion locally, see
-**[docs/onboarding.md](docs/onboarding.md)**.
+No database to seed — the backend self-initializes an empty DuckDB schema on first
+run and fills up from real ingestion. For a tighter dev loop (running the backend
+and frontend directly), env-var reference, and how to enable/disable ingestion
+locally, see **[docs/onboarding.md](docs/onboarding.md)**.
 
 ## Build, test, deploy
 
