@@ -132,10 +132,25 @@ no Structurizr CLI available in this environment. The Mermaid diagrams in
 `docs/architecture/*.md` are current and are the actual quick-reference source;
 regenerate the Structurizr exports next time someone has the CLI available.
 
-### Compose/tooling drift — Low
-`docker-compose.yml` declares `version: "3.4"` (obsolete for Compose v2), and the
-pipeline mixes `docker compose` (v2, build/push) with `docker-compose` (v1, on the
-host). Worth standardizing.
+### Compose/tooling drift — Low (partially resolved 2026-07-27)
+`docker-compose.yml` still declares `version: "3.4"` (obsolete for Compose v2, but
+harmless — Compose v2 ignores it). The pipeline previously mixed `docker compose`
+(v2, build/push) with `docker-compose` (v1, on the host) — `cd.yml`'s deploy step now
+uses `docker compose` (v2) consistently, since the EC2 host actually only has v2
+installed; the v1 invocation was silently a no-op-looking failure mode until it
+surfaced as the backend outage below.
+
+### Backend listened on the wrong port after the .NET 10 upgrade — ✅ resolved (2026-07-27)
+The official `mcr.microsoft.com/dotnet/aspnet` base images default Kestrel to port
+**8080** since .NET 8 (older `aspnet:7.0` defaulted to port 80).
+`dotnet/Dockerfile.tf2sa-backend` never set `ASPNETCORE_URLS`/`ASPNETCORE_HTTP_PORTS`
+explicitly, so it relied on that default — silently correct on `.NET 7`, silently
+wrong on `.NET 10`. `nginx.conf` still proxied `/api` to `http://tf2sa-backend:80`,
+so every request 502'd with "connection refused" after the first post-ADR-0009
+production deploy, even though the container itself reported `Up` (Kestrel was
+listening, just on the wrong port — `docker ps` alone didn't reveal this). Fixed by
+setting `ASPNETCORE_URLS=http://+:80` explicitly in `docker-compose.yml`'s
+`tf2sa-backend` environment, rather than depending on the base image's default.
 
 ## Testing
 
