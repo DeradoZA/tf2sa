@@ -563,15 +563,31 @@ public class DuckDbAnalyticsStore : IAnalyticsStore, IDisposable
 	{
 		if (connection is null)
 		{
-			connection = new DuckDBConnection($"Data Source={duckDbPath}");
-			connection.Open();
+			DuckDBConnection conn = new($"Data Source={duckDbPath}");
+			try
+			{
+				conn.Open();
 
-			// Idempotent: creates the raw tables/sequences on a fresh file, no-ops
-			// against an existing one. Then (re)install the macros — this also
-			// covers a deploy that changed their SQL taking effect on first use,
-			// without any refresh cycle to wait for (there is no refresh anymore).
-			Execute(connection, LoadEmbeddedSql("Schema.sql"));
-			LoadViews(connection);
+				// Idempotent: creates the raw tables/sequences on a fresh file, no-ops
+				// against an existing one. Then (re)install the macros — this also
+				// covers a deploy that changed their SQL taking effect on first use,
+				// without any refresh cycle to wait for (there is no refresh anymore).
+				Execute(conn, LoadEmbeddedSql("Schema.sql"));
+				LoadViews(conn);
+			}
+			catch
+			{
+				// Don't leave `connection` pointing at a half-initialized connection
+				// (e.g. Schema.sql created some tables/sequences before failing on
+				// one, so the macros in LoadViews were never installed) — that would
+				// make every later call skip straight past the `is null` check above
+				// and silently keep serving the broken connection until the process
+				// restarts. Dispose and leave the field null so the next call retries
+				// from scratch.
+				conn.Dispose();
+				throw;
+			}
+			connection = conn;
 		}
 		return connection;
 	}
